@@ -1,119 +1,62 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Registro de Entrenamiento</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Tracker</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 font-inter p-4">
-  <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-md p-6">
-    <h1 class="text-2xl font-bold mb-4 text-center">Registro de Entrenamiento</h1>
+<body>
 
-    <form id="workout-form" class="space-y-4">
-      <div>
-        <label for="exercise" class="block text-sm font-medium">Ejercicio</label>
-        <select id="exercise" name="exercise" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
-          <option>Press Banca Plano</option>
-          <option>Press Banca Inclinado</option>
-          <option>Aperturas de Pecho</option>
-          <option>Jalón al Pecho</option>
-          <option>Remo Espalda</option>
-          <option>Remo trapecio</option>
-          <option>Prensa Pierna</option>
-          <option>Extensión de cuádriceps</option>
-          <option>Biceps femoral</option>
-          <option>Press militar</option>
-          <option>Hombro laterales</option>
-          <option>Triceps con cuerda</option>
-          <option>Triceps tras nuca</option>
-          <option>Curl Biceps</option>
-          <option>Curl Martillo</option>
-          <option value="otro">Otro (escribe tu ejercicio)</option>
-        </select>
-        <input type="text" id="custom-exercise" placeholder="Nombre del ejercicio" class="mt-2 w-full p-2 border border-gray-300 rounded-md hidden">
-      </div>
+    <h1>Registro de Entrenamiento</h1>
 
-      <div>
-        <label for="series" class="block text-sm font-medium">Nº de Series</label>
-        <input type="number" id="series" min="1" max="10" value="3" class="mt-1 w-full p-2 border border-gray-300 rounded-md">
-      </div>
+    <form id="workout-form">
+        <div class="form-group">
+            <label for="exercise">Ejercicio:</label>
+            <select id="exercise" name="exercise" required>
+                <option value="" disabled selected>-- Selecciona un ejercicio --</option>
+                <option value="Press Banca Plano">Press Banca Plano</option>
+                <option value="Press Banca Inclinado">Press Banca Inclinado</option>
+                <option value="Aperturas de Pecho">Aperturas de Pecho</option>
+                <option value="Jalón al Pecho">Jalón al Pecho</option>
+                <option value="Remo Espalda">Remo Espalda</option>
+                <option value="Remo trapecio">Remo trapecio</option>
+                <option value="Prensa Pierna">Prensa Pierna</option>
+                <option value="Extensión de cuádriceps">Extensión de cuádriceps</option>
+                <option value="Biceps femoral">Biceps femoral</option>
+                <option value="Press militar">Press militar</option>
+                <option value="Hombro laterales">Hombro laterales</option>
+                <option value="Triceps con cuerda">Triceps con cuerda</option>
+                <option value="Triceps tras nuca">Triceps tras nuca</option>
+                <option value="Curl Biceps">Curl Biceps</option>
+                <option value="Curl Martillo">Curl Martillo</option>
+                <option value="custom">Otro (Especificar)</option>
+            </select>
+        </div>
 
-      <div id="series-container"></div>
+        <div class="form-group" id="custom-exercise-group" style="display: none;">
+            <label for="custom-exercise-name">Nombre del Ejercicio Personalizado:</label>
+            <input type="text" id="custom-exercise-name" name="custom-exercise-name">
+        </div>
 
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-xl w-full hover:bg-blue-700 transition">Guardar Entrenamiento</button>
+        <div class="form-group">
+            <label for="sets">Número de Series:</label>
+            <input type="number" id="sets" name="sets" min="1" required>
+        </div>
+
+        <div id="sets-inputs">
+            <!-- Aquí se generarán los inputs para cada serie dinámicamente -->
+        </div>
+
+        <button type="submit">Guardar Entrenamiento</button>
     </form>
 
-    <div id="success-msg" class="text-green-600 font-semibold mt-4 hidden text-center">¡Entrenamiento guardado!</div>
-  </div>
+    <h2>Historial de Entrenamientos</h2>
+    <div id="history-log">
+        <p>Aún no hay registros.</p>
+        <!-- Aquí se mostrará el historial -->
+    </div>
 
-  <script>
-    const seriesInput = document.getElementById('series');
-    const container = document.getElementById('series-container');
-    const exerciseSelect = document.getElementById('exercise');
-    const customInput = document.getElementById('custom-exercise');
-
-    function renderSeriesFields(count) {
-      container.innerHTML = '';
-      for (let i = 1; i <= count; i++) {
-        container.innerHTML += `
-          <div class="flex gap-4 mb-2">
-            <div class="flex-1">
-              <label class="block text-sm">Serie ${i} - Reps</label>
-              <input type="number" name="reps${i}" min="1" class="w-full p-2 border border-gray-300 rounded-md" required>
-            </div>
-            <div class="flex-1">
-              <label class="block text-sm">Serie ${i} - Peso (kg)</label>
-              <input type="number" name="peso${i}" step="0.5" class="w-full p-2 border border-gray-300 rounded-md" required>
-            </div>
-          </div>`;
-      }
-    }
-
-    seriesInput.addEventListener('input', e => renderSeriesFields(+e.target.value));
-    exerciseSelect.addEventListener('change', () => {
-      customInput.classList.toggle('hidden', exerciseSelect.value !== 'otro');
-    });
-
-    document.getElementById('workout-form').addEventListener('submit', e => {
-      e.preventDefault();
-
-      const date = new Date().toISOString().split('T')[0];
-      const exercise = exerciseSelect.value === 'otro' ? customInput.value : exerciseSelect.value;
-      const numSeries = +seriesInput.value;
-      const data = {
-        fecha: date,
-        usuario: "default",
-        ejercicio: exercise,
-        series: []
-      };
-
-      for (let i = 1; i <= numSeries; i++) {
-        const reps = document.querySelector(`[name=reps${i}]`).value;
-        const peso = document.querySelector(`[name=peso${i}]`).value;
-        data.series.push({ reps, peso });
-      }
-
-      fetch('https://script.google.com/macros/s/AKfycbyVuzInAImZd4HzQ_7_fy8lnsDwrBocrB4_1-LkLXnhQsU1FQU2HZ-QxJnjh4XdebE/exec', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(res => res.json())
-      .then(response => {
-        console.log('Guardado en Sheets:', response);
-        document.getElementById('success-msg').classList.remove('hidden');
-        setTimeout(() => document.getElementById('success-msg').classList.add('hidden'), 3000);
-      })
-      .catch(error => {
-        console.error('Error al guardar:', error);
-      });
-    });
-
-    renderSeriesFields(+seriesInput.value);
-  </script>
+    <script src="script.js"></script>
 </body>
 </html>
