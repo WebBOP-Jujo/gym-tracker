@@ -1,99 +1,331 @@
+/* --- Estilos Generales y Contenedor --- */
 body {
-    font-family: sans-serif;
+    /* font-family: sans-serif; */ /* Reemplazado abajo */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
     line-height: 1.6;
-    margin: 20px;
-    background-color: #f4f4f4;
+    margin: 0; /* Quitar margen por defecto */
+    background-color: #e9ecef; /* Un gris ligeramente diferente/más claro */
+    color: #343a40; /* Color de texto principal más oscuro */
 }
 
-h1, h2 {
-    color: #333;
+.container { /* Contenedor para centrar contenido */
+    max-width: 800px; /* Ancho máximo para mejor lectura */
+    margin: 30px auto; /* Centrar y añadir margen superior/inferior */
+    padding: 0 20px; /* Padding lateral en pantallas pequeñas */
+}
+
+h1 { /* Título Principal */
+    color: #0056b3; /* Azul oscuro */
     text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    font-weight: 600;
 }
 
+/* --- Estilos Mejorados para el Formulario --- */
 #workout-form {
-    background: #fff;
-    padding: 20px;
+    background: #ffffff;
+    padding: 30px; /* Más padding */
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Sombra más pronunciada */
+    margin-bottom: 40px; /* Más espacio debajo */
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px; /* Más espacio entre grupos */
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #495057;
 }
 
+/* Estilos comunes para inputs y select */
 .form-group select,
 .form-group input[type="text"],
 .form-group input[type="number"] {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 12px 15px; /* Padding más generoso */
+    border: 1px solid #ced4da;
     border-radius: 4px;
-    box-sizing: border-box; /* Para que el padding no aumente el tamaño total */
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Mejora del estado :focus */
+.form-group select:focus,
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* --- Estilos para los inputs de Series --- */
+#sets-inputs {
+    margin-top: 25px; /* Espacio antes de las series */
+    border-top: 1px solid #eee;
+    padding-top: 25px; /* Espacio después de la línea */
 }
 
 #sets-inputs .set-group {
-    border: 1px dashed #eee;
-    padding: 15px;
-    margin-bottom: 10px;
-    background-color: #f9f9f9;
-    border-radius: 4px;
+    /* border: 1px dashed #eee; */ /* Quitamos borde anterior */
+    border-bottom: 1px dashed #e0e0e0; /* Borde inferior discontinuo */
+    padding: 15px 0;
+    margin-bottom: 15px;
+    /* background-color: #f9f9f9; */ /* Quitar fondo */
+    background-color: transparent;
+    border-radius: 0; /* Quitar border-radius si lo había */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#sets-inputs .set-group strong { /* "Serie X:" */
+    min-width: 50px;
+    color: #0056b3; /* Azul oscuro */
+    font-weight: 600;
 }
 
 #sets-inputs .set-group label {
-    display: inline-block; /* Para que estén en línea */
-    margin-right: 5px;
-    width: auto; /* Ancho automático */
+    /* display: inline-block; */ /* No necesario con flex */
+    /* margin-right: 5px; */ /* Controlado por gap */
+    width: auto;
+    margin-bottom: 0; /* Asegurar que no tenga margen inferior */
+    font-weight: normal; /* Resetear peso */
+    color: #6c757d; /* Gris */
 }
 
-#sets-inputs .set-group input {
-   width: 80px; /* Ancho fijo para reps y peso */
-   padding: 8px;
-   margin-right: 10px;
+#sets-inputs .set-group input[type="number"] { /* Inputs de Reps y Peso */
+   width: 70px; /* Más ajustado */
+   padding: 8px 10px;
+   margin-right: 0; /* Quitar margen derecho, usar gap */
+   text-align: center;
+   /* Hereda estilos de input general, incluyendo focus */
 }
 
+/* Botón para quitar serie (X) */
+#sets-inputs .remove-set-btn {
+    background-color: #ffc107; /* Naranja/amarillo */
+    color: #333;
+    border: none;
+    border-radius: 50%; /* Redondo */
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 24px;
+    text-align: center;
+    cursor: pointer;
+    margin-left: auto; /* Empujar a la derecha */
+    transition: background-color 0.2s ease;
+}
 
-button[type="submit"] {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    background-color: #5cb85c;
+#sets-inputs .remove-set-btn:hover {
+    background-color: #e0a800;
+}
+
+/* Botón Añadir Serie (+) */
+/* ID específico para el botón de añadir serie */
+#add-set-button {
+    background-color: #28a745; /* Verde */
     color: white;
     border: none;
     border-radius: 4px;
-    font-size: 16px;
+    padding: 10px 15px;
+    font-size: 0.9em; /* Ligeramente más pequeño */
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.2s ease;
+    margin-top: 10px; /* Espacio sobre este botón */
 }
 
-button[type="submit"]:hover {
-    background-color: #4cae4c;
+#add-set-button:hover {
+    background-color: #218838; /* Verde más oscuro */
 }
 
+
+/* --- Estilo Botón Guardar Entrenamiento --- */
+/* Seleccionamos específicamente el botón submit dentro del form */
+#workout-form button[type="submit"] {
+    display: inline-flex; /* Alinear icono */
+    width: auto; /* Ancho automático */
+    padding: 12px 25px;
+    background-color: #007bff; /* Azul principal */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem; /* Tamaño estándar */
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    align-items: center;
+    gap: 8px; /* Espacio icono-texto */
+    margin-top: 25px; /* Más espacio sobre el botón */
+}
+
+#workout-form button[type="submit"]:hover {
+    background-color: #0056b3;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo del botón cuando está cargando/deshabilitado */
+#workout-form button[type="submit"]:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.7; /* Hacerlo un poco transparente */
+}
+
+/* Icono dentro del botón submit (para el spinner o guardar) */
+#workout-form button[type="submit"] i {
+    /* Podemos añadir estilos específicos al icono si es necesario */
+}
+
+
+/* --- Estilos del Historial (Mantenidos de la versión anterior) --- */
 #history-log {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-top: 40px; /* Aumentado espacio sobre el historial */
 }
 
-#history-log h3 {
-    margin-top: 0;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
+#history-log h2 { /* Estilo para el título "Historial de Entrenamientos" */
+     text-align: center; /* Asegurar que esté centrado */
+     margin-bottom: 25px; /* Espacio debajo */
+     color: #333;
+}
+
+
+#history-log h3 { /* Resetear estilos generales */
+   border-bottom: none;
+   padding-bottom: 0;
+   margin-bottom: 0; /* El margen vendrá de la clase específica */
 }
 
 #history-log p {
     margin-bottom: 10px;
+    text-align: center;
+    color: #777;
+    padding: 20px 0;
 }
 
-#history-log span {
-    font-weight: bold;
+#history-log .history-date-header {
+    text-align: left;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #007bff;
+    color: #0056b3;
+    font-size: 1.4em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
+
+#history-log .history-date-header:first-of-type {
+    margin-top: 0;
+}
+
+.history-entry {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.history-entry:hover {
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.history-exercise-title {
+    margin-top: 0;
+    margin-bottom: 12px; /* Ajustado */
+    color: #333;
+    font-size: 1.2em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.history-exercise-title i.fa-dumbbell {
+    color: #5cb85c;
+}
+
+
+.history-sets-list {
+    list-style: none;
+    padding-left: 10px;
+    margin-top: 0; /* Asegurar que no haya margen superior */
+    margin-bottom: 15px; /* Espacio antes de los botones */
+    font-size: 0.95em;
+    color: #555;
+}
+
+.history-set-item {
+    margin-bottom: 6px;
+    position: relative;
+    padding-left: 15px;
+}
+
+.history-set-item::before {
+    content: '•';
+    color: #007bff;
+    font-weight: bold;
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 1px;
+}
+
+
+.history-entry-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.history-entry-actions button {
+    padding: 5px 12px;
+    font-size: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity 0.2s ease;
+}
+
+.history-entry-actions button:hover {
+    opacity: 0.85;
+}
+
+.button-delete {
+    background-color: #d9534f;
+}
+
+.button-edit {
+    background-color: #777;
+}
+
+.button-edit:disabled {
+     cursor: not-allowed;
+     opacity: 0.6;
+}
+/* --- Fin Estilos --- */
