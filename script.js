@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURACIÓN ---
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzFKlZunWd5cvnNdtERuUWEu5CXiq-csMPECnyzBjoC7UO8QDZHQHI9OwPOKizwclFX/exec';
+    const INITIAL_DAYS_TO_LOAD = 7; // Número de días distintos a cargar inicialmente
     // ---------------------
 
+    // --- Elementos del DOM ---
     const form = document.getElementById('workout-form');
     const exerciseSelect = document.getElementById('exercise');
     const customExerciseGroup = document.getElementById('custom-exercise-group');
@@ -11,18 +13,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const setsInputsContainer = document.getElementById('sets-inputs');
     const historyLog = document.getElementById('history-log');
     const submitButton = form.querySelector('button[type="submit"]');
+    // Nuevos elementos para el filtro
+    const filterDateInput = document.getElementById('filter-date');
+    const clearFilterBtn = document.getElementById('clear-filter-btn');
 
-    // Variable global para almacenar todos los datos del historial
-    let allHistoryData = [];
+
+    // --- Variables Globales ---
+    let initiallyLoadedData = []; // Almacenará solo los datos de la carga inicial (últimos X días)
+    let loadedDatesSet = new Set(); // Para saber qué fechas (DD/MM/YYYY) se cargaron inicialmente
 
     // --- Event Listeners ---
     exerciseSelect.addEventListener('change', handleExerciseChange);
     setsInput.addEventListener('change', handleSetsChange);
     form.addEventListener('submit', handleFormSubmit);
+    // Nuevos listeners para el filtro
+    filterDateInput.addEventListener('change', handleFilterChange);
+    clearFilterBtn.addEventListener('click', handleClearFilter);
 
-    // --- Funciones del Formulario y Series (Sin cambios) ---
-
-    function handleExerciseChange() {
+    // --- Funciones del Formulario y Series (Sin cambios respecto a la versión anterior) ---
+    function handleExerciseChange() { /* ... igual que antes ... */
         if (exerciseSelect.value === 'custom') {
             customExerciseGroup.style.display = 'block';
             customExerciseInput.required = true;
@@ -32,323 +41,300 @@ document.addEventListener('DOMContentLoaded', () => {
             customExerciseInput.value = '';
         }
     }
-
-    function handleSetsChange() {
+    function handleSetsChange() { /* ... igual que antes ... */
         generateSetsInputs(parseInt(setsInput.value) || 0);
-    }
-
-    function generateSetsInputs(numberOfSets) {
+     }
+    function generateSetsInputs(numberOfSets) { /* ... igual que antes ... */
         setsInputsContainer.innerHTML = '';
         if (numberOfSets > 0 && numberOfSets <= 20) {
-            for (let i = 1; i <= numberOfSets; i++) {
-                const setGroup = document.createElement('div');
-                setGroup.classList.add('set-group');
-                setGroup.innerHTML = `
-                    <strong>Serie ${i}:</strong>
-                    <label for="reps-set-${i}">Reps:</label>
-                    <input type="number" id="reps-set-${i}" name="reps-set-${i}" min="0" required>
-                    <label for="weight-set-${i}">Peso (kg):</label>
-                    <input type="number" id="weight-set-${i}" name="weight-set-${i}" min="0" step="0.1" required>
-                    <button type="button" class="remove-set-btn" onclick="removeSetInput(this)" style="padding: 2px 5px; font-size: 10px; margin-left: 10px; background-color: #f0ad4e; color:white; border:none; border-radius:3px; cursor:pointer;">X</button>
-                `;
-                setsInputsContainer.appendChild(setGroup);
-            }
-            addAddSetButton();
+            for (let i = 1; i <= numberOfSets; i++) { addSingleSetInput(i); }
         } else if (numberOfSets > 20) {
             setsInputsContainer.innerHTML = '<p style="color:red;">Demasiadas series. Introduce un número menor (máx 20).</p>';
-        } else {
-             setsInputsContainer.innerHTML = '';
-             addAddSetButton();
+            return;
         }
+        addAddSetButton();
         updateSetNumbers();
     }
-
-    function addAddSetButton() {
-         if (!document.getElementById('add-set-button')) {
-             const addButton = document.createElement('button');
-             addButton.textContent = '+ Añadir Serie';
-             addButton.type = 'button';
-             addButton.id = 'add-set-button';
-             addButton.style.marginTop = '10px';
-             addButton.style.padding = '8px 12px';
-             addButton.style.backgroundColor = '#5bc0de';
-             addButton.style.color = 'white';
-             addButton.style.border = 'none';
-             addButton.style.borderRadius = '4px';
-             addButton.style.cursor = 'pointer';
-             addButton.onclick = addSetInput;
-             setsInputsContainer.appendChild(addButton);
-         }
+    function addSingleSetInput(setNumber) { /* ... igual que antes ... */
+        const setGroup = document.createElement('div');
+        setGroup.classList.add('set-group');
+        setGroup.innerHTML = `<strong>Serie ${setNumber}:</strong> <label for="reps-set-${setNumber}">Reps:</label> <input type="number" id="reps-set-${setNumber}" name="reps-set-${setNumber}" min="0" required> <label for="weight-set-${setNumber}">Peso (kg):</label> <input type="number" id="weight-set-${setNumber}" name="weight-set-${setNumber}" min="0" step="0.1" required> <button type="button" class="remove-set-btn" onclick="removeSetInput(this)" title="Quitar serie">X</button>`;
+        const addButton = document.getElementById('add-set-button');
+        if (addButton) { setsInputsContainer.insertBefore(setGroup, addButton); } else { setsInputsContainer.appendChild(setGroup); }
     }
-
-    window.addSetInput = function() {
-         const currentSets = setsInputsContainer.querySelectorAll('.set-group').length;
-         const nextSetNumber = currentSets + 1;
-         if (nextSetNumber > 20) {
-             alert("Máximo 20 series alcanzado.");
-             return;
-         }
-         const setGroup = document.createElement('div');
-         setGroup.classList.add('set-group');
-         setGroup.innerHTML = `
-            <strong>Serie ${nextSetNumber}:</strong>
-            <label for="reps-set-${nextSetNumber}">Reps:</label>
-            <input type="number" id="reps-set-${nextSetNumber}" name="reps-set-${nextSetNumber}" min="0" required>
-            <label for="weight-set-${nextSetNumber}">Peso (kg):</label>
-            <input type="number" id="weight-set-${nextSetNumber}" name="weight-set-${nextSetNumber}" min="0" step="0.1" required>
-            <button type="button" class="remove-set-btn" onclick="removeSetInput(this)" style="padding: 2px 5px; font-size: 10px; margin-left: 10px; background-color: #f0ad4e; color:white; border:none; border-radius:3px; cursor:pointer;">X</button>
-         `;
-         const addButton = document.getElementById('add-set-button');
-         if (addButton) {
-             setsInputsContainer.insertBefore(setGroup, addButton);
-         } else {
-             setsInputsContainer.appendChild(setGroup);
-         }
-         setsInput.value = nextSetNumber;
-         updateSetNumbers();
+    function addAddSetButton() { /* ... igual que antes ... */
+        if (!document.getElementById('add-set-button')) {
+            const addButton = document.createElement('button');
+            addButton.type = 'button';
+            addButton.id = 'add-set-button';
+            addButton.innerHTML = `<i class="fas fa-plus"></i> Añadir Serie`;
+            addButton.onclick = addSetInput;
+            setsInputsContainer.appendChild(addButton);
+        }
     }
-
-    window.removeSetInput = function(button) {
+    window.addSetInput = function() { /* ... igual que antes ... */
+        const currentSets = setsInputsContainer.querySelectorAll('.set-group').length;
+        const nextSetNumber = currentSets + 1;
+        if (nextSetNumber > 20) { alert("Máximo 20 series alcanzado."); return; }
+        addSingleSetInput(nextSetNumber);
+        updateSetNumbers();
+    }
+    window.removeSetInput = function(button) { /* ... igual que antes ... */
         button.closest('.set-group').remove();
         updateSetNumbers();
     }
-
-    function updateSetNumbers() {
+    function updateSetNumbers() { /* ... igual que antes ... */
         const setGroups = setsInputsContainer.querySelectorAll('.set-group');
         setGroups.forEach((group, index) => {
             const setNumber = index + 1;
             group.querySelector('strong').textContent = `Serie ${setNumber}:`;
-             group.querySelector('label[for^="reps-set"]').setAttribute('for', `reps-set-${setNumber}`);
-             group.querySelector('input[id^="reps-set"]').id = `reps-set-${setNumber}`;
-             group.querySelector('input[id^="reps-set"]').name = `reps-set-${setNumber}`;
-             group.querySelector('label[for^="weight-set"]').setAttribute('for', `weight-set-${setNumber}`);
-             group.querySelector('input[id^="weight-set"]').id = `weight-set-${setNumber}`;
-             group.querySelector('input[id^="weight-set"]').name = `weight-set-${setNumber}`;
+            group.querySelector('label[for^="reps-set"]').setAttribute('for', `reps-set-${setNumber}`);
+            group.querySelector('input[id^="reps-set"]').id = `reps-set-${setNumber}`;
+            group.querySelector('input[id^="reps-set"]').name = `reps-set-${setNumber}`;
+            group.querySelector('label[for^="weight-set"]').setAttribute('for', `weight-set-${setNumber}`);
+            group.querySelector('input[id^="weight-set"]').id = `weight-set-${setNumber}`;
+            group.querySelector('input[id^="weight-set"]').name = `weight-set-${setNumber}`;
         });
-         setsInput.value = setGroups.length;
-         const addButton = document.getElementById('add-set-button');
-         if(addButton && setGroups.length === 0) {
-             // No ocultar
-         } else if (!addButton && setGroups.length > 0) {
-             addAddSetButton();
-         }
+        setsInput.value = setGroups.length;
     }
 
-    // --- Funciones de Guardado (Sin cambios) ---
-
+    // --- Función de Guardado (Sin cambios lógicos, pero recarga historial inicial) ---
     async function handleFormSubmit(event) {
         event.preventDefault();
-        if (!SCRIPT_URL || SCRIPT_URL === 'PEGA_AQUI_LA_URL_DE_TU_SCRIPT_IMPLEMENTADO') { // Mantener esta comprobación por si acaso
-            alert("Error: La URL del script de Google Apps no está configurada en script.js");
-            return;
-        }
+        // ... (Validaciones igual que antes) ...
+        if (!SCRIPT_URL) { alert("Error: URL del script no configurada."); return; }
         const exerciseName = exerciseSelect.value === 'custom' ? customExerciseInput.value.trim() : exerciseSelect.value;
         const setGroups = setsInputsContainer.querySelectorAll('.set-group');
         const numberOfSets = setGroups.length;
         const setsData = [];
-        if (!exerciseName) {
-            alert("Por favor, selecciona o introduce un nombre de ejercicio.");
-            return;
-        }
-        if (numberOfSets === 0) {
-             alert("Por favor, añade al menos una serie.");
-             return;
-        }
+        if (!exerciseName) { alert("Selecciona o introduce un ejercicio."); return; }
+        if (numberOfSets === 0) { alert("Añade al menos una serie."); return; }
         let formIsValid = true;
-        for (let i = 0; i < numberOfSets; i++) {
-            const setGroup = setGroups[i];
-            const setNumber = i + 1;
-            const repsInput = setGroup.querySelector(`input[id^="reps-set"]`);
-            const weightInput = setGroup.querySelector(`input[id^="weight-set"]`);
-            if (!repsInput || !weightInput || repsInput.value === '' || weightInput.value === '') {
-                 alert(`Por favor, completa los datos de Reps y Peso para la Serie ${setNumber}.`);
-                 formIsValid = false;
-                 break;
-            }
-            setsData.push({
-                set: setNumber,
-                reps: parseInt(repsInput.value),
-                weight: parseFloat(weightInput.value)
-            });
+        for (let i = 0; i < numberOfSets; i++) { /* ... Validación de series igual ... */
+            const setGroup = setGroups[i]; const setNumber = i + 1;
+            const repsInput = setGroup.querySelector(`input[id^="reps-set"]`); const weightInput = setGroup.querySelector(`input[id^="weight-set"]`);
+            if (!repsInput || !weightInput || repsInput.value === '' || weightInput.value === '') { alert(`Completa Reps y Peso para la Serie ${setNumber}.`); formIsValid = false; break; }
+            setsData.push({ set: setNumber, reps: parseInt(repsInput.value), weight: parseFloat(weightInput.value) });
         }
-        if (!formIsValid) {
-            return;
-        }
-        const workoutEntry = {
-            exercise: exerciseName,
-            sets: setsData
-        };
+        if (!formIsValid) { return; }
+        const workoutEntry = { exercise: exerciseName, sets: setsData };
+
         setLoading(true, 'Guardando...');
         try {
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'cors',
-                 body: JSON.stringify({ action: 'save', data: workoutEntry })
-            });
+            const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'save', data: workoutEntry }) });
             const result = await response.json();
             if (result.status === 'success') {
                 alert('¡Entrenamiento guardado con éxito!');
                 form.reset();
                 customExerciseGroup.style.display = 'none';
                 setsInputsContainer.innerHTML = '';
-                 addAddSetButton();
-                 setsInput.value = '';
-                loadHistory(); // Recargar historial <<< IMPORTANTE
-            } else {
-                console.error('Error del script:', result.message);
-                alert(`Error al guardar: ${result.message}`);
+                addAddSetButton();
+                setsInput.value = '';
+                loadInitialHistory(); // <--- Recargar la vista inicial (últimos días)
+            } else { /* ... manejo de error igual ... */
+                console.error('Error del script:', result.message); alert(`Error al guardar: ${result.message}`);
             }
-        } catch (error) {
-            console.error('Error en fetch:', error);
-            alert(`Error de conexión al guardar: ${error.message}. Revisa la URL del script y tu conexión.`);
+        } catch (error) { /* ... manejo de error igual ... */
+            console.error('Error en fetch:', error); alert(`Error de conexión al guardar: ${error.message}.`);
         } finally {
             setLoading(false);
         }
     }
 
-    // --- Funciones de Carga y Visualización del Historial (MODIFICADAS) ---
+    // --- Funciones de Carga y Visualización del Historial (MODIFICADAS para filtro) ---
 
-    async function loadHistory() {
-         if (!SCRIPT_URL) { // Simplificado, ya que la URL está definida arriba
-            historyLog.innerHTML = '<p style="color:red;">Error: La URL del script de Google Apps no está configurada.</p>';
-            return;
+    /**
+     * Carga el historial desde el script.
+     * Puede cargar los últimos X días (por defecto) o una fecha específica.
+     * @param {string|null} specificDate - Fecha en formato 'YYYY-MM-DD' o null para carga inicial.
+     */
+    async function fetchHistoryData(specificDate = null) {
+        if (!SCRIPT_URL) {
+            console.error("Error: URL del script no configurada.");
+            return { status: "error", message: "URL del script no configurada." }; // Devolver objeto de error
         }
-        historyLog.innerHTML = '<p>Cargando historial...</p>';
+
+        let fetchUrl = SCRIPT_URL;
+        if (specificDate) {
+            // Pedir fecha específica
+            fetchUrl += `?load=specific&date=${specificDate}`;
+        } else {
+            // Pedir carga inicial (últimos X días)
+            fetchUrl += `?load=recent&days=${INITIAL_DAYS_TO_LOAD}`;
+        }
+
+        console.log("Fetching data from:", fetchUrl); // Para depuración
+
         try {
-            const response = await fetch(SCRIPT_URL, { method: 'GET', mode: 'cors' });
+            const response = await fetch(fetchUrl, { method: 'GET', mode: 'cors' });
             const result = await response.json();
-
-            if (result.status === 'success') {
-                allHistoryData = result.data; // Guarda TODOS los datos en la variable global
-                displayGroupedHistory(allHistoryData); // Llama a la nueva función para mostrar agrupado
-            } else {
-                 console.error('Error del script al cargar:', result.message);
-                 historyLog.innerHTML = `<p style="color:red;">Error al cargar el historial: ${result.message}</p>`;
-                 allHistoryData = []; // Limpiar en caso de error
-            }
+            console.log("Data received:", result); // Para depuración
+            return result; // Devolver el resultado completo (incluye status y data/message)
         } catch (error) {
-             console.error('Error en fetch al cargar:', error);
-             historyLog.innerHTML = `<p style="color:red;">Error de conexión al cargar el historial: ${error.message}.</p>`;
-             allHistoryData = []; // Limpiar en caso de error
+            console.error('Error en fetch al cargar historial:', error);
+            return { status: "error", message: `Error de conexión al cargar: ${error.message}` }; // Devolver objeto de error
         }
     }
 
-    // NUEVA FUNCIÓN para mostrar el historial AGRUPADO por fecha
-    function displayGroupedHistory(historyData) {
-        historyLog.innerHTML = ''; // Limpiar vista actual
+    /** Carga inicial de los últimos días y los muestra */
+    async function loadInitialHistory() {
+        historyLog.innerHTML = '<p>Cargando historial reciente...</p>';
+        filterDateInput.value = ''; // Limpiar el filtro de fecha
 
+        const result = await fetchHistoryData(); // Llama sin fecha específica
+
+        if (result.status === 'success') {
+            initiallyLoadedData = result.data; // Guardar datos iniciales
+            // Actualizar el set de fechas cargadas
+            loadedDatesSet.clear();
+            initiallyLoadedData.forEach(entry => {
+                const dateStr = new Date(entry.timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                loadedDatesSet.add(dateStr);
+            });
+            console.log("Fechas cargadas inicialmente:", loadedDatesSet); // Para depuración
+            displayGroupedHistory(initiallyLoadedData); // Mostrar datos iniciales
+        } else {
+            historyLog.innerHTML = `<p style="color:red;">${result.message}</p>`;
+            initiallyLoadedData = []; // Limpiar si hay error
+            loadedDatesSet.clear();
+        }
+    }
+
+    /** Carga y muestra los datos de una fecha específica */
+    async function loadSpecificDateHistory(dateYYYYMMDD) {
+         historyLog.innerHTML = `<p>Cargando datos para ${dateYYYYMMDD}...</p>`;
+         const result = await fetchHistoryData(dateYYYYMMDD); // Pide la fecha específica
+
+         if (result.status === 'success') {
+             // Mostrar los datos recibidos para esa fecha específica
+             // NO los guardamos en initiallyLoadedData
+             displayGroupedHistory(result.data);
+         } else {
+             historyLog.innerHTML = `<p style="color:red;">${result.message}</p>`;
+         }
+    }
+
+
+    /** Muestra los datos del historial agrupados por fecha (sin cambios en su lógica interna) */
+    function displayGroupedHistory(historyData) {
+        historyLog.innerHTML = '';
         if (!historyData || historyData.length === 0) {
-            historyLog.innerHTML = '<p>Aún no hay registros.</p>';
+            // Ajustar mensaje si el filtro está activo
+            if (filterDateInput.value) {
+                 historyLog.innerHTML = `<p>No hay registros para la fecha ${filterDateInput.value}.</p>`;
+            } else {
+                historyLog.innerHTML = '<p>No hay registros recientes.</p>'; // Mensaje por defecto
+            }
+            return;
+        }
+        // ... (resto del código de displayGroupedHistory igual que antes, agrupando y mostrando) ...
+         const groupedByDate = historyData.reduce((acc, entry) => { /* ... igual ... */
+             const entryDateObject = new Date(entry.timestamp);
+             const displayDate = entryDateObject.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+             if (!acc[displayDate]) { acc[displayDate] = []; }
+             acc[displayDate].push(entry);
+             return acc;
+         }, {});
+         const sortedDates = Object.keys(groupedByDate).sort((a, b) => { /* ... igual ... */
+             const [dayA, monthA, yearA] = a.split('/').map(Number); const [dayB, monthB, yearB] = b.split('/').map(Number);
+             const dateA = new Date(yearA, monthA - 1, dayA); const dateB = new Date(yearB, monthB - 1, dayB);
+             return dateB - dateA;
+         });
+         sortedDates.forEach(date => { /* ... igual ... */
+             const dateHeading = document.createElement('h2'); dateHeading.classList.add('history-date-header'); dateHeading.innerHTML = `<i class="fas fa-calendar-alt"></i> ${date}`; historyLog.appendChild(dateHeading);
+             const entriesForDate = groupedByDate[date];
+             entriesForDate.forEach(entry => { /* ... igual ... */
+                 const entryDiv = document.createElement('div'); entryDiv.classList.add('history-entry'); let setsDetails = '';
+                 entry.sets.sort((a, b) => a.set - b.set).forEach(set => { setsDetails += `<li class="history-set-item">Serie ${set.set}: ${set.reps} reps @ ${set.weight} kg</li>`; });
+                 entryDiv.innerHTML = `<h3 class="history-exercise-title"><i class="fas fa-dumbbell"></i> ${entry.exercise}</h3> <ul class="history-sets-list">${setsDetails}</ul> <div class="history-entry-actions"> <button class="button-delete" onclick="deleteEntry('${entry.id}')"><i class="fas fa-trash-alt"></i> Eliminar</button> <button class="button-edit" disabled onclick="editEntry('${entry.id}')"><i class="fas fa-pencil-alt"></i> Editar</button> </div>`;
+                 historyLog.appendChild(entryDiv);
+             });
+         });
+    }
+
+    // --- NUEVAS Funciones para manejar el Filtro ---
+
+    function handleFilterChange() {
+        const selectedDateStr = filterDateInput.value; // Formato YYYY-MM-DD
+        if (!selectedDateStr) {
+            // Si se borra la fecha, mostrar los datos iniciales (sin recargar)
+            displayGroupedHistory(initiallyLoadedData);
             return;
         }
 
-        // 1. Agrupar las entradas por fecha (DD/MM/YYYY)
-        const groupedByDate = historyData.reduce((acc, entry) => {
-            const entryDateObject = new Date(entry.timestamp); // Usa el timestamp
-            const displayDate = entryDateObject.toLocaleDateString('es-ES', {
-                day: '2-digit', month: '2-digit', year: 'numeric'
+        // Convertir YYYY-MM-DD a DD/MM/YYYY para comprobar contra loadedDatesSet
+        const [year, month, day] = selectedDateStr.split('-');
+        const dateToCheckDDMMYYYY = `${day}/${month}/${year}`;
+
+        console.log(`Fecha seleccionada: ${selectedDateStr} (${dateToCheckDDMMYYYY})`);
+        console.log("Fechas cargadas:", loadedDatesSet);
+
+        // Comprobar si la fecha está en el set de fechas cargadas inicialmente
+        // OJO: Esto asume que initiallyLoadedData REALMENTE solo tiene los últimos días.
+        // Si el backend aún no está modificado, loadedDatesSet tendrá todas las fechas.
+        // Una vez el backend funcione, esta lógica será correcta.
+        if (loadedDatesSet.has(dateToCheckDDMMYYYY)) {
+            console.log("Fecha encontrada en datos iniciales. Filtrando localmente.");
+            // Filtrar los datos iniciales localmente
+            const filteredData = initiallyLoadedData.filter(entry => {
+                 const entryDateObject = new Date(entry.timestamp);
+                 const entryDateStr = entryDateObject.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                 return entryDateStr === dateToCheckDDMMYYYY;
             });
-            if (!acc[displayDate]) {
-                acc[displayDate] = [];
-            }
-            acc[displayDate].push(entry);
-            return acc;
-        }, {});
+            displayGroupedHistory(filteredData);
+        } else {
+            console.log("Fecha NO encontrada en datos iniciales. Pidiendo al servidor.");
+            // La fecha no está en los datos cargados, pedirla específicamente al backend
+            loadSpecificDateHistory(selectedDateStr); // Pasar YYYY-MM-DD
+        }
+    }
 
-        // 2. Obtener las fechas y ordenarlas (más reciente primero)
-        const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
-            const [dayA, monthA, yearA] = a.split('/').map(Number);
-            const [dayB, monthB, yearB] = b.split('/').map(Number);
-            const dateA = new Date(yearA, monthA - 1, dayA);
-            const dateB = new Date(yearB, monthB - 1, dayB);
-            return dateB - dateA; // Orden descendente
-        });
-
-        // 3. Iterar sobre las fechas ordenadas y mostrar las entradas
-        sortedDates.forEach(date => {
-            const dateHeading = document.createElement('h2');
-            dateHeading.textContent = date;
-            dateHeading.style.marginTop = '25px';
-            dateHeading.style.marginBottom = '10px';
-            dateHeading.style.paddingBottom = '5px';
-            dateHeading.style.borderBottom = '2px solid #666'; // Borde gris oscuro
-            dateHeading.style.color = '#333'; // Color de texto oscuro
-            historyLog.appendChild(dateHeading);
-
-            const entriesForDate = groupedByDate[date];
-
-            entriesForDate.forEach(entry => {
-                const entryDiv = document.createElement('div');
-                entryDiv.style.border = '1px solid #eee';
-                entryDiv.style.padding = '10px 15px';
-                entryDiv.style.marginBottom = '10px';
-                entryDiv.style.borderRadius = '4px';
-                entryDiv.style.backgroundColor = '#fdfdfd'; // Fondo casi blanco
-
-                let setsDetails = '';
-                entry.sets.sort((a, b) => a.set - b.set).forEach(set => {
-                    setsDetails += `<li style="margin-bottom: 3px;">Serie ${set.set}: ${set.reps} reps @ ${set.weight} kg</li>`; // Estilo li directo
-                });
-
-                // El H3 ahora solo tiene el ejercicio
-                entryDiv.innerHTML = `
-                    <h3 style="margin-top: 0; margin-bottom: 8px; color: #444; font-size: 1.1em;">${entry.exercise}</h3>
-                    <ul style="list-style: none; padding-left: 5px; margin-bottom: 10px; font-size: 0.95em; color: #555;">
-                        ${setsDetails}
-                    </ul>
-                    <button onclick="deleteEntry('${entry.id}')" style="padding: 4px 8px; background-color: #d9534f; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Eliminar</button>
-                    <button disabled onclick="editEntry('${entry.id}')" style="padding: 4px 8px; background-color: #777; color: white; border: none; border-radius: 3px; cursor: not-allowed; font-size: 11px; margin-left: 5px;">Editar</button>
-                `;
-                historyLog.appendChild(entryDiv);
-            });
-        });
+    function handleClearFilter() {
+        console.log("Limpiando filtro, cargando historial inicial.");
+        // Recargar (o simplemente mostrar) los datos iniciales
+        loadInitialHistory(); // Esto hace una nueva petición para asegurar datos frescos
+        // Alternativamente, si no queremos recargar:
+        // filterDateInput.value = '';
+        // displayGroupedHistory(initiallyLoadedData);
     }
 
 
-    // --- Funciones de Borrado, Edición y Carga (Sin cambios en su lógica interna) ---
-
-    window.deleteEntry = async function(id) {
+    // --- Funciones de Borrado, Edición y setLoading (Sin cambios respecto a la versión anterior) ---
+    window.deleteEntry = async function(id) { /* ... igual que antes ... */
         if (!id) { console.error("Intento de eliminar sin ID"); return; }
-        if (confirm(`¿Estás seguro de que quieres eliminar este registro (${id})?`)) {
-            if (!SCRIPT_URL) { alert("Error: La URL del script no está configurada."); return; }
+        if (confirm(`¿Estás seguro? (${id})`)) {
+            if (!SCRIPT_URL) { alert("URL script no configurada."); return; }
             setLoading(true, 'Eliminando...');
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'delete', id: id })
-                });
+            try { /* ... fetch POST delete igual ... */
+                const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'delete', id: id }) });
                 const result = await response.json();
                 if (result.status === 'success') {
-                    alert(result.message || 'Registro eliminado.');
-                    loadHistory(); // Recargar historial <<< IMPORTANTE
-                } else {
-                     console.error('Error del script al eliminar:', result.message);
-                     alert(`Error al eliminar: ${result.message}`);
-                }
-            } catch (error) {
-                console.error('Error en fetch al eliminar:', error);
-                alert(`Error de conexión al eliminar: ${error.message}.`);
-            } finally {
-                setLoading(false);
-            }
+                    alert(result.message || 'Eliminado.');
+                    loadInitialHistory(); // <-- Recargar vista inicial después de borrar
+                } else { alert(`Error: ${result.message}`); }
+            } catch (error) { alert(`Error conexión: ${error.message}.`); } finally { setLoading(false); }
         }
-    }
-
-    window.editEntry = function(id) {
-        alert(`La función de editar para el ID ${id} aún no está implementada.`);
-    }
-
-    function setLoading(isLoading, message = 'Procesando...') {
+     }
+    window.editEntry = function(id) { /* ... igual que antes ... */
+        alert(`Editar ID ${id} no implementado.`);
+     }
+    function setLoading(isLoading, message = 'Procesando...') { /* ... igual que antes, con iconos ... */
+        const defaultIconHTML = '<i class="fas fa-save"></i> ';
+        const loadingIconHTML = '<i class="fas fa-spinner fa-spin"></i> ';
         if (isLoading) {
             submitButton.disabled = true;
-            submitButton.textContent = message;
+            submitButton.innerHTML = `${loadingIconHTML} ${message}`;
         } else {
             submitButton.disabled = false;
-            submitButton.textContent = 'Guardar Entrenamiento';
+            submitButton.innerHTML = `${defaultIconHTML} Guardar Entrenamiento`;
         }
-    }
+     }
 
     // --- Inicialización ---
-    loadHistory(); // Cargar historial al iniciar la página
-    handleExerciseChange(); // Estado inicial del campo custom
+    if (submitButton) { // Establecer icono inicial botón submit
+        submitButton.innerHTML = `<i class="fas fa-save"></i> Guardar Entrenamiento`;
+    }
+    loadInitialHistory(); // <--- Cargar la vista inicial (últimos X días)
+    handleExerciseChange(); // Estado inicial campo custom
     addAddSetButton(); // Botón añadir serie inicial
 });
