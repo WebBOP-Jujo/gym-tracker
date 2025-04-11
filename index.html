@@ -5,57 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gym Tracker</title>
     <link rel="stylesheet" href="style.css">
+    <!-- AÑADIDO: Enlace a Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- FIN AÑADIDO -->
+    <!-- AÑADIDO: Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FIN AÑADIDO -->
 </head>
 <body>
 
-    <h1>Registro de Entrenamiento</h1>
+    <!-- INICIO Contenedor Principal -->
+    <div class="container">
 
-    <form id="workout-form">
-        <div class="form-group">
-            <label for="exercise">Ejercicio:</label>
-            <select id="exercise" name="exercise" required>
-                <option value="" disabled selected>-- Selecciona un ejercicio --</option>
-                <option value="Press Banca Plano">Press Banca Plano</option>
-                <option value="Press Banca Inclinado">Press Banca Inclinado</option>
-                <option value="Aperturas de Pecho">Aperturas de Pecho</option>
-                <option value="Jalón al Pecho">Jalón al Pecho</option>
-                <option value="Remo Espalda">Remo Espalda</option>
-                <option value="Remo trapecio">Remo trapecio</option>
-                <option value="Prensa Pierna">Prensa Pierna</option>
-                <option value="Extensión de cuádriceps">Extensión de cuádriceps</option>
-                <option value="Biceps femoral">Biceps femoral</option>
-                <option value="Press militar">Press militar</option>
-                <option value="Hombro laterales">Hombro laterales</option>
-                <option value="Triceps con cuerda">Triceps con cuerda</option>
-                <option value="Triceps tras nuca">Triceps tras nuca</option>
-                <option value="Curl Biceps">Curl Biceps</option>
-                <option value="Curl Martillo">Curl Martillo</option>
-                <option value="custom">Otro (Especificar)</option>
-            </select>
+        <h1>Registro de Entrenamiento</h1>
+
+        <form id="workout-form">
+            <div class="form-group">
+                <label for="exercise">Ejercicio:</label>
+                <select id="exercise" name="exercise" required>
+                    <option value="" disabled selected>-- Selecciona un ejercicio --</option>
+                    <option value="Press Banca Plano">Press Banca Plano</option>
+                    <option value="Press Banca Inclinado">Press Banca Inclinado</option>
+                    <option value="Aperturas de Pecho">Aperturas de Pecho</option>
+                    <option value="Jalón al Pecho">Jalón al Pecho</option>
+                    <option value="Remo Espalda">Remo Espalda</option>
+                    <option value="Remo trapecio">Remo trapecio</option>
+                    <option value="Prensa Pierna">Prensa Pierna</option>
+                    <option value="Extensión de cuádriceps">Extensión de cuádriceps</option>
+                    <option value="Biceps femoral">Biceps femoral</option>
+                    <option value="Press militar">Press militar</option>
+                    <option value="Hombro laterales">Hombro laterales</option>
+                    <option value="Triceps con cuerda">Triceps con cuerda</option>
+                    <option value="Triceps tras nuca">Triceps tras nuca</option>
+                    <option value="Curl Biceps">Curl Biceps</option>
+                    <option value="Curl Martillo">Curl Martillo</option>
+                    <option value="custom">Otro (Especificar)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="custom-exercise-group" style="display: none;">
+                <label for="custom-exercise-name">Nombre del Ejercicio Personalizado:</label>
+                <input type="text" id="custom-exercise-name" name="custom-exercise-name">
+            </div>
+
+            <div class="form-group">
+                <label for="sets">Número de Series:</label>
+                <input type="number" id="sets" name="sets" min="0" placeholder="Añade series abajo">
+            </div>
+
+            <div id="sets-inputs">
+                <!-- Aquí se generarán los inputs para cada serie dinámicamente -->
+                <!-- El botón "+ Añadir Serie" se añadirá aquí por JS -->
+            </div>
+
+            <button type="submit">Guardar Entrenamiento</button>
+        </form>
+
+        <!-- ================================== -->
+        <!-- INICIO: Sección Progreso (Gráfica) -->
+        <!-- ================================== -->
+        <div id="progress-section">
+            <h2>Visualización de Progreso</h2>
+            <div id="graph-controls">
+                <label for="graph-exercise-select">Ver progresión para:</label>
+                <select id="graph-exercise-select" name="graph-exercise">
+                    <option value="" disabled selected>-- Selecciona un ejercicio --</option>
+                    <!-- Opciones se añadirán dinámicamente con JS -->
+                </select>
+                <button id="show-graph-btn" disabled><i class="fas fa-chart-line"></i> Mostrar Gráfica</button>
+                <button id="hide-graph-btn" style="display: none;"><i class="fas fa-eye-slash"></i> Ocultar Gráfica</button>
+            </div>
+            <div id="graph-container" style="margin-top: 20px; display: none;">
+                <canvas id="progress-chart"></canvas> <!-- Canvas para Chart.js -->
+            </div>
+        </div>
+        <!-- ================================== -->
+        <!-- FIN: Sección Progreso (Gráfica)   -->
+        <!-- ================================== -->
+
+
+        <!-- =============================== -->
+        <!-- INICIO: Sección Filtro Historial -->
+        <!-- =============================== -->
+        <div id="history-filter">
+             <label for="filter-date">Ver fecha específica:</label>
+             <input type="date" id="filter-date" name="filter-date">
+             <button id="clear-filter-btn" title="Mostrar los últimos entrenamientos registrados">Mostrar Recientes</button>
+        </div>
+        <!-- =============================== -->
+        <!-- FIN: Sección Filtro Historial   -->
+        <!-- =============================== -->
+
+
+        <h2>Historial de Entrenamientos</h2>
+        <div id="history-log">
+            <p>Aún no hay registros.</p>
+            <!-- Aquí se mostrará el historial -->
         </div>
 
-        <div class="form-group" id="custom-exercise-group" style="display: none;">
-            <label for="custom-exercise-name">Nombre del Ejercicio Personalizado:</label>
-            <input type="text" id="custom-exercise-name" name="custom-exercise-name">
-        </div>
-
-        <div class="form-group">
-            <label for="sets">Número de Series:</label>
-            <input type="number" id="sets" name="sets" min="1" required>
-        </div>
-
-        <div id="sets-inputs">
-            <!-- Aquí se generarán los inputs para cada serie dinámicamente -->
-        </div>
-
-        <button type="submit">Guardar Entrenamiento</button>
-    </form>
-
-    <h2>Historial de Entrenamientos</h2>
-    <div id="history-log">
-        <p>Aún no hay registros.</p>
-        <!-- Aquí se mostrará el historial -->
     </div>
+    <!-- FIN Contenedor Principal -->
 
     <script src="script.js"></script>
 </body>
