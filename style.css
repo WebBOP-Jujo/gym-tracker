@@ -5,7 +5,7 @@ body {
     background-color: #f4f4f4;
 }
 
-h1, h2 {
+h1, h2 { /* Estos estilos generales se aplicarán, pero podemos sobreescribir para el historial */
     color: #333;
     text-align: center;
 }
@@ -77,23 +77,150 @@ button[type="submit"]:hover {
 }
 
 #history-log {
-    background: #fff;
+    background: #fff; /* Mantenemos fondo blanco base */
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-top: 30px; /* Añadido espacio sobre el historial */
 }
 
+/* Eliminamos estilos generales conflictivos para h3 dentro de history-log */
 #history-log h3 {
-    margin-top: 0;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
+   border-bottom: none; /* Quitar el borde anterior */
+   padding-bottom: 0;
+   /* Los estilos específicos vendrán de .history-exercise-title */
 }
 
-#history-log p {
+#history-log p { /* Estilo para mensajes como "Cargando..." o "No hay registros" */
     margin-bottom: 10px;
+    text-align: center; /* Centrar estos mensajes */
+    color: #777; /* Color gris */
+    padding: 20px 0; /* Espacio vertical */
 }
 
-#history-log span {
+/* Quitamos el span que ya no usamos */
+/* #history-log span {
     font-weight: bold;
+} */
+
+
+/* --- INICIO: Nuevos Estilos Mejorados para el Historial --- */
+
+/* Sobrescribimos h2 general para el encabezado de fecha */
+#history-log .history-date-header {
+    text-align: left; /* Alineación izquierda para la fecha */
+    margin-top: 30px; /* Más separación entre días */
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #007bff; /* Azul más vibrante */
+    color: #0056b3; /* Azul oscuro */
+    font-size: 1.4em;
+    display: flex; /* Para alinear icono y texto */
+    align-items: center; /* Centrar verticalmente */
+    gap: 10px; /* Espacio entre icono y fecha */
 }
+
+/* Menos margen para el primer encabezado de fecha */
+#history-log .history-date-header:first-of-type {
+    margin-top: 0; /* Quitamos el margen superior extra del primer título */
+}
+
+.history-entry {
+    background-color: #ffffff; /* Fondo blanco */
+    border: 1px solid #e0e0e0; /* Borde más suave */
+    border-radius: 6px; /* Bordes ligeramente más redondeados */
+    padding: 15px 20px; /* Más padding */
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra sutil */
+    transition: box-shadow 0.2s ease-in-out; /* Transición suave al pasar el ratón */
+}
+
+.history-entry:hover {
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); /* Sombra más pronunciada al pasar el ratón */
+}
+
+.history-exercise-title { /* Estilos para el H3 del ejercicio */
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #333; /* Color de título oscuro */
+    font-size: 1.2em;
+    font-weight: 600; /* Un poco más de peso */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espacio entre icono y ejercicio */
+}
+
+.history-exercise-title i.fa-dumbbell { /* Estilo específico para el icono de pesa */
+    color: #5cb85c; /* Icono de pesa en verde */
+}
+
+
+.history-sets-list {
+    list-style: none; /* Quitar puntos */
+    padding-left: 10px; /* Indentación ligera */
+    margin-bottom: 15px;
+    font-size: 0.95em;
+    color: #555; /* Color de texto gris oscuro */
+}
+
+.history-set-item {
+    margin-bottom: 6px; /* Espacio entre series */
+    position: relative; /* Para el pseudo-elemento */
+    padding-left: 15px; /* Espacio para el "bullet" personalizado */
+}
+
+/* "Bullet" personalizado para cada serie */
+.history-set-item::before {
+    content: '•'; /* Puedes usar '✓' o cualquier otro caracter */
+    color: #007bff; /* Color del bullet */
+    font-weight: bold;
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 1px; /* Ajuste vertical fino si es necesario */
+}
+
+
+.history-entry-actions {
+    margin-top: 10px;
+    display: flex; /* Alinear botones */
+    gap: 10px; /* Espacio entre botones */
+    justify-content: flex-end; /* Alinear botones a la derecha */
+}
+
+/* Estilo común para botones de acción */
+.history-entry-actions button {
+    padding: 5px 12px;
+    font-size: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    display: inline-flex; /* Para alinear icono y texto dentro del botón */
+    align-items: center;
+    gap: 5px; /* Espacio entre icono y texto del botón */
+    transition: opacity 0.2s ease;
+}
+
+.history-entry-actions button:hover {
+    opacity: 0.85; /* Efecto hover suave */
+}
+
+/* Estilo específico botón eliminar */
+.button-delete {
+    background-color: #d9534f; /* Rojo */
+}
+
+/* Estilo específico botón editar */
+.button-edit {
+    background-color: #777; /* Gris */
+}
+
+/* Asegurarnos que el botón editar deshabilitado se vea bien */
+.button-edit:disabled {
+     cursor: not-allowed; /* Mantener cursor no permitido */
+     opacity: 0.6; /* Hacerlo más tenue */
+}
+
+
+/* --- Fin Nuevos Estilos Mejorados --- */

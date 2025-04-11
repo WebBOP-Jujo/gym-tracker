@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let i = 1; i <= numberOfSets; i++) {
                 const setGroup = document.createElement('div');
                 setGroup.classList.add('set-group');
+                // Mantenemos los estilos inline aquí porque son parte del formulario, no del historial
                 setGroup.innerHTML = `
                     <strong>Serie ${i}:</strong>
                     <label for="reps-set-${i}">Reps:</label>
@@ -69,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
              addButton.textContent = '+ Añadir Serie';
              addButton.type = 'button';
              addButton.id = 'add-set-button';
+             // Mantenemos estilos inline aquí
              addButton.style.marginTop = '10px';
              addButton.style.padding = '8px 12px';
              addButton.style.backgroundColor = '#5bc0de';
@@ -90,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
          }
          const setGroup = document.createElement('div');
          setGroup.classList.add('set-group');
+         // Mantenemos estilos inline aquí
          setGroup.innerHTML = `
             <strong>Serie ${nextSetNumber}:</strong>
             <label for="reps-set-${nextSetNumber}">Reps:</label>
@@ -128,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
          setsInput.value = setGroups.length;
          const addButton = document.getElementById('add-set-button');
          if(addButton && setGroups.length === 0) {
-             // No ocultar
+            // No ocultar
          } else if (!addButton && setGroups.length > 0) {
              addAddSetButton();
          }
@@ -138,7 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleFormSubmit(event) {
         event.preventDefault();
-        if (!SCRIPT_URL || SCRIPT_URL === 'PEGA_AQUI_LA_URL_DE_TU_SCRIPT_IMPLEMENTADO') { // Mantener esta comprobación por si acaso
+        // ... (resto del código de handleFormSubmit sin cambios) ...
+        if (!SCRIPT_URL || SCRIPT_URL === 'PEGA_AQUI_LA_URL_DE_TU_SCRIPT_IMPLEMENTADO') {
             alert("Error: La URL del script de Google Apps no está configurada en script.js");
             return;
         }
@@ -193,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setsInputsContainer.innerHTML = '';
                  addAddSetButton();
                  setsInput.value = '';
-                loadHistory(); // Recargar historial <<< IMPORTANTE
+                loadHistory();
             } else {
                 console.error('Error del script:', result.message);
                 alert(`Error al guardar: ${result.message}`);
@@ -206,10 +210,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Funciones de Carga y Visualización del Historial (MODIFICADAS) ---
+    // --- Funciones de Carga y Visualización del Historial ---
 
     async function loadHistory() {
-         if (!SCRIPT_URL) { // Simplificado, ya que la URL está definida arriba
+         if (!SCRIPT_URL) {
             historyLog.innerHTML = '<p style="color:red;">Error: La URL del script de Google Apps no está configurada.</p>';
             return;
         }
@@ -219,21 +223,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === 'success') {
-                allHistoryData = result.data; // Guarda TODOS los datos en la variable global
-                displayGroupedHistory(allHistoryData); // Llama a la nueva función para mostrar agrupado
+                allHistoryData = result.data;
+                displayGroupedHistory(allHistoryData); // Llama a la función MODIFICADA
             } else {
                  console.error('Error del script al cargar:', result.message);
                  historyLog.innerHTML = `<p style="color:red;">Error al cargar el historial: ${result.message}</p>`;
-                 allHistoryData = []; // Limpiar en caso de error
+                 allHistoryData = [];
             }
         } catch (error) {
              console.error('Error en fetch al cargar:', error);
              historyLog.innerHTML = `<p style="color:red;">Error de conexión al cargar el historial: ${error.message}.</p>`;
-             allHistoryData = []; // Limpiar en caso de error
+             allHistoryData = [];
         }
     }
 
-    // NUEVA FUNCIÓN para mostrar el historial AGRUPADO por fecha
+    // FUNCIÓN MODIFICADA para mostrar el historial AGRUPADO por fecha CON CLASES E ICONOS
     function displayGroupedHistory(historyData) {
         historyLog.innerHTML = ''; // Limpiar vista actual
 
@@ -242,9 +246,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 1. Agrupar las entradas por fecha (DD/MM/YYYY)
         const groupedByDate = historyData.reduce((acc, entry) => {
-            const entryDateObject = new Date(entry.timestamp); // Usa el timestamp
+            const entryDateObject = new Date(entry.timestamp);
             const displayDate = entryDateObject.toLocaleDateString('es-ES', {
                 day: '2-digit', month: '2-digit', year: 'numeric'
             });
@@ -255,82 +258,80 @@ document.addEventListener('DOMContentLoaded', () => {
             return acc;
         }, {});
 
-        // 2. Obtener las fechas y ordenarlas (más reciente primero)
         const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
             const [dayA, monthA, yearA] = a.split('/').map(Number);
             const [dayB, monthB, yearB] = b.split('/').map(Number);
             const dateA = new Date(yearA, monthA - 1, dayA);
             const dateB = new Date(yearB, monthB - 1, dayB);
-            return dateB - dateA; // Orden descendente
+            return dateB - dateA;
         });
 
-        // 3. Iterar sobre las fechas ordenadas y mostrar las entradas
+        // --- INICIO: Modificaciones para clases e iconos ---
         sortedDates.forEach(date => {
             const dateHeading = document.createElement('h2');
-            dateHeading.textContent = date;
-            dateHeading.style.marginTop = '25px';
-            dateHeading.style.marginBottom = '10px';
-            dateHeading.style.paddingBottom = '5px';
-            dateHeading.style.borderBottom = '2px solid #666'; // Borde gris oscuro
-            dateHeading.style.color = '#333'; // Color de texto oscuro
+            dateHeading.classList.add('history-date-header'); // Clase para H2
+            dateHeading.innerHTML = `<i class="fas fa-calendar-alt"></i> ${date}`; // Icono y fecha
             historyLog.appendChild(dateHeading);
 
             const entriesForDate = groupedByDate[date];
 
             entriesForDate.forEach(entry => {
                 const entryDiv = document.createElement('div');
-                entryDiv.style.border = '1px solid #eee';
-                entryDiv.style.padding = '10px 15px';
-                entryDiv.style.marginBottom = '10px';
-                entryDiv.style.borderRadius = '4px';
-                entryDiv.style.backgroundColor = '#fdfdfd'; // Fondo casi blanco
+                entryDiv.classList.add('history-entry'); // Clase para DIV principal
 
                 let setsDetails = '';
                 entry.sets.sort((a, b) => a.set - b.set).forEach(set => {
-                    setsDetails += `<li style="margin-bottom: 3px;">Serie ${set.set}: ${set.reps} reps @ ${set.weight} kg</li>`; // Estilo li directo
+                    // Clase para LI
+                    setsDetails += `<li class="history-set-item">Serie ${set.set}: ${set.reps} reps @ ${set.weight} kg</li>`;
                 });
 
-                // El H3 ahora solo tiene el ejercicio
+                // Usamos clases y añadimos iconos
                 entryDiv.innerHTML = `
-                    <h3 style="margin-top: 0; margin-bottom: 8px; color: #444; font-size: 1.1em;">${entry.exercise}</h3>
-                    <ul style="list-style: none; padding-left: 5px; margin-bottom: 10px; font-size: 0.95em; color: #555;">
+                    <h3 class="history-exercise-title">
+                        <i class="fas fa-dumbbell"></i> ${entry.exercise}
+                    </h3>
+                    <ul class="history-sets-list">
                         ${setsDetails}
                     </ul>
-                    <button onclick="deleteEntry('${entry.id}')" style="padding: 4px 8px; background-color: #d9534f; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Eliminar</button>
-                    <button disabled onclick="editEntry('${entry.id}')" style="padding: 4px 8px; background-color: #777; color: white; border: none; border-radius: 3px; cursor: not-allowed; font-size: 11px; margin-left: 5px;">Editar</button>
+                    <div class="history-entry-actions">
+                         <button class="button-delete" onclick="deleteEntry('${entry.id}')"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                         <button class="button-edit" disabled onclick="editEntry('${entry.id}')"><i class="fas fa-pencil-alt"></i> Editar</button>
+                     </div>
                 `;
                 historyLog.appendChild(entryDiv);
             });
         });
+         // --- FIN: Modificaciones para clases e iconos ---
     }
 
 
     // --- Funciones de Borrado, Edición y Carga (Sin cambios en su lógica interna) ---
 
     window.deleteEntry = async function(id) {
-        if (!id) { console.error("Intento de eliminar sin ID"); return; }
-        if (confirm(`¿Estás seguro de que quieres eliminar este registro (${id})?`)) {
-            if (!SCRIPT_URL) { alert("Error: La URL del script no está configurada."); return; }
-            setLoading(true, 'Eliminando...');
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'delete', id: id })
-                });
-                const result = await response.json();
-                if (result.status === 'success') {
-                    alert(result.message || 'Registro eliminado.');
-                    loadHistory(); // Recargar historial <<< IMPORTANTE
-                } else {
-                     console.error('Error del script al eliminar:', result.message);
-                     alert(`Error al eliminar: ${result.message}`);
-                }
-            } catch (error) {
-                console.error('Error en fetch al eliminar:', error);
-                alert(`Error de conexión al eliminar: ${error.message}.`);
-            } finally {
-                setLoading(false);
-            }
-        }
+       // ... (resto del código de deleteEntry sin cambios) ...
+       if (!id) { console.error("Intento de eliminar sin ID"); return; }
+       if (confirm(`¿Estás seguro de que quieres eliminar este registro (${id})?`)) {
+           if (!SCRIPT_URL) { alert("Error: La URL del script no está configurada."); return; }
+           setLoading(true, 'Eliminando...');
+           try {
+               const response = await fetch(SCRIPT_URL, {
+                   method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'delete', id: id })
+               });
+               const result = await response.json();
+               if (result.status === 'success') {
+                   alert(result.message || 'Registro eliminado.');
+                   loadHistory();
+               } else {
+                    console.error('Error del script al eliminar:', result.message);
+                    alert(`Error al eliminar: ${result.message}`);
+               }
+           } catch (error) {
+               console.error('Error en fetch al eliminar:', error);
+               alert(`Error de conexión al eliminar: ${error.message}.`);
+           } finally {
+               setLoading(false);
+           }
+       }
     }
 
     window.editEntry = function(id) {
@@ -338,6 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setLoading(isLoading, message = 'Procesando...') {
+        // ... (resto del código de setLoading sin cambios) ...
         if (isLoading) {
             submitButton.disabled = true;
             submitButton.textContent = message;
@@ -348,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Inicialización ---
-    loadHistory(); // Cargar historial al iniciar la página
-    handleExerciseChange(); // Estado inicial del campo custom
-    addAddSetButton(); // Botón añadir serie inicial
+    loadHistory();
+    handleExerciseChange();
+    addAddSetButton();
 });
