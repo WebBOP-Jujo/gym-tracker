@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 data: {
                     labels: labels, // Eje X: Fechas (DD/MM)
                     datasets: [{
-                        label: `Progreso e1RM (kg) - ${selectedExercise}`,
+                        label: `Progreso - ${selectedExercise}`,
                         data: dataPoints, // Eje Y: Media e1RM
                         borderColor: 'rgb(75, 192, 192)', // Color de la línea
                         backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color del área bajo la línea (opcional)
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             beginAtZero: false, // Empezar eje Y cerca del valor mínimo
                             title: {
                                 display: true,
-                                text: 'e1RM Medio (kg)'
+                                text: 'Kilos'
                             }
                         },
                         x: {
