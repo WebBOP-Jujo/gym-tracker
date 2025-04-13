@@ -1,0 +1,48 @@
+Resumen de Contexto - Gym Tracker App (Versión Actual - "V1")
+Propósito: Aplicación web sencilla para registrar entrenamientos de gimnasio (ejercicio, series, repeticiones, peso).
+Tecnología:
+Frontend: HTML, CSS, JavaScript. Desplegado en GitHub Pages.
+Backend: Google Apps Script actuando como API web.
+Base de Datos: Google Sheet (RegistrosGym) con columnas para Timestamp, WorkoutID, Date (DD/MM/YYYY), Exercise, SetNumber, Reps, Weight.
+Funcionalidades Implementadas y Funcionando:
+Formulario para registrar entrenamientos con desplegable de ejercicios predefinidos y opción personalizada.
+Generación dinámica de inputs para series (con botones +/- para añadir/quitar).
+Guardado de datos: Envío mediante fetch (POST) al Apps Script, que guarda en Google Sheets.
+Carga de Historial:
+Petición fetch (GET) al Apps Script.
+Carga Inicial Limitada: Por defecto, pide y muestra solo los datos de los últimos INITIAL_DAYS_TO_LOAD (actualmente 7) días con registros.
+Filtrado por Fecha Específica: Input de fecha (<input type="date">) permite al usuario seleccionar un día. Si el día está entre los cargados inicialmente, se filtra localmente (JS). Si es un día anterior, se hace una nueva petición fetch al Apps Script pidiendo solo los datos de esa fecha.
+Botón "Mostrar Recientes" para volver a la carga inicial limitada.
+Visualización del Historial:
+Los registros se muestran agrupados por fecha (DD/MM/YYYY), con la fecha más reciente primero.
+Cada entrada muestra el ejercicio y los detalles de cada serie.
+Contador Total Días: El título "Historial de Entrenamientos" muestra el número total de días únicos con registros (ej. "... (Total: X días)"). Este dato lo calcula y envía el Apps Script.
+Pre-relleno del Formulario: Al seleccionar un ejercicio en el formulario, la app busca el último registro disponible en los datos cargados localmente (initiallyLoadedData) para ese ejercicio y rellena los placeholders de los inputs de Reps y Peso con esos datos (el input de número de series sí se actualiza con el valor). Si no se encuentra localmente, limpia los campos de series.
+Visualización de Progreso (Gráfica):
+Sección dedicada con un desplegable (#graph-exercise-select) que se rellena dinámicamente con los ejercicios presentes en initiallyLoadedData.
+Botones para mostrar/ocultar gráfica.
+Usa Chart.js para mostrar una gráfica de líneas.
+Métrica: Grafica la Media del e1RM diario (calculado con fórmula de Epley para cada serie efectiva registrada ese día) para el ejercicio seleccionado.
+Eje X: Fechas (DD/MM). Eje Y: Valor e1RM Medio (kg). Tooltip muestra fecha completa y valor.
+Estilo y UI:
+Interfaz mejorada con CSS, incluyendo uso de Font Awesome para iconos.
+Secciones de Formulario, Gráfica, Filtro e Historial con estilos coherentes (fondos, bordes, sombras, alineación flex).
+Botones con iconos y efectos hover.
+Última Actividad / Estado:
+Se implementaron y confirmaron como funcionales las características de contador de días y pre-relleno del formulario (con placeholders, buscando en datos locales).
+Se solucionó un SyntaxError en script.js (probablemente relacionado con la selección del historyTitleElement o el uso de baseHistoryTitle).
+Se ajustaron los textos de la leyenda y el eje Y de la gráfica para mejorar la visibilidad en móviles.
+Planes / Ideas Futuras Discutidas (No implementadas):
+Edición de registros.
+PRs (detección/visualización).
+Más opciones de gráficas (Volumen Total).
+Plantillas de entrenamiento.
+Notas/Comentarios.
+Filtro historial por ejercicio.
+Mejoras visuales (spinner, modo oscuro).
+Resúmenes semanales/mensuales.
+Exportar datos.
+Temporizador descanso.
+Múltiples Usuarios: Se discutió una Opción 1 (simple, sin seguridad, separando por nombre en la misma hoja y filtrando en JS) y una Opción 2 (segura, con Google Sign-In, verificación de token, filtrado en backend). Se decidió posponer esta funcionalidad, manteniendo la app como V1 (single-user) por ahora, con la idea de quizás explorar la Opción 1 como ejercicio ("V1.1") y eventualmente la Opción 2 ("V2") partiendo de nuevo de la V1.
+App Android: Se discutió PWA (fácil) y WebView Wrapper con Capacitor (más complejo, para Play Store) como posibilidades futuras.
+Workflow: Paso a paso (HTML -> JS -> Apps Script), donde yo modifico los archivos que tú me pasas.
