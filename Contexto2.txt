@@ -1,0 +1,103 @@
+Opción 1: Contexto Original Actualizado
+(Se toma el texto original y se modifican/añaden detalles según los últimos cambios)
+Resumen de Contexto - Gym Tracker App (Versión Actual - "V1" - Actualizado)
+Propósito: Aplicación web sencilla para registrar entrenamientos de gimnasio (ejercicio, series, repeticiones, peso).
+Tecnología:
+Frontend: HTML, CSS, JavaScript. Desplegado en GitHub Pages.
+Backend: Google Apps Script actuando como API web.
+Base de Datos: Google Sheet (RegistrosGym) con columnas para Timestamp, WorkoutID, Date (DD/MM/YYYY o formato Fecha), Exercise, SetNumber, Reps, Weight.
+Funcionalidades Implementadas y Funcionando:
+Formulario para registrar entrenamientos con desplegable de ejercicios predefinidos y opción personalizada.
+Generación dinámica de inputs para series (con botones +/- para añadir/quitar).
+Guardado de datos: Envío mediante fetch (POST) al Apps Script, que guarda en Google Sheets.
+Carga de Historial:
+Petición fetch (GET) al Apps Script.
+Carga Inicial Limitada: Por defecto, pide y muestra solo los datos de los últimos INITIAL_DAYS_TO_LOAD (actualmente 7) días con registros.
+Filtrado por Fecha Específica: Input de fecha (<input type="date">) permite al usuario seleccionar un día. Si el día está entre los cargados inicialmente, se filtra localmente (JS). Si es un día anterior, se hace una nueva petición fetch al Apps Script pidiendo solo los datos de esa fecha. (Corregido: El título ahora muestra la fecha seleccionada correctamente, evitando el error de zona horaria).
+Botón "Mostrar Recientes" para volver a la carga inicial limitada.
+Visualización del Historial:
+Los registros se muestran agrupados por fecha (DD/MM/YYYY), con la fecha más reciente primero.
+Cada entrada muestra el ejercicio y los detalles de cada serie en formato Serie N: **R** reps → **W** kg. (Formato Mejorado)
+Contador Total Días: El título "Historial de Entrenamientos" muestra el número total de días únicos con registros (ej. "... (Total: X días)"). Este dato lo calcula y envía el Apps Script. (Corregido: Apps Script ahora maneja correctamente las celdas con formato Fecha de Google Sheets para el cálculo).
+Pre-relleno del Formulario: Al seleccionar un ejercicio en el formulario, la app busca el último registro disponible en los datos cargados localmente (initiallyLoadedData) para ese ejercicio y rellena los placeholders de los inputs de Reps y Peso con esos datos (el input de número de series sí se actualiza con el valor). Si no se encuentra localmente, limpia los campos de series.
+Visualización de Progreso (Gráfica):
+Sección dedicada con un desplegable (#graph-exercise-select) que se rellena dinámicamente con los ejercicios presentes en initiallyLoadedData.
+Botones para mostrar/ocultar gráfica.
+Usa Chart.js para mostrar una gráfica de líneas.
+Métrica: Grafica la Media del e1RM diario (calculado con fórmula de Epley para cada serie efectiva registrada ese día) para el ejercicio seleccionado.
+Eje X: Fechas (DD/MM). Eje Y: Valor e1RM Medio (kg). Tooltip muestra fecha completa y valor.
+Ajustes Móviles Realizados:
+El título de la leyenda se acortó a Progreso - {Ejercicio} para ahorrar espacio.
+El título del eje X ("Fecha (DD/MM)") se ocultó.
+Se estableció maintainAspectRatio: false para que el gráfico use mejor el ancho.
+Se eliminó el padding horizontal del contenedor #graph-container en CSS para reducir espacios blancos laterales.
+Estilo y UI:
+Interfaz mejorada con CSS, incluyendo uso de Font Awesome para iconos.
+Secciones de Formulario, Gráfica, Filtro e Historial con estilos coherentes (fondos, bordes, sombras, alineación flex).
+Botones con iconos y efectos hover.
+Última Actividad / Estado:
+Se solucionó bug que mostraba 0 en el contador total de días (Apps Script no leía bien formato Fecha).
+Se solucionó bug que mostraba una fecha incorrecta (día anterior) en el título al filtrar por fecha específica (problema de timezone en JS).
+Se mejoró el formato de visualización de las series en el historial para mayor claridad (Serie N: **R** reps → **W** kg).
+Se realizaron varios ajustes a la gráfica de Chart.js para mejorar su visualización en dispositivos móviles (leyenda, título eje X, aspect ratio, padding contenedor).
+Planes / Ideas Futuras Discutidas (No implementadas):
+Edición de registros.
+PRs (detección/visualización).
+Más opciones de gráficas (Volumen Total).
+Plantillas de entrenamiento.
+Notas/Comentarios.
+Filtro historial por ejercicio.
+Mejoras visuales (spinner, modo oscuro).
+Resúmenes semanales/mensuales.
+Exportar datos.
+Temporizador descanso.
+Múltiples Usuarios (Opción 1 simple pospuesta, Opción 2 segura V2 pospuesta).
+App Android (PWA/WebView discutido como futuro).
+Workflow: Paso a paso (HTML -> JS -> Apps Script), donde tú modificas los archivos que yo te paso.
+Opción 2: Nuevo Resumen de Contexto Estructurado
+Contexto Aplicación Web: Gym Tracker (V1 - Estado Actual)
+Propósito:
+Aplicación web simple (Single-User) para registrar entrenamientos de gimnasio: ejercicio, series, repeticiones y peso.
+Tecnología y Arquitectura:
+Frontend: HTML, CSS, JavaScript vanilla. Interfaz estilizada con CSS básico y Font Awesome.
+Despliegue Frontend: GitHub Pages.
+Backend: API web implementada con Google Apps Script.
+Base de Datos: Hoja de cálculo de Google Sheets (RegistrosGym) con columnas: Timestamp, WorkoutID, Date (Fecha o DD/MM/YYYY), Exercise, SetNumber, Reps, Weight.
+Funcionalidades Clave Implementadas:
+Registro de Entrenamientos:
+Formulario con desplegable de ejercicios (lista predefinida + opción "Otro").
+Input para nombre de ejercicio personalizado (si se elige "Otro").
+Gestión dinámica de series: Input numérico para indicar nº de series y generación automática de campos Reps/Peso para cada una. Botones +/X para añadir/quitar series individualmente.
+Guardado de Datos:
+Envío asíncrono (Fetch API, método POST) al endpoint de Google Apps Script.
+Apps Script recibe los datos (Ejercicio, array de {set, reps, weight}), genera Timestamp, WorkoutID, Date (formato Fecha) y añade una fila por cada serie a la Google Sheet.
+Visualización del Historial:
+Petición inicial (Fetch API, método GET) al cargar la página para obtener los datos de los últimos INITIAL_DAYS_TO_LOAD (7) días con registros.
+Se muestra agrupado por fecha (más reciente primero), con cabeceras <h2> por día.
+Cada entrada muestra el nombre del ejercicio y una lista de sus series.
+Formato de Series: Mejorado para claridad: Serie N: <strong>R</strong> reps &rarr; <strong>W</strong> kg.
+Contador Total Días: El título del historial incluye (Total: X días). Calculado en Apps Script leyendo todas las fechas únicas de la hoja (maneja formato Date correctamente).
+Filtrado de Historial por Fecha:
+Input <input type="date"> para seleccionar un día específico.
+Si la fecha está en los datos ya cargados, se filtra localmente en JS.
+Si es una fecha anterior, nueva petición GET al Apps Script (?load=specific&date=YYYY-MM-DD).
+Título de Fecha Específica: Muestra "Historial para DD/MM/YYYY" con la fecha correcta (corregido problema de timezone).
+Botón "Mostrar Recientes" para volver a la vista inicial limitada.
+Pre-relleno del Formulario:
+Al seleccionar un ejercicio del desplegable, busca localmente (initiallyLoadedData) el último registro de ese ejercicio.
+Si lo encuentra, actualiza el input numérico de series y rellena los placeholders de Reps y Peso con los datos del último entrenamiento encontrado. Si no, limpia los campos de series.
+Gráfica de Progreso (e1RM):
+Sección separada con desplegable para seleccionar ejercicio (poblado desde initiallyLoadedData).
+Usa Chart.js para mostrar gráfica de líneas del e1RM medio diario (calculado con fórmula Epley).
+Eje Y: e1RM Medio (kg), Eje X: Fechas (DD/MM).
+Ajustes Móviles: Leyenda corta arriba (Progreso - {Ejercicio}), título eje X oculto, maintainAspectRatio: false, padding horizontal del contenedor CSS eliminado para mejor uso del espacio.
+Eliminación de Entradas: Botón 'Eliminar' en cada entrada del historial (envía POST a Apps Script con action: 'delete' y WorkoutID).
+Estado Actual y Últimos Cambios Realizados:
+Funcionalidad base de registro, guardado y visualización de historial operativa.
+Gráfica de progreso e1RM funcional.
+Correcciones Recientes: Bug contador días totales (manejo de Fechas en GS), bug título fecha específica (timezone JS).
+Mejoras Recientes: Formato de series en historial, optimización visual de la gráfica en móviles.
+Planes Futuros Discutidos (No implementados):
+Edición de registros, detección/visualización de PRs, más gráficas (Volumen), plantillas, notas, filtro por ejercicio, spinner de carga, modo oscuro, resúmenes, exportar, temporizador, multi-usuario (V1.1 simple / V2 segura), PWA/App Android.
+Metodología de Colaboración:
+El usuario modifica los archivos (HTML, CSS, JS, GS) proporcionados por la IA.
