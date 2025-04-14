@@ -23,3 +23,4 @@ Estas notificaciones aparecen en la esquina superior derecha para informar sobre
 Mejora del Mensaje de Eliminación:
 Se modificó el mensaje de confirmación confirm() para no mostrar el WorkoutID técnico (esto lo hiciste tú).
 Se modificó el backend (codigo.gs) para que, tras una eliminación exitosa, devuelva un mensaje genérico ("Registro eliminado correctamente.") en lugar de uno que incluya el WorkoutID, mejorando el mensaje mostrado en la notificación toast.
+Se añade la funcionalidad de que al registrar un ejercicio si no hay datos anteriores, las series empiezan directamente en 1, no en 0.
