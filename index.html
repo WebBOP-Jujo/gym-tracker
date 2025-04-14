@@ -14,6 +14,12 @@
 </head>
 <body>
 
+    <!-- INICIO: Área para Notificaciones Toast (AÑADIDO) -->
+    <div id="notification-area" class="notification-container">
+        <!-- Las notificaciones se añadirán aquí dinámicamente por JS -->
+    </div>
+    <!-- FIN: Área para Notificaciones Toast -->
+
     <!-- INICIO Contenedor Principal -->
     <div class="container">
 
@@ -50,7 +56,8 @@
 
             <div class="form-group">
                 <label for="sets">Número de Series:</label>
-                <input type="number" id="sets" name="sets" min="0" placeholder="Añade series">
+                <!-- MODIFICADO: Placeholder ligeramente mejorado -->
+                <input type="number" id="sets" name="sets" min="0" placeholder="Nº Series (o añade abajo)">
             </div>
 
             <div id="sets-inputs">
@@ -58,7 +65,7 @@
                 <!-- El botón "+ Añadir Serie" se añadirá aquí por JS -->
             </div>
 
-            <button type="submit">Guardar Entrenamiento</button>
+            <button type="submit">Guardar Entrenamiento</button> <!-- JS modificará este botón con spinner -->
         </form>
 
         <!-- ================================== -->
@@ -75,6 +82,7 @@
                 <button id="show-graph-btn" disabled><i class="fas fa-chart-line"></i> Mostrar Gráfica</button>
                 <button id="hide-graph-btn" style="display: none;"><i class="fas fa-eye-slash"></i> Ocultar Gráfica</button>
             </div>
+            <!-- MODIFICADO: Padding ajustado en style.css -->
             <div id="graph-container" style="margin-top: 20px; display: none;">
                 <canvas id="progress-chart"></canvas> <!-- Canvas para Chart.js -->
             </div>
@@ -98,7 +106,16 @@
 
 
         <h2>Historial de Entrenamientos</h2>
+        <!-- MODIFICADO: Contenedor padre para el spinner -->
         <div id="history-log">
+            <!-- INICIO: Spinner para el historial (AÑADIDO) -->
+            <div id="history-spinner" class="spinner-container" style="display: none;">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+                <p>Procesando...</p> <!-- Este texto se puede cambiar desde JS -->
+            </div>
+            <!-- FIN: Spinner para el historial -->
+
+            <!-- Mensaje inicial por defecto -->
             <p>Aún no hay registros.</p>
             <!-- Aquí se mostrará el historial -->
         </div>

@@ -157,6 +157,9 @@ h1 { /* Título Principal */
     align-items: center;
     gap: 8px;
     margin-top: 25px;
+    min-height: 45px; /* Altura mínima para evitar saltos al cambiar contenido */
+    min-width: 150px; /* Ancho mínimo */
+    justify-content: center; /* Centrar contenido (icono y texto) */
 }
 
 #workout-form button[type="submit"]:hover {
@@ -171,35 +174,36 @@ h1 { /* Título Principal */
     opacity: 0.7;
 }
 
-#workout-form button[type="submit"] i {
-    /* No necesita estilos específicos por ahora */
+#workout-form button[type="submit"] i.fa-spinner {
+    /* Estilo específico si el spinner está dentro del botón */
+    font-size: 1em; /* Ajustar tamaño si es necesario */
 }
 
 /* --- Estilos para la Sección de Progreso (Gráfica) --- */
 #progress-section {
-    background-color: #fff; /* Fondo blanco como el filtro */
-    padding: 20px; /* Padding similar */
-    margin-bottom: 40px; /* Espacio antes del filtro historial */
-    border-radius: 8px; /* Bordes redondeados */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.08); /* Sombra similar */
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
 
 #progress-section h2 {
-    text-align: center; /* Centrar título de la sección */
-    margin-top: 0; /* Quitar margen superior */
-    margin-bottom: 20px; /* Espacio debajo del título */
-    color: #333; /* Color oscuro */
-    font-size: 1.5em; /* Tamaño adecuado */
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 1.5em;
 }
 
 #graph-controls {
     display: flex;
     align-items: center;
-    gap: 15px; /* Mismo gap que el filtro */
-    flex-wrap: wrap; /* Permitir que bajen en pantallas pequeñas */
-    border-bottom: 1px solid #eee; /* Línea separadora antes de la gráfica */
-    padding-bottom: 20px; /* Espacio después de los controles */
-    margin-bottom: 20px; /* Espacio antes de la gráfica (si se muestra) */
+    gap: 15px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 #graph-controls label {
@@ -213,8 +217,8 @@ h1 { /* Título Principal */
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 0.95rem;
-    min-width: 200px; /* Ancho mínimo para el desplegable */
-    flex-grow: 1; /* Permitir que crezca si hay espacio */
+    min-width: 200px;
+    flex-grow: 1;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 #graph-controls select#graph-exercise-select:focus {
@@ -223,7 +227,6 @@ h1 { /* Título Principal */
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Estilo botones de la gráfica (Mostrar/Ocultar) */
 #graph-controls button {
     padding: 8px 15px;
     border: none;
@@ -237,20 +240,20 @@ h1 { /* Título Principal */
 }
 
 #graph-controls button#show-graph-btn {
-    background-color: #17a2b8; /* Color cian/info */
+    background-color: #17a2b8;
     color: white;
 }
 #graph-controls button#show-graph-btn:hover {
     background-color: #138496;
 }
 #graph-controls button#show-graph-btn:disabled {
-    background-color: #adb5bd; /* Gris claro si está deshabilitado */
+    background-color: #adb5bd;
     cursor: not-allowed;
     opacity: 0.7;
 }
 
 #graph-controls button#hide-graph-btn {
-    background-color: #6c757d; /* Mismo gris que "Mostrar Recientes" */
+    background-color: #6c757d;
     color: white;
 }
 #graph-controls button#hide-graph-btn:hover {
@@ -260,15 +263,16 @@ h1 { /* Título Principal */
 
 /* Contenedor de la gráfica (canvas) */
 #graph-container {
-    /* Estilos adicionales si son necesarios, p.ej., max-height */
-    background-color: #fdfdfd; /* Fondo muy ligero para diferenciar */
-    padding: 15px 0;
+    background-color: #fdfdfd;
+    padding: 15px 0; /* Mantenido de la corrección anterior */
     border-radius: 4px;
     border: 1px solid #eee;
+    margin-top: 20px; /* Añadido (estaba en el HTML inline antes) */
+    /* display: none; lo controla JS */
 }
 
 
-/* --- Estilos para el Filtro de Historial (Mantenidos) --- */
+/* --- Estilos para el Filtro de Historial --- */
 #history-filter {
     background-color: #fff;
     padding: 15px 20px;
@@ -318,20 +322,21 @@ h1 { /* Título Principal */
 }
 
 
-/* --- Estilos del Historial (Mantenidos) --- */
+/* --- Estilos del Historial --- */
 #history-log {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     margin-top: 0;
+    position: relative; /* AÑADIDO: Necesario para el spinner absoluto */
+    min-height: 150px; /* AÑADIDO: Espacio mínimo para mostrar el spinner */
 }
 
 #history-log h2 {
-     text-align: center;
-     margin-top: 40px;
-     margin-bottom: 25px;
-     color: #333;
+     /* Este H2 está fuera de #history-log en el HTML, así que los estilos aquí no le aplicarían.
+        Si el H2 está justo ANTES de #history-log, sus estilos están bien como estaban.
+        Ej: #history-filter + h2 { ... } si es necesario */
 }
 
 #history-log h3 {
@@ -340,7 +345,8 @@ h1 { /* Título Principal */
    margin-bottom: 0;
 }
 
-#history-log p {
+/* Estilo del párrafo inicial dentro de #history-log */
+#history-log > p:first-of-type { /* Selecciona el primer párrafo (el de 'Aún no hay registros') */
     margin-bottom: 10px;
     text-align: center;
     color: #777;
@@ -454,4 +460,122 @@ h1 { /* Título Principal */
      cursor: not-allowed;
      opacity: 0.6;
 }
+
+/* --- AÑADIDO: Estilos para el Spinner de Carga del Historial --- */
+.spinner-container {
+    position: absolute; /* Para superponerse */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco semitransparente */
+    display: flex; /* Usar flexbox para centrar */
+    flex-direction: column; /* Alinear icono y texto verticalmente */
+    justify-content: center; /* Centrar verticalmente */
+    align-items: center; /* Centrar horizontalmente */
+    z-index: 10; /* Asegurar que esté por encima del contenido */
+    border-radius: 8px; /* Heredar el borde redondeado del contenedor padre */
+    /* min-height: 100px; No necesario si el padre ya tiene min-height */
+    text-align: center;
+    color: #555; /* Color del texto "Procesando..." */
+    /* display: none; lo controla JS */
+}
+
+.spinner-container .fa-spinner {
+    color: #007bff; /* Color azul, como los botones */
+    margin-bottom: 15px; /* Espacio entre el icono y el texto */
+}
+/* --- FIN Estilos Spinner Historial --- */
+
+
+/* --- AÑADIDO: Estilos para Notificaciones Toast --- */
+.notification-container {
+    position: fixed; /* Fijo en la pantalla */
+    top: 20px;       /* Espacio desde arriba */
+    right: 20px;      /* Pegado a la derecha */
+    z-index: 1050;    /* Por encima de otros elementos */
+    display: flex;
+    flex-direction: column; /* Apilar notificaciones verticalmente */
+    align-items: flex-end; /* Alinear mensajes a la derecha */
+    gap: 10px; /* Espacio entre notificaciones */
+    width: auto; /* Ajustar al contenido */
+    max-width: 90%; /* Evitar que sea demasiado ancho en pantallas grandes */
+}
+
+.toast-notification {
+    padding: 12px 18px;
+    border-radius: 5px;
+    color: #fff; /* Texto blanco por defecto */
+    font-size: 0.9em;
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    min-width: 200px; /* Ancho mínimo */
+    /* max-width: 350px; Ajustado por el contenedor */
+    opacity: 0; /* Empezar invisible para animación */
+    transform: translateX(100%); /* Empezar fuera de la pantalla (derecha) */
+    animation: slideInFadeIn 0.5s forwards; /* Animación de entrada */
+    cursor: pointer; /* Indicar que se puede hacer clic para cerrar */
+    border-left: 5px solid transparent; /* Borde base */
+    word-wrap: break-word; /* Para mensajes largos */
+}
+
+/* Tipos de notificación */
+.toast-notification.success {
+    background-color: #28a745; /* Verde éxito */
+    border-left-color: #1f7a34; /* Borde izquierdo más oscuro */
+}
+
+.toast-notification.error {
+    background-color: #dc3545; /* Rojo error */
+    border-left-color: #a71d2a;
+}
+
+.toast-notification.info {
+    background-color: #0dcaf0; /* Cyan info */
+    border-left-color: #0a8fa7;
+}
+
+/* Animación de entrada */
+@keyframes slideInFadeIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Clase para animación de salida (añadida por JS) */
+.toast-notification.fade-out {
+    animation: slideOutFadeOut 0.5s 0.1s forwards; /* Pequeño delay antes de salir */
+}
+
+/* Animación de salida */
+@keyframes slideOutFadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%); /* Deslizar hacia la derecha */
+        /* Opcional: Añadir height: 0; padding: 0; margin: 0; para colapsar */
+    }
+}
+/* --- FIN Estilos Notificaciones Toast --- */
+
+
+/* --- Media Query ejemplo (Añadida en la corrección anterior, mantener si se usa) --- */
+@media (max-width: 600px) {
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    #progress-section {
+         padding: 15px;
+    }
+    .toast-notification {
+        min-width: 150px; /* Más pequeñas en móvil */
+        font-size: 0.85em;
+    }
+}
+
 /* --- Fin Estilos --- */
