@@ -925,7 +925,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Confirmación del usuario (importante para borrado)
         // Podría reemplazarse por un modal personalizado
-        if (confirm(`¿Estás seguro de que quieres eliminar este registro completo?\nWorkout ID: ${id}\n\nEsta acción no se puede deshacer.`)) {
+        if (confirm(`¿Estás seguro de que quieres eliminar este registro completo?\n\nEsta acción no se puede deshacer.`)) {
 
             if (!SCRIPT_URL) {
                 showNotification("Error: URL del script no configurada.", 'error', 5000);
