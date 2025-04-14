@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const setsInput = document.getElementById('sets');
     const setsInputsContainer = document.getElementById('sets-inputs');
     const historyLog = document.getElementById('history-log');
-    const historyTitleElement = document.querySelector('#history-filter + h2');
+    const historyTitleElement = document.querySelector('#history-filter + h2'); // Selector ajustado si H2 está después
     const submitButton = form.querySelector('button[type="submit"]');
     const filterDateInput = document.getElementById('filter-date');
     const clearFilterBtn = document.getElementById('clear-filter-btn');
@@ -52,571 +52,982 @@ document.addEventListener('DOMContentLoaded', () => {
         const notificationArea = document.getElementById('notification-area');
         if (!notificationArea) {
             console.error("Área de notificación '#notification-area' no encontrada en el HTML.");
-            // Fallback muy básico si el contenedor no existe
             console.warn(`NOTIFICACIÓN (${type}): ${message}`);
             return;
         }
 
         const notification = document.createElement('div');
-        notification.classList.add('toast-notification', type); // Añade clase base y tipo
+        notification.classList.add('toast-notification', type);
         notification.textContent = message;
 
-        // Añadir al principio para que las nuevas aparezcan arriba
         notificationArea.insertBefore(notification, notificationArea.firstChild);
 
-        // Temporizador para iniciar la animación de salida y eliminar
         const timer = setTimeout(() => {
-            notification.classList.add('fade-out');
-            // Esperar a que termine la animación CSS antes de eliminar del DOM
-            notification.addEventListener('animationend', () => {
-                // Verificar si todavía existe en el DOM antes de intentar eliminar
-                if (notification.parentNode === notificationArea) {
-                    notificationArea.removeChild(notification);
-                }
-            }, { once: true }); // Asegurar que el listener se ejecute solo una vez
-        }, duration);
-
-        // Permitir cerrar la notificación haciendo clic en ella
-        notification.addEventListener('click', () => {
-            clearTimeout(timer); // Cancelar el temporizador de auto-cierre
             notification.classList.add('fade-out');
             notification.addEventListener('animationend', () => {
                 if (notification.parentNode === notificationArea) {
                     notificationArea.removeChild(notification);
                 }
             }, { once: true });
-        }, { once: true }); // El listener de click también se ejecuta una vez
+        }, duration);
+
+        notification.addEventListener('click', () => {
+            clearTimeout(timer);
+            notification.classList.add('fade-out');
+            notification.addEventListener('animationend', () => {
+                if (notification.parentNode === notificationArea) {
+                    notificationArea.removeChild(notification);
+                }
+            }, { once: true });
+        }, { once: true });
     }
 
     // --- Funciones de Spinner (AÑADIDO) ---
     function showHistorySpinner(message = "Procesando...") {
         if (historySpinner) {
             const pElement = historySpinner.querySelector('p');
-            if (pElement) pElement.textContent = message; // Actualizar mensaje
-            historySpinner.style.display = 'flex'; // Mostrar spinner (usamos flex por el CSS)
+            if (pElement) pElement.textContent = message;
+            historySpinner.style.display = 'flex';
         }
-         // Limpiamos el log ANTES de mostrar el spinner para evitar contenido detrás
-        if(historyLog && historySpinner) { // Asegurarse que ambos existen
-           // Eliminar todo excepto el spinner
+         if(historyLog && historySpinner) {
            Array.from(historyLog.children).forEach(child => {
               if(child.id !== 'history-spinner') {
                  historyLog.removeChild(child);
               }
            });
-           // O una forma más simple si el spinner es el primero:
-           // historyLog.innerHTML = ''; // Limpia todo
-           // historyLog.appendChild(historySpinner); // Vuelve a añadir el spinner
-           // historySpinner.style.display = 'flex'; // Y lo muestra
-           // Por seguridad, mantenemos la primera forma por si el orden cambia.
         }
     }
 
     function hideHistorySpinner() {
         if (historySpinner) {
-            historySpinner.style.display = 'none'; // Ocultar spinner
+            historySpinner.style.display = 'none';
         }
     }
 
 
-    // --- Funciones del Formulario y Series (Llamadas a alert reemplazadas) ---
+    // --- Funciones del Formulario y Series ---
 
     function handleExerciseChange() {
         const selectedValue = exerciseSelect.value;
         if (selectedValue === 'custom') {
-            customExerciseGroup.style.display = 'block'; customExerciseInput.required = true; generateSetsInputs(0, false);
+            customExerciseGroup.style.display = 'block';
+            customExerciseInput.required = true;
+            generateSetsInputs(0, false); // Al elegir 'Otro', empezar sin series
         } else {
-            customExerciseGroup.style.display = 'none'; customExerciseInput.required = false; customExerciseInput.value = '';
-            if (selectedValue) {
-                if (initiallyLoadedData && initiallyLoadedData.length > 0) { prefillFormWithLastWorkout(selectedValue); }
-                else { generateSetsInputs(0, false); }
-            } else { generateSetsInputs(0, false); }
+            customExerciseGroup.style.display = 'none';
+            customExerciseInput.required = false;
+            customExerciseInput.value = '';
+            if (selectedValue) { // Se selecciona un ejercicio real
+                if (initiallyLoadedData && initiallyLoadedData.length > 0) {
+                    prefillFormWithLastWorkout(selectedValue); // Intenta pre-rellenar
+                } else {
+                    // CASO: No hay datos iniciales cargados
+                    // MODIFICADO: Establecer 1 serie por defecto
+                    console.log("No hay datos iniciales. Estableciendo 1 serie por defecto.");
+                    setsInput.value = 1; // Actualizar input numérico
+                    generateSetsInputs(1, false); // Generar 1 serie
+                }
+            } else {
+                // Caso: Se selecciona "-- Selecciona --"
+                generateSetsInputs(0, false); // Limpiar series
+            }
         }
     }
 
     function handleSetsChange() {
         const numSets = parseInt(setsInput.value) || 0;
+        // No pre-rellenar al cambiar manualmente el número
         generateSetsInputs(numSets, false);
     }
 
     function generateSetsInputs(numberOfSets, shouldPrefillPlaceholders = false, lastWorkoutData = null) {
-        setsInputsContainer.innerHTML = '';
+        setsInputsContainer.innerHTML = ''; // Limpiar siempre antes de generar
         const setsToGenerate = Math.max(0, numberOfSets);
         if (setsToGenerate > 0 && setsToGenerate <= 20) {
-            for (let i = 1; i <= setsToGenerate; i++) { addSingleSetInput(i); }
-            if (shouldPrefillPlaceholders && lastWorkoutData && lastWorkoutData.sets) { setTimeout(() => updatePlaceholders(lastWorkoutData), 0); }
+            for (let i = 1; i <= setsToGenerate; i++) {
+                addSingleSetInput(i); // Añadir cada input de serie
+            }
+            // Solo pre-rellenar placeholders si se indica Y hay datos para ello
+            if (shouldPrefillPlaceholders && lastWorkoutData && lastWorkoutData.sets) {
+                // Usar setTimeout 0 para asegurar que los elementos estén en el DOM
+                setTimeout(() => updatePlaceholders(lastWorkoutData), 0);
+            }
         } else if (setsToGenerate > 20) {
-            showNotification("Máximo 20 series permitidas.", 'info', 4000); // Reemplaza alert
-            // No añadir botón + si hay error
-             if (document.getElementById('add-set-button')) { document.getElementById('add-set-button').remove(); }
-             updateSetNumbers();
-            return;
+            showNotification("Máximo 20 series permitidas.", 'info', 4000);
+            // Opcional: ¿Limitar el valor del input #sets a 20?
+            // setsInput.value = 20;
         }
-        addAddSetButton(); updateSetNumbers();
+        // Siempre añadir el botón "+" al final (incluso si hay 0 series)
+        addAddSetButton();
+        updateSetNumbers(); // Actualizar numeración y el input #sets (si se generaron series)
     }
 
-    function addSingleSetInput(setNumber) { /* ... sin cambios internos ... */
-        const setGroup = document.createElement('div'); setGroup.classList.add('set-group');
-        setGroup.innerHTML = `<strong>Serie ${setNumber}:</strong> <label for="reps-set-${setNumber}">Reps:</label> <input type="number" id="reps-set-${setNumber}" name="reps-set-${setNumber}" min="0" required> <label for="weight-set-${setNumber}">Peso (kg):</label> <input type="number" id="weight-set-${setNumber}" name="weight-set-${setNumber}" min="0" step="0.1" required> <button type="button" class="remove-set-btn" onclick="removeSetInput(this)" title="Quitar serie">X</button>`;
+    function addSingleSetInput(setNumber) {
+        const setGroup = document.createElement('div');
+        setGroup.classList.add('set-group');
+        // Usar placeholders vacíos por defecto, se llenan luego si aplica
+        setGroup.innerHTML = `
+            <strong>Serie ${setNumber}:</strong>
+            <label for="reps-set-${setNumber}">Reps:</label>
+            <input type="number" id="reps-set-${setNumber}" name="reps-set-${setNumber}" min="0" required placeholder="Reps">
+            <label for="weight-set-${setNumber}">Peso (kg):</label>
+            <input type="number" id="weight-set-${setNumber}" name="weight-set-${setNumber}" min="0" step="0.1" required placeholder="kg">
+            <button type="button" class="remove-set-btn" onclick="removeSetInput(this)" title="Quitar serie">X</button>`;
         const addButton = document.getElementById('add-set-button');
-        if (addButton) { setsInputsContainer.insertBefore(setGroup, addButton); } else { setsInputsContainer.appendChild(setGroup); }
+        if (addButton) {
+            setsInputsContainer.insertBefore(setGroup, addButton); // Insertar antes del botón '+'
+        } else {
+            setsInputsContainer.appendChild(setGroup); // Añadir si el botón aún no existe
+        }
     }
 
-    function addAddSetButton() { /* ... sin cambios internos ... */
-        if (!document.getElementById('add-set-button')) { const addButton = document.createElement('button'); addButton.type = 'button'; addButton.id = 'add-set-button'; addButton.innerHTML = `<i class="fas fa-plus"></i> Añadir Serie`; addButton.onclick = addSetInput; setsInputsContainer.appendChild(addButton); }
+    function addAddSetButton() {
+        if (!document.getElementById('add-set-button')) {
+            const addButton = document.createElement('button');
+            addButton.type = 'button';
+            addButton.id = 'add-set-button';
+            addButton.innerHTML = `<i class="fas fa-plus"></i> Añadir Serie`;
+            addButton.onclick = addSetInput; // Llama a la función global
+            setsInputsContainer.appendChild(addButton);
+        }
      }
 
     window.addSetInput = function() {
-        const currentSets = setsInputsContainer.querySelectorAll('.set-group').length; const nextSetNumber = currentSets + 1;
+        const currentSets = setsInputsContainer.querySelectorAll('.set-group').length;
+        const nextSetNumber = currentSets + 1;
         if (nextSetNumber > 20) {
-            showNotification("Máximo 20 series permitidas.", 'info', 4000); // Reemplaza alert
+            showNotification("Máximo 20 series permitidas.", 'info', 4000);
             return;
         }
-        addSingleSetInput(nextSetNumber); updateSetNumbers();
+        addSingleSetInput(nextSetNumber);
+        updateSetNumbers(); // Actualiza números y el input #sets
      }
 
-    window.removeSetInput = function(button) { /* ... sin cambios internos ... */ button.closest('.set-group').remove(); updateSetNumbers(); }
+    window.removeSetInput = function(button) {
+        button.closest('.set-group').remove();
+        updateSetNumbers(); // Actualiza números y el input #sets
+    }
 
-    function updateSetNumbers() { /* ... sin cambios internos ... */
-        const setGroups = setsInputsContainer.querySelectorAll('.set-group'); const currentNumSets = setGroups.length; setGroups.forEach((group, index) => { const setNumber = index + 1; group.querySelector('strong').textContent = `Serie ${setNumber}:`; group.querySelector('label[for^="reps-set"]').setAttribute('for', `reps-set-${setNumber}`); group.querySelector('input[id^="reps-set"]').id = `reps-set-${setNumber}`; group.querySelector('input[id^="reps-set"]').name = `reps-set-${setNumber}`; group.querySelector('label[for^="weight-set"]').setAttribute('for', `weight-set-${setNumber}`); group.querySelector('input[id^="weight-set"]').id = `weight-set-${setNumber}`; group.querySelector('input[id^="weight-set"]').name = `weight-set-${setNumber}`; }); setsInput.value = currentNumSets >= 0 ? currentNumSets : '';
+    function updateSetNumbers() {
+        const setGroups = setsInputsContainer.querySelectorAll('.set-group');
+        const currentNumSets = setGroups.length;
+        setGroups.forEach((group, index) => {
+            const setNumber = index + 1;
+            group.querySelector('strong').textContent = `Serie ${setNumber}:`;
+            // Actualizar IDs y fors para labels e inputs
+            const repsLabel = group.querySelector('label[for^="reps-set"]');
+            const repsInput = group.querySelector('input[id^="reps-set"]');
+            const weightLabel = group.querySelector('label[for^="weight-set"]');
+            const weightInput = group.querySelector('input[id^="weight-set"]');
+
+            if (repsLabel) repsLabel.setAttribute('for', `reps-set-${setNumber}`);
+            if (repsInput) { repsInput.id = `reps-set-${setNumber}`; repsInput.name = `reps-set-${setNumber}`; }
+            if (weightLabel) weightLabel.setAttribute('for', `weight-set-${setNumber}`);
+            if (weightInput) { weightInput.id = `weight-set-${setNumber}`; weightInput.name = `weight-set-${setNumber}`; }
+        });
+        // Actualizar el input numérico principal
+        setsInput.value = currentNumSets >= 0 ? currentNumSets : '';
      }
 
-     // --- Funciones para Pre-rellenar (Sin cambios) ---
-    function findLastWorkoutForExercise(exerciseName) { /* ... sin cambios ... */ console.log(`Buscando en datos locales (${initiallyLoadedData.length} registros) para: ${exerciseName}`); return initiallyLoadedData.find(entry => entry.exercise === exerciseName) || null; }
-    function prefillFormWithLastWorkout(exerciseName) { /* ... sin cambios ... */ const lastWorkout = findLastWorkoutForExercise(exerciseName); if (lastWorkout && lastWorkout.sets && lastWorkout.sets.length > 0) { console.log("Último entreno local encontrado:", lastWorkout); const numberOfSets = lastWorkout.sets.length; setsInput.value = numberOfSets; generateSetsInputs(numberOfSets, true, lastWorkout); } else { console.log("No se encontró entreno local reciente para este ejercicio."); setsInput.value = ''; generateSetsInputs(0, false); } }
-    function updatePlaceholders(lastWorkoutData) { /* ... sin cambios ... */ console.log("Actualizando placeholders con:", lastWorkoutData); lastWorkoutData.sets.forEach((setInfo) => { const setNumber = setInfo.set; if (typeof setNumber !== 'number' || setNumber <= 0) { console.warn("Saltando set con número inválido:", setInfo); return; } const repsInput = document.getElementById(`reps-set-${setNumber}`); const weightInput = document.getElementById(`weight-set-${setNumber}`); if (repsInput) { repsInput.placeholder = setInfo.reps !== undefined ? setInfo.reps : ''; repsInput.value = ''; console.log(`Placeholder reps S${setNumber}: ${repsInput.placeholder}`); } else { console.warn(`Input de reps no encontrado para set ${setNumber}`); } if (weightInput) { weightInput.placeholder = setInfo.weight !== undefined ? setInfo.weight : ''; weightInput.value = ''; console.log(`Placeholder peso S${setNumber}: ${weightInput.placeholder}`); } else { console.warn(`Input de peso no encontrado para set ${setNumber}`); } }); }
+     // --- Funciones para Pre-rellenar ---
+    function findLastWorkoutForExercise(exerciseName) {
+        console.log(`Buscando en datos locales (${initiallyLoadedData.length} registros) para: ${exerciseName}`);
+        // Encuentra la última entrada (más reciente) para ese ejercicio
+        // Asume que initiallyLoadedData ya está más o menos ordenado por fecha descendente
+        // o que la primera coincidencia es suficientemente buena.
+        // Para ser más preciso, deberíamos ordenar por timestamp aquí, pero puede ser costoso.
+        // Por ahora, find funciona bien si el backend devuelve los datos ordenados.
+        return initiallyLoadedData.find(entry => entry.exercise === exerciseName) || null;
+    }
+
+    // MODIFICADO: Lógica 'else' para mostrar 1 serie por defecto
+    function prefillFormWithLastWorkout(exerciseName) {
+        const lastWorkout = findLastWorkoutForExercise(exerciseName);
+        if (lastWorkout && lastWorkout.sets && lastWorkout.sets.length > 0) {
+            console.log("Último entreno local encontrado:", lastWorkout);
+            const numberOfSets = lastWorkout.sets.length;
+            setsInput.value = numberOfSets;
+            // Generar inputs y LUEGO actualizar placeholders
+            generateSetsInputs(numberOfSets, true, lastWorkout);
+        } else {
+            // CASO: No se encontró entrenamiento para ESTE ejercicio específico
+            // MODIFICADO: Establecer 1 serie por defecto
+            console.log("No se encontró entreno local reciente para este ejercicio. Estableciendo 1 serie por defecto.");
+            setsInput.value = 1; // Poner 1 en el input numérico
+            generateSetsInputs(1, false); // Generar 1 serie (sin pre-rellenar placeholders)
+        }
+    }
+
+    function updatePlaceholders(lastWorkoutData) {
+        console.log("Actualizando placeholders con:", lastWorkoutData);
+        // Ordenar sets del último entreno por número de serie por si acaso
+        const sortedSets = (lastWorkoutData.sets || []).sort((a, b) => (a.set || 0) - (b.set || 0));
+
+        sortedSets.forEach((setInfo) => {
+            const setNumber = setInfo.set;
+            // Validar número de serie
+            if (typeof setNumber !== 'number' || setNumber <= 0) {
+                console.warn("Saltando set con número inválido en datos de pre-relleno:", setInfo);
+                return;
+            }
+            const repsInput = document.getElementById(`reps-set-${setNumber}`);
+            const weightInput = document.getElementById(`weight-set-${setNumber}`);
+
+            if (repsInput) {
+                repsInput.placeholder = setInfo.reps !== undefined && setInfo.reps !== null ? String(setInfo.reps) : 'Reps';
+                repsInput.value = ''; // Asegurar que el valor esté vacío, solo cambia placeholder
+                console.log(`Placeholder reps S${setNumber}: ${repsInput.placeholder}`);
+            } else {
+                console.warn(`Input de reps no encontrado para set ${setNumber} durante pre-relleno.`);
+            }
+            if (weightInput) {
+                weightInput.placeholder = setInfo.weight !== undefined && setInfo.weight !== null ? String(setInfo.weight) : 'kg';
+                weightInput.value = ''; // Asegurar que el valor esté vacío
+                console.log(`Placeholder peso S${setNumber}: ${weightInput.placeholder}`);
+            } else {
+                console.warn(`Input de peso no encontrado para set ${setNumber} durante pre-relleno.`);
+            }
+        });
+    }
 
 
-    // --- Función de Guardado (Reemplaza alerts) ---
+    // --- Función de Guardado ---
     async function handleFormSubmit(event) {
         event.preventDefault();
         if (!SCRIPT_URL) {
-            showNotification("Error: URL del script no configurada.", 'error', 5000); // Reemplaza alert
+            showNotification("Error: URL del script no configurada.", 'error', 5000);
             return;
         }
-        const exerciseName = exerciseSelect.value === 'custom' ? customExerciseInput.value.trim() : exerciseSelect.value;
+        const exerciseName = exerciseSelect.value === 'custom'
+            ? customExerciseInput.value.trim()
+            : exerciseSelect.value;
         const setGroups = setsInputsContainer.querySelectorAll('.set-group');
         const numberOfSets = setGroups.length;
         const setsData = [];
 
         if (!exerciseName) {
-            showNotification("Selecciona o introduce un ejercicio.", 'error', 4000); // Reemplaza alert
+            showNotification("Selecciona o introduce un ejercicio.", 'error', 4000);
+            exerciseSelect.focus(); // Ayudar al usuario
             return;
         }
         if (numberOfSets === 0) {
-            showNotification("Añade al menos una serie.", 'error', 4000); // Reemplaza alert
+            showNotification("Añade al menos una serie.", 'error', 4000);
+             // Opcional: hacer focus al botón de añadir serie si existe
+             const addBtn = document.getElementById('add-set-button');
+             if(addBtn) addBtn.focus();
             return;
         }
 
         let formIsValid = true;
         for (let i = 0; i < numberOfSets; i++) {
             const setGroup = setGroups[i];
-            const setNumber = i + 1;
-            const repsInput = setGroup.querySelector(`input[id^="reps-set"]`);
-            const weightInput = setGroup.querySelector(`input[id^="weight-set"]`);
-            if (!repsInput || !weightInput || repsInput.value === '' || weightInput.value === '') {
-                showNotification(`Completa Reps y Peso para la Serie ${setNumber}.`, 'error', 4000); // Reemplaza alert
+            const setNumber = i + 1; // El número real de la serie en la UI
+            const repsInput = setGroup.querySelector(`input[id='reps-set-${setNumber}']`);
+            const weightInput = setGroup.querySelector(`input[id='weight-set-${setNumber}']`);
+
+            // Validar que los inputs existen y tienen valor
+            if (!repsInput || !weightInput || repsInput.value.trim() === '' || weightInput.value.trim() === '') {
+                showNotification(`Completa Reps y Peso para la Serie ${setNumber}.`, 'error', 4000);
+                if (repsInput && repsInput.value.trim() === '') repsInput.focus();
+                else if (weightInput) weightInput.focus();
                 formIsValid = false;
-                break;
+                break; // Detener validación al primer error
             }
-            setsData.push({ set: setNumber, reps: parseInt(repsInput.value), weight: parseFloat(weightInput.value) });
+             // Validar que sean números válidos (aunque el type="number" ayuda)
+             const repsValue = parseInt(repsInput.value);
+             const weightValue = parseFloat(weightInput.value);
+             if (isNaN(repsValue) || isNaN(weightValue) || repsValue < 0 || weightValue < 0) {
+                 showNotification(`Valores inválidos en Serie ${setNumber}. Reps y Peso deben ser números no negativos.`, 'error', 4000);
+                 if (isNaN(repsValue) || repsValue < 0) repsInput.focus();
+                 else weightInput.focus();
+                 formIsValid = false;
+                 break;
+             }
+
+            setsData.push({
+                set: setNumber, // Usar el número de serie de la UI
+                reps: repsValue,
+                weight: weightValue
+            });
         }
 
         if (!formIsValid) { return; }
 
         const workoutEntry = { exercise: exerciseName, sets: setsData };
-        setLoading(true, 'Guardando...'); // Esto ya usa el spinner en el botón
+        setLoading(true, 'Guardando...'); // Mostrar spinner en botón
 
         try {
-            const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'save', data: workoutEntry }) });
-            const result = await response.json();
-            if (result.status === 'success') {
-                showNotification('¡Entrenamiento Guardado!', 'success'); // Reemplaza alert
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                // No añadir 'Content-Type' explícito aquí, dejar que fetch lo infiera
+                // para evitar problemas con la redirección de Apps Script.
+                // mode: 'cors', // 'cors' es el default, no necesario si el script está bien configurado
+                // A veces es necesario 'no-cors' para Apps Script si hay redirección, pero pierdes la respuesta.
+                // Probar sin 'mode' o con 'cors' primero.
+                body: JSON.stringify({ action: 'save', data: workoutEntry })
+            });
+
+             // Apps Script a veces devuelve OK pero con contenido HTML de error/login.
+             // O devuelve una redirección si hay un error de permisos/script.
+             // Intentamos parsear como JSON, pero si falla, verificamos status.
+             let result;
+             try {
+                 result = await response.json();
+             } catch (parseError) {
+                  // Si falla el parseo a JSON, podría ser un error inesperado del script
+                  console.error("Error al parsear respuesta JSON:", parseError);
+                  console.error("Respuesta recibida (texto):", await response.text()); // Loguear texto crudo
+                  // Comprobar si la respuesta HTTP fue OK (2xx)
+                  if (!response.ok) {
+                       throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
+                  } else {
+                       // Si fue OK pero no es JSON, podría ser un éxito 'silencioso' o un error inesperado
+                       // Asumir error si no podemos confirmar éxito con JSON
+                       throw new Error("Respuesta inesperada del servidor (no JSON).");
+                  }
+             }
+
+
+            if (result && result.status === 'success') {
+                showNotification('¡Entrenamiento Guardado!', 'success');
                 form.reset(); // Limpiar formulario
-                customExerciseGroup.style.display = 'none'; // Ocultar campo custom
-                setsInputsContainer.innerHTML = ''; // Limpiar series
-                addAddSetButton(); // Añadir botón +
-                setsInput.value = ''; // Limpiar input numérico de series
-                loadInitialHistory(); // Recargar historial
+                customExerciseGroup.style.display = 'none';
+                // Llamar a generateSetsInputs(0) en lugar de limpiar manualmente para asegurar estado correcto
+                generateSetsInputs(0, false);
+                // Opcional: Resetear select a valor por defecto
+                // exerciseSelect.value = "";
+                loadInitialHistory(); // Recargar historial (incluye datos nuevos)
             } else {
-                console.error('Error devuelto por el script:', result.message);
-                showNotification(`Error al guardar: ${result.message || 'Desconocido'}`, 'error', 5000); // Reemplaza alert
+                // Error devuelto explícitamente por el script en el JSON
+                console.error('Error devuelto por el script:', result ? result.message : 'Respuesta vacía');
+                showNotification(`Error al guardar: ${result?.message || 'Respuesta inválida'}`, 'error', 5000);
             }
         } catch (error) {
+            // Error de red, fetch, o el error lanzado arriba si la respuesta no fue OK o no fue JSON
             console.error('Error en fetch al guardar:', error);
-            showNotification(`Error de conexión al guardar: ${error.message}`, 'error', 5000); // Reemplaza alert
+            showNotification(`Error de conexión o servidor al guardar: ${error.message}`, 'error', 5000);
         } finally {
-            setLoading(false); // Restaura el botón
+            setLoading(false); // Restaurar el botón
         }
      }
 
-    // --- Funciones de Carga y Filtro Historial (Integración Spinner) ---
+    // --- Funciones de Carga y Filtro Historial ---
 
     async function fetchHistoryData(specificDate = null) {
-        // ... (sin cambios, pero los errores ahora se manejarán mejor en las funciones que lo llaman)
-        if (!SCRIPT_URL) { console.error("URL script no configurada."); return { status: "error", message: "URL script no configurada." }; }
-        let fetchUrl = SCRIPT_URL + (specificDate ? `?load=specific&date=${specificDate}` : `?load=recent&days=${INITIAL_DAYS_TO_LOAD}`);
-        console.log("Fetching:", fetchUrl);
+        if (!SCRIPT_URL) {
+            console.error("URL del script no configurada.");
+            return { status: "error", message: "URL script no configurada." };
+        }
+        // Construir URL con parámetros GET
+        const params = new URLSearchParams();
+        if (specificDate) {
+            params.append('load', 'specific');
+            params.append('date', specificDate); // Espera YYYY-MM-DD
+        } else {
+            params.append('load', 'recent');
+            params.append('days', INITIAL_DAYS_TO_LOAD);
+        }
+        const fetchUrl = `${SCRIPT_URL}?${params.toString()}`;
+
+        console.log("Fetching historial:", fetchUrl);
         try {
+             // Usar GET explícito (aunque fetch lo infiere)
              const response = await fetch(fetchUrl, { method: 'GET', mode: 'cors' });
-             // Añadir manejo básico de errores HTTP
+
+             // Manejo robusto de errores HTTP
              if (!response.ok) {
-                 throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
+                 // Intentar leer el cuerpo del error si existe
+                 let errorBody = await response.text();
+                 console.error(`Error HTTP ${response.status}: ${response.statusText}`, errorBody);
+                 throw new Error(`Error ${response.status} del servidor. ${response.statusText}`);
              }
+
+             // Intentar parsear como JSON
              const result = await response.json();
-             console.log("Received:", result);
+             console.log("Historial recibido:", result);
              return result;
+
         } catch (error) {
+            // Captura errores de red, errores HTTP (del throw anterior), y errores de parseo JSON
             console.error('Error fetch historial:', error);
-            return { status: "error", message: `Error conexión: ${error.message}` };
+            // Devolver un objeto de error consistente
+            return { status: "error", message: `Error cargando historial: ${error.message}` };
         }
     }
 
-    // MODIFICADO: Usa show/hideHistorySpinner
+    // Carga inicial o al limpiar filtro
     async function loadInitialHistory() {
-        filterDateInput.value = '';
-        hideProgressGraph(); // Ocultar gráfica si estaba visible
+        filterDateInput.value = ''; // Limpiar input de fecha
+        hideProgressGraph(); // Ocultar gráfica
         if (historyTitleElement) { historyTitleElement.textContent = baseHistoryTitle + '...'; }
 
-        showHistorySpinner("Cargando historial reciente..."); // MOSTRAR SPINNER
+        showHistorySpinner("Cargando historial reciente...");
 
-        try {
-            const result = await fetchHistoryData();
+        const result = await fetchHistoryData(); // Llama sin fecha
 
-            hideHistorySpinner(); // OCULTAR SPINNER antes de mostrar contenido/error
+        hideHistorySpinner(); // Ocultar spinner ANTES de procesar/mostrar
 
-            if (result.status === 'success') {
-                initiallyLoadedData = result.data || [];
-                loadedDatesSet.clear();
-                initiallyLoadedData.forEach(entry => {
-                    if (entry.timestamp && typeof entry.timestamp === 'number') {
-                        try { // Añadir try-catch para el formateo de fecha
-                           const dateStr = new Date(entry.timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                           loadedDatesSet.add(dateStr);
-                        } catch(e) { console.warn("Error formateando timestamp a fecha:", entry.timestamp, e); }
-                    } else { console.warn("Entrada sin timestamp válido:", entry); }
-                });
-                console.log("Fechas iniciales cargadas:", loadedDatesSet);
+        if (result.status === 'success') {
+            initiallyLoadedData = result.data || [];
+            // Recalcular fechas cargadas localmente
+            loadedDatesSet.clear();
+            initiallyLoadedData.forEach(entry => {
+                if (entry.timestamp && typeof entry.timestamp === 'number') {
+                    try {
+                       // Usar el formato que coincide con el input date y el filtro local
+                       const dateStr = new Date(entry.timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                       loadedDatesSet.add(dateStr); // Formato DD/MM/YYYY
+                    } catch(e) { console.warn("Error formateando timestamp a fecha:", entry.timestamp, e); }
+                } else { console.warn("Entrada sin timestamp válido:", entry); }
+            });
+            console.log("Fechas iniciales cargadas (DD/MM/YYYY):", loadedDatesSet);
 
-                if (historyTitleElement) {
-                     if (result.totalWorkoutDays !== undefined && result.totalWorkoutDays !== null) {
-                        historyTitleElement.textContent = `${baseHistoryTitle} (Total: ${result.totalWorkoutDays} días)`;
-                     } else { historyTitleElement.textContent = baseHistoryTitle; }
-                }
-
-                displayGroupedHistory(initiallyLoadedData); // Mostrar datos
-                populateGraphExerciseSelect(initiallyLoadedData); // Poblar select de gráfica
-            } else {
-                // Error devuelto por el script
-                displayGroupedHistory([]); // Mostrar mensaje de "no hay registros"
-                showNotification(`Error al cargar historial: ${result.message || 'Desconocido'}`, 'error');
-                initiallyLoadedData = []; loadedDatesSet.clear(); populateGraphExerciseSelect([]);
-                if (historyTitleElement) { historyTitleElement.textContent = baseHistoryTitle; }
+            // Actualizar título con contador total
+            if (historyTitleElement) {
+                 if (result.totalWorkoutDays !== undefined && result.totalWorkoutDays !== null) {
+                    historyTitleElement.textContent = `${baseHistoryTitle} (Total: ${result.totalWorkoutDays} días)`;
+                 } else { historyTitleElement.textContent = baseHistoryTitle; }
             }
-        } catch (error) {
-             // Error de red o en fetchHistoryData
-             hideHistorySpinner(); // Asegurar que el spinner se oculte
-             console.error("Error crítico en loadInitialHistory:", error);
-             displayGroupedHistory([]); // Mostrar mensaje de "no hay registros"
-             showNotification(`Error de conexión al cargar historial. Inténtalo de nuevo.`, 'error', 5000);
-             initiallyLoadedData = []; loadedDatesSet.clear(); populateGraphExerciseSelect([]);
-             if (historyTitleElement) { historyTitleElement.textContent = baseHistoryTitle; }
+
+            displayGroupedHistory(initiallyLoadedData);
+            populateGraphExerciseSelect(initiallyLoadedData);
+        } else {
+            // Error devuelto por el script o en fetchHistoryData
+            displayGroupedHistory([]); // Mostrar mensaje de "no hay registros"
+            showNotification(result.message || 'Error desconocido al cargar historial.', 'error');
+            initiallyLoadedData = []; loadedDatesSet.clear(); populateGraphExerciseSelect([]);
+            if (historyTitleElement) { historyTitleElement.textContent = baseHistoryTitle; }
         }
+        // No necesita try/catch aquí porque fetchHistoryData ya maneja sus errores internos
     }
 
-    // MODIFICADO: Usa show/hideHistorySpinner
+    // Carga para una fecha específica (si no está en local)
     async function loadSpecificDateHistory(dateYYYYMMDD) {
          hideProgressGraph();
-         if (historyTitleElement) { historyTitleElement.textContent = baseHistoryTitle + '...'; } // Indicar carga en título
+         if (historyTitleElement) { historyTitleElement.textContent = baseHistoryTitle + '...'; }
 
-         showHistorySpinner(`Cargando datos para ${dateYYYYMMDD}...`); // MOSTRAR SPINNER
-
+         // Formatear la fecha para mostrar en el spinner
+         let displayDateForSpinner = dateYYYYMMDD;
          try {
-             const result = await fetchHistoryData(dateYYYYMMDD);
+             const dateObj = new Date(dateYYYYMMDD + 'T00:00:00'); // Asegurar que se interpreta como local
+             displayDateForSpinner = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+         } catch(e) { /* usar YYYY-MM-DD si falla */ }
+         showHistorySpinner(`Cargando datos para ${displayDateForSpinner}...`);
 
-             hideHistorySpinner(); // OCULTAR SPINNER antes de mostrar
+         const result = await fetchHistoryData(dateYYYYMMDD); // Llama con fecha YYYY-MM-DD
 
-             if (result.status === 'success') {
-                 displayGroupedHistory(result.data); // Mostrar datos
-                 // Actualizar título (ya se hacía, mantenido)
-                 if (historyTitleElement) {
-                      try {
-                           const dateObj = new Date(dateYYYYMMDD + 'T00:00:00');
-                           const displayDate = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                           historyTitleElement.textContent = `Historial para ${displayDate}`;
-                      } catch (e) { historyTitleElement.textContent = `Historial para ${dateYYYYMMDD}`; }
-                 }
-             } else {
-                 displayGroupedHistory([]); // Mostrar "No hay registros para..."
-                 showNotification(`Error al cargar fecha ${dateYYYYMMDD}: ${result.message || 'Desconocido'}`, 'error');
-                 if (historyTitleElement) historyTitleElement.textContent = baseHistoryTitle;
+         hideHistorySpinner();
+
+         if (result.status === 'success') {
+             // Actualizar título con la fecha específica
+             if (historyTitleElement) {
+                  try {
+                       // Re-formatear para el título (ya lo teníamos del spinner)
+                       historyTitleElement.textContent = `Historial para ${displayDateForSpinner}`;
+                  } catch (e) { historyTitleElement.textContent = `Historial para ${dateYYYYMMDD}`; }
              }
-        } catch(error) {
-            hideHistorySpinner(); // Asegurar ocultar
-            console.error("Error crítico en loadSpecificDateHistory:", error);
-            displayGroupedHistory([]);
-            showNotification(`Error de conexión al cargar fecha ${dateYYYYMMDD}.`, 'error', 5000);
-            if (historyTitleElement) historyTitleElement.textContent = baseHistoryTitle;
-        }
+             displayGroupedHistory(result.data || []);
+         } else {
+             displayGroupedHistory([]);
+             showNotification(result.message || `Error desconocido al cargar fecha ${displayDateForSpinner}.`, 'error');
+             if (historyTitleElement) historyTitleElement.textContent = baseHistoryTitle; // Volver a título base en error
+         }
+         // No necesita try/catch aquí porque fetchHistoryData ya maneja sus errores internos
      }
 
-     // MODIFICADO: Limpia el log ANTES de mostrar el spinner si es necesario
+     // Muestra los datos en el historial (sea inicial, filtrado local o específico)
     function displayGroupedHistory(historyData) {
-        // Ocultar spinner explícitamente por si acaso
-        hideHistorySpinner();
+        hideHistorySpinner(); // Asegurar que esté oculto
 
-        // Limpiar el log AHORA, justo antes de añadir nuevo contenido
-        historyLog.innerHTML = '';
-        // Re-añadir el spinner oculto por si se limpió todo
+        historyLog.innerHTML = ''; // Limpiar contenido anterior
+        // Re-adjuntar spinner oculto si fue eliminado
         if(historySpinner && !historyLog.contains(historySpinner)) {
             historyLog.appendChild(historySpinner);
-            historySpinner.style.display = 'none';
+            hideHistorySpinner(); // Ocultarlo de nuevo
         }
-
 
         if (!historyData || historyData.length === 0) {
             const message = filterDateInput.value
                 ? `No hay registros para la fecha seleccionada.`
-                : 'No hay registros recientes.';
+                : 'Aún no hay registros.'; // Mensaje genérico si no hay filtro
             const p = document.createElement('p');
             p.textContent = message;
-            historyLog.appendChild(p); // Añadir mensaje de vacío
+            historyLog.appendChild(p);
             return;
         }
 
-        // --- Lógica de agrupación y visualización (sin cambios internos) ---
+        // Agrupar por fecha (DD/MM/YYYY) usando el timestamp
         const groupedByDate = historyData.reduce((acc, entry) => {
-             if (!entry || !entry.timestamp || typeof entry.timestamp !== 'number') { console.warn("Saltando entrada sin timestamp válido:", entry); return acc; }
-             let dateStr; try { dateStr = new Date(entry.timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch (e) { console.warn("Error formateando fecha para entrada:", entry, e); return acc; }
-             if (!acc[dateStr]) acc[dateStr] = []; acc[dateStr].push(entry); return acc;
+             if (!entry || !entry.timestamp || typeof entry.timestamp !== 'number') {
+                 console.warn("Saltando entrada sin timestamp válido:", entry);
+                 return acc;
+             }
+             let dateStr;
+             try {
+                 // Formato consistente DD/MM/YYYY para agrupar y mostrar
+                 dateStr = new Date(entry.timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+             } catch (e) {
+                 console.warn("Error formateando fecha para entrada:", entry, e);
+                 return acc; // Saltar si la fecha es inválida
+             }
+             if (!acc[dateStr]) acc[dateStr] = [];
+             acc[dateStr].push(entry);
+             return acc;
          }, {});
-        const sortedDates = Object.keys(groupedByDate).sort((a, b) => { const [dA, mA, yA] = a.split('/').map(Number); const [dB, mB, yB] = b.split('/').map(Number); return new Date(yB, mB - 1, dB) - new Date(yA, mA - 1, dA); });
 
+        // Ordenar fechas (claves del objeto) de más reciente a más antigua
+        const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
+            // Convertir DD/MM/YYYY a objeto Date para comparar correctamente
+            const [dA, mA, yA] = a.split('/').map(Number);
+            const [dB, mB, yB] = b.split('/').map(Number);
+            // Month es 0-indexed en Date constructor
+            return new Date(yB, mB - 1, dB) - new Date(yA, mA - 1, dA);
+        });
+
+        // Renderizar cada grupo de fecha
         sortedDates.forEach(date => {
-            const dateHeading = document.createElement('h2'); dateHeading.classList.add('history-date-header'); dateHeading.innerHTML = `<i class="fas fa-calendar-alt"></i> ${date}`; historyLog.appendChild(dateHeading);
-            const entries = groupedByDate[date];
-            entries.forEach(entry => {
-                const entryDiv = document.createElement('div'); entryDiv.classList.add('history-entry');
-                // Formato de series ya corregido anteriormente
-                let setsHTML = (entry.sets || []).sort((a, b) => (a.set || 0) - (b.set || 0)).map(s => `<li class="history-set-item">Serie ${s.set || '?'}: <strong>${s.reps || 0}</strong> reps → <strong>${s.weight || 0}</strong> kg</li>`).join('');
-                // Validar ID para el botón de borrar
-                const entryId = entry.id || '';
-                const deleteButtonHTML = `<button class="button-delete" onclick="deleteEntry('${entryId}')" ${!entryId ? 'disabled title="No se puede eliminar (ID inválido)"' : 'title="Eliminar registro"'}><i class="fas fa-trash-alt"></i> Eliminar</button>`;
-                const editButtonHTML = `<button class="button-edit" disabled onclick="editEntry('${entryId}')" ${!entryId ? 'disabled title="No se puede editar (ID inválido)"' : 'title="Editar registro (No implementado)"'}><i class="fas fa-pencil-alt"></i> Editar</button>`;
+            const dateHeading = document.createElement('h2');
+            dateHeading.classList.add('history-date-header');
+            dateHeading.innerHTML = `<i class="fas fa-calendar-alt"></i> ${date}`;
+            historyLog.appendChild(dateHeading);
+
+            const entriesForDate = groupedByDate[date];
+            // Dentro de cada fecha, ordenar entradas (quizás por ejercicio o timestamp si necesario, opcional)
+             // Por ahora, las mostramos en el orden en que llegaron de processAndGroupData (ordenadas por timestamp desc)
+
+            entriesForDate.forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.classList.add('history-entry');
+                entryDiv.dataset.workoutId = entry.id || ''; // Guardar ID para referencia
+
+                // Formato de series
+                let setsHTML = (entry.sets || [])
+                    .sort((a, b) => (a.set || 0) - (b.set || 0)) // Ordenar series por número
+                    .map(s => `<li class="history-set-item">Serie ${s.set || '?'}: <strong>${s.reps || 0}</strong> reps → <strong>${s.weight || 0}</strong> kg</li>`)
+                    .join('');
+
+                // Botones de acción
+                const entryId = entry.id || ''; // Usar ID real para las funciones
+                const deleteButtonHTML = `
+                    <button class="button-delete"
+                            onclick="deleteEntry('${entryId}')"
+                            ${!entryId ? 'disabled title="No se puede eliminar (ID inválido)"' : 'title="Eliminar este registro completo"'} >
+                        <i class="fas fa-trash-alt"></i> Eliminar
+                    </button>`;
+                const editButtonHTML = `
+                    <button class="button-edit"
+                            disabled
+                            onclick="editEntry('${entryId}')"
+                            ${!entryId ? 'disabled title="No se puede editar (ID inválido)"' : 'title="Editar registro (Próximamente)"'} >
+                        <i class="fas fa-pencil-alt"></i> Editar
+                    </button>`; // Botón editar deshabilitado
 
                 entryDiv.innerHTML = `
-                    <h3 class="history-exercise-title"><i class="fas fa-dumbbell"></i> ${entry.exercise || 'Ejercicio Desconocido'}</h3>
-                    <ul class="history-sets-list">${setsHTML}</ul>
+                    <h3 class="history-exercise-title">
+                        <i class="fas fa-dumbbell"></i> ${entry.exercise || 'Ejercicio Desconocido'}
+                    </h3>
+                    <ul class="history-sets-list">${setsHTML || '<li>No hay series registradas.</li>'}</ul>
                     <div class="history-entry-actions">
-                        ${deleteButtonHTML}
                         ${editButtonHTML}
+                        ${deleteButtonHTML}
                     </div>`;
                 historyLog.appendChild(entryDiv);
             });
         });
      }
 
-    // MODIFICADO: Manejo de título y posible carga de historial
+    // Maneja el cambio en el input de fecha
     function handleFilterChange() {
-        const selectedDate = filterDateInput.value;
+        const selectedDate = filterDateInput.value; // Formato YYYY-MM-DD
+
         if (!selectedDate) {
-            loadInitialHistory(); // Carga los recientes y resetea título
+            loadInitialHistory(); // Si se borra la fecha, cargar recientes
             return;
         }
-        const [y, m, d] = selectedDate.split('-');
-        if (!y || !m || !d) { // Validación básica del formato
-             showNotification("Formato de fecha inválido.", "error");
+
+        // Validar formato básico YYYY-MM-DD
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(selectedDate)) {
+             showNotification("Formato de fecha inválido. Usa el selector.", "error");
+             filterDateInput.value = ''; // Limpiar input inválido
              return;
         }
-        const dateToCheck = `${d}/${m}/${y}`;
 
-        // No mostramos spinner para filtrado local, es instantáneo
-        hideHistorySpinner(); // Asegurar que no haya spinner de carga previa
+        // Convertir YYYY-MM-DD a DD/MM/YYYY para comparar con loadedDatesSet
+        let dateToCheck_DDMMYYYY;
+        try {
+            const [y, m, d] = selectedDate.split('-');
+            dateToCheck_DDMMYYYY = `${d}/${m}/${y}`;
+        } catch (e) {
+            showNotification("Error al procesar fecha seleccionada.", "error");
+            return;
+        }
 
-        if (historyTitleElement) { historyTitleElement.textContent = baseHistoryTitle; } // Quitar contador
 
-        if (loadedDatesSet.has(dateToCheck)) {
-             console.log("Filtrando localmente para", dateToCheck);
+        hideHistorySpinner(); // No spinner para filtro local
+
+        // Intentar filtrar localmente
+        if (loadedDatesSet.has(dateToCheck_DDMMYYYY)) {
+             console.log("Filtrando localmente para", dateToCheck_DDMMYYYY);
              const filtered = initiallyLoadedData.filter(e => {
                  if (!e.timestamp || typeof e.timestamp !== 'number') return false;
                  try {
-                     return new Date(e.timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) === dateToCheck;
+                     const entryDateStr = new Date(e.timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                     return entryDateStr === dateToCheck_DDMMYYYY;
                  } catch { return false; }
              });
-             displayGroupedHistory(filtered); // Mostrar filtrados
-             // Actualizar título
+
+             // Actualizar título para la fecha filtrada
              if (historyTitleElement) {
-                 try {
-                    const dateObj = new Date(selectedDate + 'T00:00:00');
-                    const displayDate = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                    historyTitleElement.textContent = `Historial para ${displayDate}`;
-                 } catch(e) { historyTitleElement.textContent = `Historial para ${selectedDate}`;}
-              }
+                  try {
+                     // Usar la fecha ya formateada
+                     historyTitleElement.textContent = `Historial para ${dateToCheck_DDMMYYYY}`;
+                  } catch(e) { historyTitleElement.textContent = `Historial para ${selectedDate}`;}
+             }
+             displayGroupedHistory(filtered); // Mostrar datos filtrados
+
         } else {
-            console.log("Pidiendo fecha específica:", selectedDate);
-            // Llamar a la función que ya maneja el spinner y el título
-            loadSpecificDateHistory(selectedDate);
+            // Si la fecha no está en los datos locales, pedirla al servidor
+            console.log("Fecha no encontrada localmente. Pidiendo al servidor:", selectedDate);
+            loadSpecificDateHistory(selectedDate); // Llama con YYYY-MM-DD
         }
      }
 
-    // MODIFICADO: Llama a loadInitialHistory que maneja el spinner
+    // Botón "Mostrar Recientes"
     function handleClearFilter() {
         console.log("Limpiando filtro y mostrando recientes");
+        // filterDateInput.value = ''; // loadInitialHistory ya lo hace
         loadInitialHistory();
     }
 
 
-    // --- Funciones para la Gráfica (Reemplaza alerts) ---
-    function populateGraphExerciseSelect(data) { /* ... sin cambios internos ... */ const exercises = [...new Set((data || []).map(e => e ? e.exercise : null).filter(ex => ex))].sort(); graphExerciseSelect.innerHTML = '<option value="" disabled selected>-- Selecciona --</option>'; exercises.forEach(ex => { const o = document.createElement('option'); o.value = ex; o.textContent = ex; graphExerciseSelect.appendChild(o); }); graphExerciseSelect.value = ""; showGraphBtn.disabled = true; hideProgressGraph(); }
-    function handleGraphExerciseSelectChange() { /* ... sin cambios internos ... */ showGraphBtn.disabled = !graphExerciseSelect.value; }
-    function calculateEpleyE1RM(weight, reps) { /* ... sin cambios internos ... */ if (reps <= 0 || weight <= 0 || typeof weight !== 'number' || typeof reps !== 'number') return 0; return weight * (1 + (reps / 30)); }
-    function calculateAverageDailyE1RM(allData, exerciseName) { /* ... sin cambios internos ... */ const exerciseEntries = (allData || []).filter(e => e && e.exercise === exerciseName); const dailyE1RMValues = {}; exerciseEntries.forEach(entry => { if (!entry.timestamp || typeof entry.timestamp !== 'number') return; const dateKey = new Date(entry.timestamp).toISOString().split('T')[0]; if (!dailyE1RMValues[dateKey]) dailyE1RMValues[dateKey] = []; (entry.sets || []).forEach(set => { if (set) { const e1rm = calculateEpleyE1RM(set.weight, set.reps); if (e1rm > 0) dailyE1RMValues[dateKey].push(e1rm); } }); }); const chartData = []; for (const dateKey in dailyE1RMValues) { const e1rms = dailyE1RMValues[dateKey]; if (e1rms.length > 0) { const sum = e1rms.reduce((a, b) => a + b, 0); const average = sum / e1rms.length; chartData.push({ date: dateKey, avgE1RM: parseFloat(average.toFixed(2)) }); } } chartData.sort((a, b) => new Date(a.date) - new Date(b.date)); return chartData; }
+    // --- Funciones para la Gráfica ---
+    function populateGraphExerciseSelect(data) {
+        // Obtener lista única y ordenada de ejercicios de los datos
+        const exercises = [...new Set((data || [])
+                .map(e => e ? e.exercise : null)
+                .filter(ex => ex) // Filtrar nulos o vacíos
+            )]
+            .sort(); // Ordenar alfabéticamente
+
+        // Limpiar y rellenar el select
+        graphExerciseSelect.innerHTML = '<option value="" disabled selected>-- Selecciona ejercicio --</option>';
+        exercises.forEach(ex => {
+            const o = document.createElement('option');
+            o.value = ex;
+            o.textContent = ex;
+            graphExerciseSelect.appendChild(o);
+        });
+
+        // Resetear estado
+        graphExerciseSelect.value = ""; // Deseleccionar
+        showGraphBtn.disabled = true; // Deshabilitar botón mostrar
+        hideProgressGraph(); // Ocultar gráfica si estaba visible
+    }
+
+    function handleGraphExerciseSelectChange() {
+        // Habilitar botón "Mostrar Gráfica" solo si se ha seleccionado un ejercicio
+        showGraphBtn.disabled = !graphExerciseSelect.value;
+        // Opcional: Ocultar gráfica si se cambia de ejercicio?
+        // hideProgressGraph();
+    }
+
+    function calculateEpleyE1RM(weight, reps) {
+        // Asegurar que weight y reps son números válidos y positivos
+        if (typeof weight !== 'number' || typeof reps !== 'number' || isNaN(weight) || isNaN(reps) || weight <= 0 || reps <= 0) {
+            return 0; // No se puede calcular
+        }
+        // Fórmula de Epley: e1RM = weight * (1 + reps / 30)
+        return weight * (1 + (reps / 30));
+    }
+
+    function calculateAverageDailyE1RM(allData, exerciseName) {
+        // Filtrar entradas solo para el ejercicio seleccionado
+        const exerciseEntries = (allData || []).filter(e => e && e.exercise === exerciseName);
+
+        // Agrupar e1RM por día
+        const dailyE1RMValues = {};
+        exerciseEntries.forEach(entry => {
+            if (!entry.timestamp || typeof entry.timestamp !== 'number') return; // Saltar si no hay timestamp
+
+            // Usar YYYY-MM-DD como clave para agrupar y ordenar fácilmente
+            let dateKey;
+            try {
+                dateKey = new Date(entry.timestamp).toISOString().split('T')[0];
+            } catch (e) { return; } // Saltar si la fecha es inválida
+
+            if (!dailyE1RMValues[dateKey]) dailyE1RMValues[dateKey] = [];
+
+            // Calcular e1RM para cada set válido y añadirlo al día correspondiente
+            (entry.sets || []).forEach(set => {
+                if (set) {
+                    const e1rm = calculateEpleyE1RM(set.weight, set.reps);
+                    if (e1rm > 0) { // Solo añadir si el cálculo fue válido
+                        dailyE1RMValues[dateKey].push(e1rm);
+                    }
+                }
+            });
+        });
+
+        // Calcular promedio diario y preparar datos para Chart.js
+        const chartData = [];
+        for (const dateKey in dailyE1RMValues) {
+            const e1rms = dailyE1RMValues[dateKey];
+            if (e1rms.length > 0) { // Solo si hubo cálculos válidos para ese día
+                const sum = e1rms.reduce((a, b) => a + b, 0);
+                const average = sum / e1rms.length;
+                chartData.push({
+                    date: dateKey, // YYYY-MM-DD
+                    avgE1RM: parseFloat(average.toFixed(2)) // Redondear a 2 decimales
+                });
+            }
+        }
+
+        // Ordenar por fecha ascendente (importante para gráfica de líneas)
+        chartData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        return chartData;
+    }
 
     function displayExerciseProgressGraph() {
         const selectedExercise = graphExerciseSelect.value;
         if (!selectedExercise) return;
-        console.log(`Generando gráfica: ${selectedExercise}`);
+
+        console.log(`Generando gráfica para: ${selectedExercise}`);
+        // Usar initiallyLoadedData como fuente para la gráfica
         const progressData = calculateAverageDailyE1RM(initiallyLoadedData, selectedExercise);
 
+        // Validar si hay suficientes datos para una gráfica útil
         if (progressData.length < 2) {
-            showNotification(`No hay suficientes datos (${progressData.length}) para graficar ${selectedExercise}. Se necesitan al menos 2 días.`, 'info', 4000); // Reemplaza alert
+            showNotification(`Se necesitan al menos 2 días con registros válidos para graficar ${selectedExercise}.`, 'info', 4000);
+            hideProgressGraph(); // Ocultar si no hay datos suficientes
             return;
         }
-        const labels = progressData.map(item => { const d = new Date(item.date + 'T00:00:00'); return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }); });
+
+        // Preparar labels (fechas cortas DD/MM) y dataPoints (e1RM)
+        const labels = progressData.map(item => {
+            try {
+                // Convertir YYYY-MM-DD a Date y luego a DD/MM
+                const d = new Date(item.date + 'T00:00:00'); // Evitar problemas UTC
+                return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+            } catch (e) { return '?'; } // Fallback
+        });
         const dataPoints = progressData.map(item => item.avgE1RM);
 
+        // Verificar que haya algún dato > 0 (evitar gráficas planas en cero)
         if (!dataPoints.some(p => p > 0)) {
-             showNotification(`No se pudo calcular el e1RM para ${selectedExercise}. Revisa los pesos/reps registrados.`, 'info', 4000); // Reemplaza alert
+             showNotification(`No se pudo calcular un e1RM válido para ${selectedExercise}. Revisa los pesos/reps registrados.`, 'info', 4000);
+             hideProgressGraph();
              return;
         }
 
+        // Destruir instancia anterior si existe
         if (progressChartInstance) progressChartInstance.destroy();
+
         try {
+            // Crear nueva instancia de Chart.js
             progressChartInstance = new Chart(chartCanvas, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: labels, // Eje X: Fechas DD/MM
                     datasets: [{
-                        label: `Progreso - ${selectedExercise}`, // Leyenda acortada
-                        data: dataPoints,
+                        label: `Progreso - ${selectedExercise}`, // Leyenda
+                        data: dataPoints, // Eje Y: e1RM Medio
                         borderColor: 'rgb(75, 192, 192)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        tension: 0.1,
-                        fill: true,
+                        tension: 0.1, // Ligeramente suavizado
+                        fill: true, // Rellenar área bajo la línea
                         pointRadius: 4,
                         pointBackgroundColor: 'rgb(75, 192, 192)'
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, // Para mejor ajuste en móvil
+                    maintainAspectRatio: false, // Clave para responsividad móvil
                     scales: {
-                        y: { beginAtZero: false, title: { display: true, text: 'e1RM Medio (kg)' } },
-                        x: { title: { display: false } } // Título eje X oculto
+                        y: {
+                            beginAtZero: false, // Empezar eje Y cerca del valor mínimo
+                            title: { display: true, text: 'e1RM Medio (kg)' }
+                        },
+                        x: {
+                            title: { display: false } // Ocultar título eje X ("Fecha")
+                        }
                     },
                     plugins: {
-                        legend: { display: true, position: 'top' }, // Leyenda arriba (por defecto)
+                        legend: {
+                            display: true,
+                            position: 'top', // Leyenda arriba
+                            labels: { padding: 15 }
+                        },
                         tooltip: {
+                            // Tooltips personalizados para mostrar más info
                             callbacks: {
-                                title: function(items) {
-                                    // Intenta obtener fecha completa del array original
-                                    if (!items.length) return '';
-                                    const i = items[0].dataIndex;
-                                    // Asegurarse que progressData está disponible aquí
-                                    // Esta función podría necesitar acceso a 'progressData' calculado antes
-                                    if (progressData && progressData[i]) {
-                                        const d = progressData[i].date;
-                                        try { return new Date(d + 'T00:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }); }
-                                        catch { return items[0].label || '';} // Fallback a la etiqueta si falla
+                                title: function(tooltipItems) {
+                                    // Mostrar fecha completa (DD/MM/YYYY) en el título del tooltip
+                                    if (!tooltipItems.length) return '';
+                                    const dataIndex = tooltipItems[0].dataIndex;
+                                    // Acceder a progressData (calculada antes) para obtener fecha completa
+                                    if (progressData && progressData[dataIndex]) {
+                                        const fullDate = progressData[dataIndex].date; // YYYY-MM-DD
+                                        try {
+                                            const d = new Date(fullDate + 'T00:00:00');
+                                            return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                                        } catch { return labels[dataIndex] || ''; } // Fallback a DD/MM
                                     }
-                                    return items[0].label || ''; // Fallback si no se encuentra
+                                    return labels[dataIndex] || ''; // Fallback
                                 },
-                                label: function(ctx) {
-                                    if (ctx.parsed?.y !== undefined) { return `e1RM Medio: ${ctx.parsed.y.toFixed(2)} kg`; }
-                                    return '';
+                                label: function(context) {
+                                    // Mostrar "e1RM Medio: VALOR kg" en el cuerpo del tooltip
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed?.y !== null && context.parsed?.y !== undefined) {
+                                        label = `e1RM Medio: ${context.parsed.y.toFixed(2)} kg`;
+                                    }
+                                    return label;
                                 }
                             }
                         }
                     }
                 }
             });
-            console.log("Gráfica creada.");
+            console.log("Gráfica creada/actualizada.");
+            // Mostrar contenedor y botón de ocultar
             graphContainer.style.display = 'block';
             hideGraphBtn.style.display = 'inline-block';
+            // Opcional: Scroll hacia la gráfica
+            // graphSection.scrollIntoView({ behavior: 'smooth' });
+
         } catch (err) {
-            console.error("Error al crear la gráfica:", err);
-            showNotification("Error al generar la gráfica.", 'error'); // Reemplaza alert
-            hideProgressGraph();
+            console.error("Error al crear la gráfica con Chart.js:", err);
+            showNotification("Error interno al generar la gráfica.", 'error');
+            hideProgressGraph(); // Asegurarse de ocultar todo si falla
         }
     }
 
-    function hideProgressGraph() { /* ... sin cambios internos ... */ if(progressChartInstance){progressChartInstance.destroy(); progressChartInstance=null; console.log("Gráfica destruida.");} graphContainer.style.display='none'; hideGraphBtn.style.display='none'; }
+    function hideProgressGraph() {
+        if(progressChartInstance){
+            progressChartInstance.destroy();
+            progressChartInstance = null;
+            console.log("Gráfica destruida.");
+        }
+        graphContainer.style.display = 'none';
+        hideGraphBtn.style.display = 'none';
+        // No resetear el select aquí, permitir al usuario ver otro ejercicio
+    }
 
 
-    // --- Funciones de Borrado, Edición (Reemplaza alerts y usa spinner) ---
+    // --- Funciones de Borrado, Edición ---
     window.deleteEntry = async function(id) {
-        if (!id) { console.error("ID inválido para eliminar."); return; }
-        // Usamos confirm por ahora, ya que requiere acción explícita del usuario.
-        // Podría reemplazarse por un modal personalizado en el futuro.
-        if (confirm(`¿Seguro que quieres eliminar este registro?`)) {
+        if (!id) {
+            console.error("ID inválido para eliminar.");
+            showNotification("No se puede eliminar: ID de registro no encontrado.", 'error');
+            return;
+        }
+
+        // Confirmación del usuario (importante para borrado)
+        // Podría reemplazarse por un modal personalizado
+        if (confirm(`¿Estás seguro de que quieres eliminar este registro completo?\nWorkout ID: ${id}\n\nEsta acción no se puede deshacer.`)) {
+
             if (!SCRIPT_URL) {
-                showNotification("Error: URL del script no configurada.", 'error', 5000); // Reemplaza alert
+                showNotification("Error: URL del script no configurada.", 'error', 5000);
                 return;
             }
 
-            showHistorySpinner('Eliminando registro...'); // MOSTRAR SPINNER en el historial
+            // Mostrar spinner sobre el historial mientras se procesa
+            showHistorySpinner(`Eliminando registro ${id}...`);
 
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'cors',
+                    // mode: 'cors', // Probar sin mode
                     body: JSON.stringify({ action: 'delete', id: id })
                 });
-                const result = await response.json();
 
-                // Ocultar spinner ANTES de la notificación y recarga
-                // hideHistorySpinner(); // loadInitialHistory() lo oculta ahora
+                // Parsear respuesta
+                let result;
+                 try {
+                     result = await response.json();
+                 } catch (parseError) {
+                      console.error("Error al parsear respuesta JSON de eliminación:", parseError);
+                      const responseText = await response.text();
+                      console.error("Respuesta de eliminación (texto):", responseText);
+                      if (!response.ok) {
+                           throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
+                      } else {
+                           throw new Error("Respuesta inesperada del servidor al eliminar (no JSON).");
+                      }
+                 }
 
-                if (result.status === 'success') {
-                    showNotification(result.message || 'Registro eliminado.', 'success'); // Reemplaza alert
-                    loadInitialHistory(); // Recarga (y maneja su propio spinner)
+
+                // El spinner se oculta dentro de loadInitialHistory() si tiene éxito
+                // O se oculta explícitamente en el catch o si el script devuelve error
+
+                if (result && result.status === 'success') {
+                    showNotification(result.message || 'Registro eliminado con éxito.', 'success');
+                    // Recargar historial para reflejar el cambio (esto oculta el spinner también)
+                    loadInitialHistory();
                 } else {
-                    showNotification(`Error al eliminar: ${result.message || 'Desconocido'}`, 'error', 5000); // Reemplaza alert
-                    // Ocultar spinner explícitamente si falla la eliminación antes de recargar
-                    hideHistorySpinner();
-                    // Quizás recargar igualmente para ver estado actual? O no?
-                    // loadInitialHistory();
+                    // Error devuelto por el script
+                    hideHistorySpinner(); // Ocultar spinner manualmente si falla
+                    showNotification(`Error al eliminar: ${result?.message || 'Respuesta inválida'}`, 'error', 5000);
                 }
+
             } catch (error) {
-                hideHistorySpinner(); // Asegurar ocultar en error de red
+                hideHistorySpinner(); // Asegurar que se oculte en error de red/fetch/parse
                 console.error('Error en fetch al eliminar:', error);
-                showNotification(`Error de conexión al eliminar: ${error.message}`, 'error', 5000); // Reemplaza alert
+                showNotification(`Error de conexión o servidor al eliminar: ${error.message}`, 'error', 5000);
             }
-            // No necesitamos finally si el spinner se gestiona en try/catch y loadInitialHistory
+            // No se necesita finally si la gestión del spinner está cubierta
+        } else {
+             console.log("Eliminación cancelada por el usuario.");
         }
     }
 
     window.editEntry = function(id) {
-        showNotification(`Función Editar (ID: ${id}) aún no implementada.`, 'info'); // Reemplaza alert
+        // Placeholder para funcionalidad futura
+        showNotification(`Función Editar (ID: ${id}) aún no implementada.`, 'info');
+        console.log("Intento de editar ID:", id);
+        // Aquí iría la lógica para:
+        // 1. Encontrar los datos de 'id' en 'initiallyLoadedData'.
+        // 2. Poblar el formulario principal con esos datos.
+        // 3. Cambiar el botón de "Guardar" a "Actualizar".
+        // 4. Modificar handleFormSubmit para enviar 'action: update' con el 'id'.
+        // 5. El backend necesitaría manejar 'action: update'.
     }
 
-    // MODIFICADO: Usa spinner en el botón de submit
-    function setLoading(isLoading, message = 'Procesando...') {
-        const defaultIconHTML = '<i class="fas fa-save"></i> Guardar Entrenamiento';
+    // --- Utilidad para estado de carga del botón Submit ---
+    function setLoading(isLoading, message = 'Guardando...') {
+        const saveIconHTML = '<i class="fas fa-save"></i> Guardar Entrenamiento';
         const loadingIconHTML = '<i class="fas fa-spinner fa-spin"></i>'; // Icono giratorio
+
+        if (!submitButton) return; // Salir si el botón no existe
 
         if (isLoading) {
             submitButton.disabled = true;
-            submitButton.innerHTML = `${loadingIconHTML} ${message}`;
+            // Usar textContent para el mensaje para evitar inyección si message viniera de fuera
+            submitButton.innerHTML = `${loadingIconHTML} <span class="button-text">${message}</span>`;
         } else {
             submitButton.disabled = false;
-            submitButton.innerHTML = defaultIconHTML;
+            submitButton.innerHTML = saveIconHTML;
         }
     }
 
-    // --- Inicialización ---
-    if (submitButton) {
-        submitButton.innerHTML = `<i class="fas fa-save"></i> Guardar Entrenamiento`; // Estado inicial
+    // --- Inicialización al cargar la página ---
+    function initializeApp() {
+        console.log("Inicializando Gym Tracker App...");
+        // Establecer estado inicial del botón guardar
+        if (submitButton) {
+            submitButton.innerHTML = `<i class="fas fa-save"></i> Guardar Entrenamiento`;
+            submitButton.disabled = false; // Asegurar que esté habilitado al inicio
+        }
+        // Asegurar que el botón "+" para añadir series exista desde el principio
+        addAddSetButton();
+        // Cargar el historial inicial (esto también poblará el select de la gráfica)
+        loadInitialHistory();
+        // Opcional: poner focus en el primer campo útil (selector de ejercicio)
+        // exerciseSelect.focus();
     }
-    loadInitialHistory(); // Carga inicial (ahora maneja spinner)
-    addAddSetButton(); // Asegurar que el botón "+" existe al inicio
-});
+
+    // Ejecutar inicialización
+    initializeApp();
+
+}); // Fin DOMContentLoaded
