@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updatePlaceholders(lastWorkoutData) {
-        console.log("Actualizando placeholders con:", lastWorkoutData);
+        console.log("Actualizando campos con último entreno:", lastWorkoutData);
         // Ordenar sets del último entreno por número de serie por si acaso
         const sortedSets = (lastWorkoutData.sets || []).sort((a, b) => (a.set || 0) - (b.set || 0));
 
@@ -270,24 +270,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn("Saltando set con número inválido en datos de pre-relleno:", setInfo);
                 return;
             }
-            const repsInput = document.getElementById(`reps-set-${setNumber}`);
-            const weightInput = document.getElementById(`weight-set-${setNumber}`);
 
+            // --- MODIFICADO: Pre-rellenar VALOR para Peso ---
+            const weightInput = document.getElementById(`weight-set-${setNumber}`);
+            if (weightInput) {
+                const lastWeight = setInfo.weight;
+                // Verificar si el peso anterior es un número válido (incluido 0)
+                if (lastWeight !== undefined && lastWeight !== null && !isNaN(parseFloat(lastWeight))) {
+                    weightInput.value = String(lastWeight); // Asigna el VALOR
+                    weightInput.placeholder = 'kg';       // Placeholder genérico como fallback
+                    console.log(`Valor pre-rellenado peso S${setNumber}: ${weightInput.value}`);
+                } else {
+                    // Si no hay peso válido anterior, dejar valor vacío y placeholder 'kg'
+                    weightInput.value = '';
+                    weightInput.placeholder = 'kg';
+                    console.log(`Sin peso anterior válido para pre-rellenar S${setNumber}`);
+                }
+            } else {
+                console.warn(`Input de peso no encontrado para set ${setNumber} durante pre-relleno.`);
+            }
+
+            // --- MANTENIDO: Usar PLACEHOLDER para Reps ---
+            const repsInput = document.getElementById(`reps-set-${setNumber}`);
             if (repsInput) {
                 repsInput.placeholder = setInfo.reps !== undefined && setInfo.reps !== null ? String(setInfo.reps) : 'Reps';
-                repsInput.value = ''; // Asegurar que el valor esté vacío, solo cambia placeholder
+                repsInput.value = ''; // Asegurar que el valor de reps esté vacío
                 console.log(`Placeholder reps S${setNumber}: ${repsInput.placeholder}`);
             } else {
                 console.warn(`Input de reps no encontrado para set ${setNumber} durante pre-relleno.`);
             }
-            if (weightInput) {
-                weightInput.placeholder = setInfo.weight !== undefined && setInfo.weight !== null ? String(setInfo.weight) : 'kg';
-                weightInput.value = ''; // Asegurar que el valor esté vacío
-                console.log(`Placeholder peso S${setNumber}: ${weightInput.placeholder}`);
-            } else {
-                console.warn(`Input de peso no encontrado para set ${setNumber} durante pre-relleno.`);
-            }
         });
+
+        // --- AÑADIDO: Poner el foco en el primer campo de Reps ---
+        const firstRepsInput = document.getElementById('reps-set-1');
+        if (firstRepsInput) {
+           firstRepsInput.focus(); // Mueve el cursor al input de reps de la serie 1
+        }
+        // --- FIN FOCO ---
     }
 
 
