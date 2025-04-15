@@ -24,3 +24,6 @@ Mejora del Mensaje de Eliminación:
 Se modificó el mensaje de confirmación confirm() para no mostrar el WorkoutID técnico (esto lo hiciste tú).
 Se modificó el backend (codigo.gs) para que, tras una eliminación exitosa, devuelva un mensaje genérico ("Registro eliminado correctamente.") en lugar de uno que incluya el WorkoutID, mejorando el mensaje mostrado en la notificación toast.
 Se añade la funcionalidad de que al registrar un ejercicio si no hay datos anteriores, las series empiezan directamente en 1, no en 0.
+NUEVO:
+Se añade la funcionalidad de que cuando hay registros anteriores para un ejercicio, que los kilos no sean un placeholder sino que ponga el dato como tal, ya que el peso no se cambia mucho de un día a otro.
+Se añade también la opción de que al hacer esto, el foco va directamente a Resp de la primera serie.
