@@ -27,3 +27,4 @@ Se añade la funcionalidad de que al registrar un ejercicio si no hay datos ante
 NUEVO:
 Se añade la funcionalidad de que cuando hay registros anteriores para un ejercicio, que los kilos no sean un placeholder sino que ponga el dato como tal, ya que el peso no se cambia mucho de un día a otro.
 Se añade también la opción de que al hacer esto, el foco va directamente a Resp de la primera serie.
+Se añaden la opciones de añadir y borrar ejercicio. También debido a esto se ha quitado la opción "otro" del desplegable.
