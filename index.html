@@ -5,22 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gym Tracker</title>
     <link rel="stylesheet" href="style.css">
-    <!-- AÑADIDO: Enlace a Font Awesome -->
+    <!-- Enlace a Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- FIN AÑADIDO -->
-    <!-- AÑADIDO: Chart.js -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FIN AÑADIDO -->
 </head>
 <body>
 
-    <!-- INICIO: Área para Notificaciones Toast (AÑADIDO) -->
-    <div id="notification-area" class="notification-container">
-        <!-- Las notificaciones se añadirán aquí dinámicamente por JS -->
-    </div>
-    <!-- FIN: Área para Notificaciones Toast -->
+    <!-- Área para Notificaciones Toast -->
+    <div id="notification-area" class="notification-container"></div>
 
-    <!-- INICIO Contenedor Principal -->
+    <!-- Contenedor Principal -->
     <div class="container">
 
         <h1>Registro de Entrenamiento</h1>
@@ -30,98 +25,99 @@
                 <label for="exercise">Ejercicio:</label>
                 <select id="exercise" name="exercise" required>
                     <option value="" disabled selected>-- Selecciona un ejercicio --</option>
-                    <option value="Press Banca Plano">Press Banca Plano</option>
-                    <option value="Press Banca Inclinado">Press Banca Inclinado</option>
-                    <option value="Aperturas de Pecho">Aperturas de Pecho</option>
-                    <option value="Jalón al Pecho">Jalón al Pecho</option>
-                    <option value="Remo Espalda">Remo Espalda</option>
-                    <option value="Remo Trapecio">Remo Trapecio</option>
-                    <option value="Prensa Pierna">Prensa Pierna</option>
-                    <option value="Extensión de Cuádriceps">Extensión de Cuádriceps</option>
-                    <option value="Biceps Femoral">Biceps Femoral</option>
-                    <option value="Press Militar">Press Militar</option>
-                    <option value="Hombro Laterales">Hombro laterales</option>
-                    <option value="Triceps con Cuerda">Triceps con Cuerda</option>
-                    <option value="Triceps tras Nuca">Triceps tras Nuca</option>
-                    <option value="Curl Biceps">Curl Biceps</option>
-                    <option value="Curl Martillo">Curl Martillo</option>
-                    <option value="custom">Otro (Especificar)</option>
+                    <!-- Opciones pobladas por JS -->
                 </select>
             </div>
-
-            <div class="form-group" id="custom-exercise-group" style="display: none;">
-                <label for="custom-exercise-name">Nombre del Ejercicio Personalizado:</label>
-                <input type="text" id="custom-exercise-name" name="custom-exercise-name">
-            </div>
-
             <div class="form-group">
                 <label for="sets">Número de Series:</label>
-                <!-- MODIFICADO: Placeholder ligeramente mejorado -->
                 <input type="number" id="sets" name="sets" min="0" placeholder="Nº Series (o añade abajo)">
             </div>
-
-            <div id="sets-inputs">
-                <!-- Aquí se generarán los inputs para cada serie dinámicamente -->
-                <!-- El botón "+ Añadir Serie" se añadirá aquí por JS -->
-            </div>
-
-            <button type="submit">Guardar Entrenamiento</button> <!-- JS modificará este botón con spinner -->
+            <div id="sets-inputs"></div>
+            <button type="submit"><i class="fas fa-save"></i> Guardar Entrenamiento</button>
         </form>
 
-        <!-- ================================== -->
-        <!-- INICIO: Sección Progreso (Gráfica) -->
-        <!-- ================================== -->
+        <!-- Botón para Gestionar Ejercicios -->
+        <div class="manage-toggle-container">
+             <button id="toggle-manage-btn">
+                 <i class="fas fa-list-ul"></i> Gestionar Lista de Ejercicios
+             </button>
+        </div>
+
+        <!-- Sección Gestión Ejercicios (Oculta por defecto) -->
+        <div id="exercise-management-section" style="display: none;">
+            <h2>Gestionar Lista de Ejercicios</h2>
+
+            <!-- Área para Añadir Ejercicios -->
+            <div class="exercise-add-area">
+                <h3>Añadir Nuevo Ejercicio</h3>
+                <div class="form-group">
+                    <label for="new-exercise-name">Nombre del Nuevo Ejercicio:</label>
+                    <input type="text" id="new-exercise-name" placeholder="Ej: Sentadilla Frontal">
+                </div>
+                <button id="add-exercise-btn">
+                    <i class="fas fa-plus"></i> Añadir a la Lista
+                </button>
+                <span id="add-exercise-spinner" style="display: none; margin-left: 10px;">
+                    <i class="fas fa-spinner fa-spin"></i> Guardando...
+                </span>
+            </div>
+
+            <!-- Área para Eliminar Ejercicios (MODIFICADO) -->
+            <div class="exercise-delete-area">
+                 <h3>Eliminar Ejercicio Existente</h3>
+                 <div class="form-group">
+                    <label for="delete-exercise-select">Selecciona Ejercicio a Eliminar:</label>
+                    <select id="delete-exercise-select">
+                        <option value="" disabled selected>-- Selecciona ejercicio a eliminar --</option>
+                        <!-- Opciones pobladas por JS -->
+                    </select>
+                 </div>
+                 <button id="delete-exercise-btn" disabled>
+                    <i class="fas fa-trash-alt"></i> Eliminar Seleccionado
+                 </button>
+                 <!-- Indicador de carga para eliminar -->
+                 <span id="delete-exercise-spinner" style="display: none; margin-left: 10px;">
+                    <i class="fas fa-spinner fa-spin"></i> Eliminando...
+                 </span>
+            </div>
+
+        </div> <!-- Fin exercise-management-section -->
+
+        <!-- Sección Progreso (Gráfica) -->
         <div id="progress-section">
             <h2>Visualización de Progreso</h2>
             <div id="graph-controls">
                 <label for="graph-exercise-select">Ver progresión para:</label>
                 <select id="graph-exercise-select" name="graph-exercise">
-                    <option value="" disabled selected>-- Selecciona un ejercicio --</option>
-                    <!-- Opciones se añadirán dinámicamente con JS -->
+                    <option value="" disabled selected>-- Selecciona ejercicio --</option>
+                    <!-- Opciones pobladas por JS -->
                 </select>
                 <button id="show-graph-btn" disabled><i class="fas fa-chart-line"></i> Mostrar Gráfica</button>
                 <button id="hide-graph-btn" style="display: none;"><i class="fas fa-eye-slash"></i> Ocultar Gráfica</button>
             </div>
-            <!-- MODIFICADO: Padding ajustado en style.css -->
             <div id="graph-container" style="margin-top: 20px; display: none;">
-                <canvas id="progress-chart"></canvas> <!-- Canvas para Chart.js -->
+                <canvas id="progress-chart"></canvas>
             </div>
         </div>
-        <!-- ================================== -->
-        <!-- FIN: Sección Progreso (Gráfica)   -->
-        <!-- ================================== -->
 
-
-        <!-- =============================== -->
-        <!-- INICIO: Sección Filtro Historial -->
-        <!-- =============================== -->
+        <!-- Sección Filtro Historial -->
         <div id="history-filter">
              <label for="filter-date">Ver fecha específica:</label>
              <input type="date" id="filter-date" name="filter-date">
              <button id="clear-filter-btn" title="Mostrar los últimos entrenamientos registrados">Mostrar Recientes</button>
         </div>
-        <!-- =============================== -->
-        <!-- FIN: Sección Filtro Historial   -->
-        <!-- =============================== -->
 
-
+        <!-- Historial -->
         <h2>Historial de Entrenamientos</h2>
-        <!-- MODIFICADO: Contenedor padre para el spinner -->
         <div id="history-log">
-            <!-- INICIO: Spinner para el historial (AÑADIDO) -->
             <div id="history-spinner" class="spinner-container" style="display: none;">
                 <i class="fas fa-spinner fa-spin fa-3x"></i>
-                <p>Procesando...</p> <!-- Este texto se puede cambiar desde JS -->
+                <p>Procesando...</p>
             </div>
-            <!-- FIN: Spinner para el historial -->
-
-            <!-- Mensaje inicial por defecto -->
             <p>Aún no hay registros.</p>
-            <!-- Aquí se mostrará el historial -->
         </div>
 
-    </div>
-    <!-- FIN Contenedor Principal -->
+    </div> <!-- FIN Contenedor Principal -->
 
     <script src="script.js"></script>
 </body>

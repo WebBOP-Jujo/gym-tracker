@@ -1,186 +1,116 @@
-// Nombre de la Hoja dentro del archivo de cálculo
-// Asegúrate que coincida EXACTAMENTE con el nombre de tu hoja en Google Sheets
-const SHEET_NAME = "RegistrosGym";
+// --- Nombres de Hojas ---
+const SHEET_NAME_REGISTROS = "RegistrosGym";
+const SHEET_NAME_EJERCICIOS = "Ejercicios";
 
-// --- doGet: Modificado para filtros y contador total de días ---
+// --- Constantes ---
+const DEFAULT_EXERCISES = [ "Press Banca Plano", "Press Banca Inclinado", "Aperturas de Pecho", "Jalón al Pecho", "Remo Espalda", "Remo Trapecio", "Prensa Pierna", "Extensión de Cuádriceps", "Biceps Femoral", "Press Militar", "Hombro Laterales", "Triceps con Cuerda", "Triceps tras Nuca", "Curl Biceps", "Curl Martillo" ];
+
+// --- Funciones Helper ---
+function getSheetByNameOrThrow(ss, sheetName) { const sheet = ss.getSheetByName(sheetName); if (!sheet) throw new Error(`Hoja "${sheetName}" no encontrada.`); return sheet; }
+function getMasterExerciseList(ss) {
+  const exerciseSheet = getSheetByNameOrThrow(ss, SHEET_NAME_EJERCICIOS); let exerciseList = []; const lastRow = exerciseSheet.getLastRow();
+  if (lastRow < 1) { Logger.log(`Hoja '${SHEET_NAME_EJERCICIOS}' vacía. Poblando.`); const dataToAdd = DEFAULT_EXERCISES.map(ex => [ex]); exerciseSheet.getRange(1, 1, dataToAdd.length, 1).setValues(dataToAdd); exerciseList = DEFAULT_EXERCISES.slice(); }
+  else { const range = exerciseSheet.getRange(1, 1, lastRow, 1); const values = range.getValues(); exerciseList = values.map(row => row[0]).filter(value => typeof value === 'string' && value.trim() !== "").map(value => value.trim()); }
+  exerciseList.sort((a, b) => a.localeCompare(b)); Logger.log(`Lista ejercicios obtenida (${exerciseList.length}).`); return exerciseList;
+}
+
+// --- doGet ---
 function doGet(e) {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) {
-      throw new Error(`Hoja "${SHEET_NAME}" no encontrada.`);
-    }
-
-    // Parámetros de la petición GET
-    const loadType = e.parameter.load || 'recent';
-    const daysToLoadParam = e.parameter.days;
-    const specificDateParam = e.parameter.date; // Formato esperado: YYYY-MM-DD
-
-    Logger.log(`doGet: loadType=${loadType}, days=${daysToLoadParam}, date=${specificDateParam}`);
-
-    // Leer TODOS los datos (incluyendo cabecera)
-    const allSheetDataWithHeader = sheet.getDataRange().getValues();
-
-    // Verificar si hay datos más allá de la cabecera
-    if (allSheetDataWithHeader.length <= 1) {
-       Logger.log("La hoja está vacía o solo tiene cabecera.");
-       // Devolver éxito con datos vacíos y contador 0
-       return ContentService.createTextOutput(JSON.stringify({ status: "success", data: [], totalWorkoutDays: 0 })).setMimeType(ContentService.MimeType.JSON);
-    }
-
-    const headers = allSheetDataWithHeader.shift(); // Quitar cabecera
-    const allSheetData = allSheetDataWithHeader; // Datos sin cabecera
-
-    // --- Calcular el número total de días de entrenamiento ÚNICOS ---
-    // Se hace sobre TODOS los datos antes de filtrar para la vista
-    // --- Calcular el número total de días de entrenamiento ÚNICOS ---
-    const uniqueWorkoutDaysSet = new Set();
-    allSheetData.forEach(row => {
-      const dateValue = row[2]; // Leer el valor de la columna C
-
-      if (dateValue) { // Asegurarse de que la celda no esté vacía
-        let formattedDateStr = null;
-
-        if (dateValue instanceof Date) {
-          // Si es un objeto Date, formatearlo a DD/MM/YYYY
-          try {
-            formattedDateStr = Utilities.formatDate(dateValue, Session.getScriptTimeZone(), "dd/MM/yyyy");
-             // OJO: usamos dd minúscula y yyyy minúscula según la doc de Utilities.formatDate
-          } catch (e) {
-            Logger.log(`Error formateando objeto Date: ${dateValue} - ${e}`);
-          }
-        } else if (typeof dateValue === 'string' && dateValue.includes('/')) {
-          // Si ya es un string con el formato esperado, usarlo directamente
-          formattedDateStr = dateValue.trim();
-        } else {
-           // Registrar si el formato es inesperado (ni Date ni string DD/MM/YYYY)
-           Logger.log(`Formato de fecha inesperado o no manejado en columna C: ${dateValue} (Tipo: ${typeof dateValue})`);
-        }
-
-        // Si logramos obtener una fecha formateada válida, añadirla al Set
-        if (formattedDateStr) {
-          uniqueWorkoutDaysSet.add(formattedDateStr);
-        }
-      }
-    });
-    const totalWorkoutDays = uniqueWorkoutDaysSet.size;
-    Logger.log(`Total de días únicos encontrados: ${totalWorkoutDays}`);
-    // --- Fin cálculo total días ---
-
-
-    let filteredDataRows = []; // Almacenará las filas que cumplen el filtro
-
-    // Aplicar filtros (recent o specific)
-    if (loadType === 'recent') {
-      const daysToLoad = parseInt(daysToLoadParam) || 7;
-      Logger.log(`Filtrando por los últimos ${daysToLoad} días distintos.`);
-      filteredDataRows = filterRecentDaysData(allSheetData, daysToLoad);
-    } else if (loadType === 'specific') {
-      if (!specificDateParam) { throw new Error("Parámetro 'date' (YYYY-MM-DD) requerido para load=specific."); }
-      Logger.log(`Filtrando por fecha específica: ${specificDateParam}`);
-      filteredDataRows = filterSpecificDateData(allSheetData, specificDateParam);
-    } else {
-      // Fallback: Cargar todo si 'load' es inválido
-      Logger.log(`Parámetro 'load' inválido o ausente: '${loadType}'. Cargando todos los datos.`);
-      filteredDataRows = allSheetData;
-    }
-
-    Logger.log(`Filas después de filtrar: ${filteredDataRows.length}`);
-
-    // Procesar (agrupar y ordenar) SOLO las filas filtradas
+    const ss = SpreadsheetApp.getActiveSpreadsheet(); const sheetRegistros = getSheetByNameOrThrow(ss, SHEET_NAME_REGISTROS);
+    const exerciseList = getMasterExerciseList(ss);
+    const loadType = e.parameter.load || 'recent'; const daysToLoadParam = e.parameter.days; const specificDateParam = e.parameter.date;
+    Logger.log(`doGet: load=${loadType}, days=${daysToLoadParam}, date=${specificDateParam}`);
+    const allSheetDataWithHeader = sheetRegistros.getDataRange().getValues();
+    if (allSheetDataWithHeader.length <= 1) { Logger.log(`'${SHEET_NAME_REGISTROS}' vacía.`); return ContentService.createTextOutput(JSON.stringify({ status: "success", data: [], totalWorkoutDays: 0, exerciseList: exerciseList })).setMimeType(ContentService.MimeType.JSON); }
+    const headers = allSheetDataWithHeader.shift(); const allSheetData = allSheetDataWithHeader;
+    const uniqueWorkoutDaysSet = new Set(); allSheetData.forEach(row => { const dateValue = row[2]; if (dateValue) { let fmtDate = null; if (dateValue instanceof Date) { try { fmtDate = Utilities.formatDate(dateValue, Session.getScriptTimeZone(), "dd/MM/yyyy"); } catch (e) {} } else if (typeof dateValue === 'string' && dateValue.includes('/')) { fmtDate = dateValue.trim(); } if (fmtDate) uniqueWorkoutDaysSet.add(fmtDate); } });
+    const totalWorkoutDays = uniqueWorkoutDaysSet.size; Logger.log(`Total días únicos: ${totalWorkoutDays}`);
+    let filteredDataRows = [];
+    if (loadType === 'recent') { const days = parseInt(daysToLoadParam) || 7; filteredDataRows = filterRecentDaysData(allSheetData, days); }
+    else if (loadType === 'specific') { if (!specificDateParam) throw new Error("'date' requerido."); filteredDataRows = filterSpecificDateData(allSheetData, specificDateParam); }
+    else { filteredDataRows = allSheetData; }
+    Logger.log(`Filas regs filtradas: ${filteredDataRows.length}`);
     const processedResult = processAndGroupData(filteredDataRows);
-
-    // Devolver como JSON, incluyendo el contador total de días
-    return ContentService
-      .createTextOutput(JSON.stringify({
-          status: "success",
-          data: processedResult,
-          totalWorkoutDays: totalWorkoutDays // <-- Incluir el contador aquí
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
-
-  } catch (error) {
-    Logger.log(`Error en doGet: ${error.message}\n${error.stack}`);
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: "error", message: error.message }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", data: processedResult, totalWorkoutDays: totalWorkoutDays, exerciseList: exerciseList })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) { Logger.log(`Error doGet: ${error.message}\n${error.stack}`); return ContentService.createTextOutput(JSON.stringify({ status: "error", message: error.message, exerciseList: [] })).setMimeType(ContentService.MimeType.JSON); }
 }
 
-// --- Funciones auxiliares filterRecentDaysData, filterSpecificDateData, processAndGroupData ---
-// (Estas funciones no han cambiado respecto a la versión anterior)
+// --- Funciones auxiliares filtro/proceso historial (sin cambios) ---
+function filterRecentDaysData(allSheetData, daysToLoad) { if (allSheetData.length === 0 || daysToLoad <= 0) return []; const uniqueDatesTimestamps = new Map(); allSheetData.forEach(row => { const ts = row[0]; if (ts == null || typeof ts !== 'number' || ts <= 0 || isNaN(ts)) return; try { const d = new Date(ts); const ds = Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd"); if (!uniqueDatesTimestamps.has(ds) || ts > uniqueDatesTimestamps.get(ds)) { uniqueDatesTimestamps.set(ds, ts); } } catch (e) {} }); const sortedDates = Array.from(uniqueDatesTimestamps.keys()).sort((a, b) => uniqueDatesTimestamps.get(b) - uniqueDatesTimestamps.get(a)); const targetDates = new Set(sortedDates.slice(0, daysToLoad)); Logger.log(`Fechas recientes (${targetDates.size})`); return allSheetData.filter(row => { const ts = row[0]; if (ts == null || typeof ts !== 'number' || ts <= 0 || isNaN(ts)) return false; try { const d = new Date(ts); const ds = Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd"); return targetDates.has(ds); } catch (e) { return false; } }); }
+function filterSpecificDateData(allSheetData, specificDateYYYYMMDD) { if (!/^\d{4}-\d{2}-\d{2}$/.test(specificDateYYYYMMDD)) { throw new Error("Formato fecha inválido."); } return allSheetData.filter(row => { const ts = row[0]; if (ts == null || typeof ts !== 'number' || ts <= 0 || isNaN(ts)) return false; try { const d = new Date(ts); const ds = Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd"); return ds === specificDateYYYYMMDD; } catch (e) { return false; } }); }
+function processAndGroupData(dataRows) { const workouts = {}; dataRows.forEach(row => { const ts = row[0]; const wid = row[1]; const dt = row[2]; const ex = row[3]; const set = row[4]; const reps = row[5]; const w = row[6]; const vTs = (typeof ts === 'number' && !isNaN(ts) && ts > 0) ? ts : 0; if (!workouts[wid]) { workouts[wid] = { id: wid, timestamp: vTs, date: dt, exercise: ex, sets: [] }; } else if (vTs > workouts[wid].timestamp) { workouts[wid].timestamp = vTs; } const vSet = set !== undefined ? set : '?'; const vReps = reps !== undefined ? reps : 0; const vW = w !== undefined ? w : 0; workouts[wid].sets.push({ set: vSet, reps: vReps, weight: vW }); }); return Object.values(workouts).sort((a, b) => b.timestamp - a.timestamp); }
 
-function filterRecentDaysData(allSheetData, daysToLoad) {
-  if (allSheetData.length === 0 || daysToLoad <= 0) return [];
-  const uniqueDatesTimestamps = new Map();
-  allSheetData.forEach(row => {
-    const timestamp = row[0];
-    if (timestamp == null || typeof timestamp !== 'number' || timestamp <= 0 || isNaN(timestamp)) return;
-    try {
-      const dateObj = new Date(timestamp);
-      const dateStr = Utilities.formatDate(dateObj, Session.getScriptTimeZone(), "yyyy-MM-dd");
-      if (!uniqueDatesTimestamps.has(dateStr) || timestamp > uniqueDatesTimestamps.get(dateStr)) {
-        uniqueDatesTimestamps.set(dateStr, timestamp);
-      }
-    } catch (e) { Logger.log(`Error procesando fecha para timestamp: ${timestamp}`); }
-  });
-  const sortedUniqueDates = Array.from(uniqueDatesTimestamps.keys()).sort((a, b) => uniqueDatesTimestamps.get(b) - uniqueDatesTimestamps.get(a));
-  const targetDates = new Set(sortedUniqueDates.slice(0, daysToLoad));
-  Logger.log(`Fechas recientes seleccionadas (${targetDates.size}): ${Array.from(targetDates).join(', ')}`);
-  return allSheetData.filter(row => {
-    const timestamp = row[0];
-    if (timestamp == null || typeof timestamp !== 'number' || timestamp <= 0 || isNaN(timestamp)) return false;
-    try {
-      const dateObj = new Date(timestamp);
-      const dateStr = Utilities.formatDate(dateObj, Session.getScriptTimeZone(), "yyyy-MM-dd");
-      return targetDates.has(dateStr);
-    } catch (e) { return false; }
-  });
-}
-
-function filterSpecificDateData(allSheetData, specificDateYYYYMMDD) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(specificDateYYYYMMDD)) { throw new Error("Formato de fecha inválido. Usar YYYY-MM-DD."); }
-    return allSheetData.filter(row => {
-      const timestamp = row[0];
-      if (timestamp == null || typeof timestamp !== 'number' || timestamp <= 0 || isNaN(timestamp)) return false;
-      try {
-        const dateObj = new Date(timestamp);
-        const dateStr = Utilities.formatDate(dateObj, Session.getScriptTimeZone(), "yyyy-MM-dd");
-        return dateStr === specificDateYYYYMMDD;
-      } catch (e) { Logger.log(`Error al comparar fecha para timestamp: ${timestamp}`); return false; }
-   });
-}
-
-function processAndGroupData(dataRows) {
-  const workouts = {};
-  dataRows.forEach(row => {
-    const timestamp = row[0]; const workoutId = row[1]; const dateStr = row[2]; const exercise = row[3]; const setNumber = row[4]; const reps = row[5]; const weight = row[6];
-    const validTimestamp = (typeof timestamp === 'number' && !isNaN(timestamp) && timestamp > 0) ? timestamp : 0;
-    if (!workouts[workoutId]) { workouts[workoutId] = { id: workoutId, timestamp: validTimestamp, date: dateStr, exercise: exercise, sets: [] }; }
-    else if (validTimestamp > workouts[workoutId].timestamp) { workouts[workoutId].timestamp = validTimestamp; }
-    // Añadir validación básica para sets, reps, weight si es necesario
-    const validSet = setNumber !== undefined ? setNumber : 'N/A';
-    const validReps = reps !== undefined ? reps : 0;
-    const validWeight = weight !== undefined ? weight : 0;
-    workouts[workoutId].sets.push({ set: validSet, reps: validReps, weight: validWeight });
-  });
-  return Object.values(workouts).sort((a, b) => b.timestamp - a.timestamp);
-}
-
-
-// --- doPost (SIN CAMBIOS) ---
+// --- doPost ---
 function doPost(e) {
   let output;
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) { throw new Error(`Hoja "${SHEET_NAME}" no encontrada.`); }
     const requestData = JSON.parse(e.postData.contents);
     const action = requestData.action;
-    Logger.log(`doPost recibió acción: ${action}`);
-    if (action === 'save') { const workout = requestData.data; const timestamp = new Date().getTime(); const workoutId = "WID_" + timestamp; const date = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }); workout.sets.forEach(set => { sheet.appendRow([ timestamp, workoutId, date, workout.exercise, set.set, set.reps, set.weight ]); }); Logger.log(`Workout guardado: ${workoutId}`); output = { status: "success", message: "Entrenamiento guardado", workoutId: workoutId };
-    } else if (action === 'delete') { const workoutIdToDelete = requestData.id; if (!workoutIdToDelete) { throw new Error("Falta ID a eliminar."); } Logger.log(`Intentando eliminar WorkoutID: ${workoutIdToDelete}`); const data = sheet.getDataRange().getValues(); const rowsToDelete = []; for (let i = data.length - 1; i >= 1; i--) { if (data[i][1] === workoutIdToDelete) { rowsToDelete.push(i + 1); } } if (rowsToDelete.length === 0) { throw new Error(`WorkoutID no encontrado: ${workoutIdToDelete}`); } rowsToDelete.sort((a, b) => b - a).forEach(rowIndex => { Logger.log(`Eliminando fila: ${rowIndex}`); sheet.deleteRow(rowIndex); }); Logger.log(`Filas eliminadas para ${workoutIdToDelete}: ${rowsToDelete.join(', ')}`); output = { status: "success", message: `Entrenamiento eliminado correctamente.` };
+    Logger.log(`doPost action: ${action}`);
+
+    if (action === 'save') {
+      const sheetRegistros = getSheetByNameOrThrow(ss, SHEET_NAME_REGISTROS); const workout = requestData.data;
+      if (!workout?.exercise || !Array.isArray(workout.sets)) { throw new Error("Datos entreno inválidos."); }
+      const ts = new Date().getTime(); const wid = "WID_" + ts; const dt = new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' });
+      workout.sets.forEach(set => { if (set.set===undefined || set.reps===undefined || set.weight===undefined) return; sheetRegistros.appendRow([ ts, wid, dt, workout.exercise, set.set, set.reps, set.weight ]); });
+      Logger.log(`Workout guardado: ${wid}`); output = { status: "success", message: "Entrenamiento guardado", workoutId: wid };
+
+    } else if (action === 'deleteWorkout') {
+      const sheetRegistros = getSheetByNameOrThrow(ss, SHEET_NAME_REGISTROS); const workoutIdToDelete = requestData.id;
+      if (!workoutIdToDelete) { throw new Error("Falta ID a eliminar."); } Logger.log(`Eliminando WorkoutID: ${workoutIdToDelete}`);
+      const data = sheetRegistros.getDataRange().getValues(); const rowsToDelete = [];
+      for (let i=data.length-1; i>=1; i--) { if (data[i]?.[1] === workoutIdToDelete) { rowsToDelete.push(i + 1); } }
+      if (rowsToDelete.length === 0) { Logger.log(`WorkoutID no encontrado: ${workoutIdToDelete}`); output = { status: "success", message: `Registro ${workoutIdToDelete} no encontrado.` }; }
+      else { rowsToDelete.sort((a, b) => b - a).forEach(rIdx => { Logger.log(`Eliminando fila: ${rIdx}`); sheetRegistros.deleteRow(rIdx); }); Logger.log(`Filas eliminadas para ${workoutIdToDelete}: ${rowsToDelete.length}`); output = { status: "success", message: `Entrenamiento eliminado.` }; }
+
+    } else if (action === 'addExercise') {
+      const exerciseNameToAdd = requestData.exerciseName; if (!exerciseNameToAdd || typeof exerciseNameToAdd !== 'string' || exerciseNameToAdd.trim() === "") { throw new Error("Nombre ejercicio inválido."); }
+      const trimmedName = exerciseNameToAdd.trim(); const nameLower = trimmedName.toLowerCase();
+      const exerciseSheet = getSheetByNameOrThrow(ss, SHEET_NAME_EJERCICIOS); const currentList = getMasterExerciseList(ss);
+      const exists = currentList.some(ex => ex.toLowerCase() === nameLower);
+      if (exists) { Logger.log(`Duplicado: ${trimmedName}`); output = { status: "error", message: `El ejercicio "${trimmedName}" ya existe.` }; }
+      else { exerciseSheet.appendRow([trimmedName]); Logger.log(`Ejercicio añadido: ${trimmedName}`); const updatedList = getMasterExerciseList(ss); output = { status: "success", message: `Ejercicio "${trimmedName}" añadido.`, addedExercise: trimmedName, updatedExerciseList: updatedList }; }
+
+    } else if (action === 'deleteExercise') { // NUEVO: Lógica para eliminar ejercicio
+      const exerciseNameToDelete = requestData.exerciseName;
+      if (!exerciseNameToDelete || typeof exerciseNameToDelete !== 'string' || exerciseNameToDelete.trim() === "") {
+        throw new Error("Nombre de ejercicio a eliminar inválido o vacío.");
+      }
+      const trimmedName = exerciseNameToDelete.trim();
+      const nameLower = trimmedName.toLowerCase();
+
+      const exerciseSheet = getSheetByNameOrThrow(ss, SHEET_NAME_EJERCICIOS);
+      const data = exerciseSheet.getDataRange().getValues(); // Obtener todos los datos [[ex1], [ex2], ...]
+      let rowIndexToDelete = -1;
+
+      // Buscar la fila que coincide (insensible a mayúsculas/minúsculas y espacios)
+      for (let i = 0; i < data.length; i++) {
+        if (data[i] && typeof data[i][0] === 'string' && data[i][0].trim().toLowerCase() === nameLower) {
+          rowIndexToDelete = i + 1; // El índice de fila es 1-based
+          break;
+        }
+      }
+
+      if (rowIndexToDelete === -1) {
+        Logger.log(`Ejercicio no encontrado para eliminar: ${trimmedName}`);
+        output = { status: "error", message: `El ejercicio "${trimmedName}" no se encontró en la lista.` };
+      } else {
+        Logger.log(`Eliminando ejercicio "${trimmedName}" en fila: ${rowIndexToDelete}`);
+        exerciseSheet.deleteRow(rowIndexToDelete);
+        // Obtener la lista actualizada DESPUÉS de eliminar
+        const updatedList = getMasterExerciseList(ss);
+        output = {
+          status: "success",
+          message: `Ejercicio "${trimmedName}" eliminado de la lista.`,
+          deletedExercise: trimmedName, // Opcional: devolver nombre eliminado
+          updatedExerciseList: updatedList // Devolver lista actualizada
+        };
+      }
+
     } else { throw new Error("Acción no válida: " + action); }
-  } catch (error) { Logger.log(`Error en doPost: ${error.toString()}\nStack: ${error.stack}`); output = { status: "error", message: error.message }; }
+
+  } catch (error) { Logger.log(`Error doPost: ${error.toString()}\nStack: ${error.stack}`); output = { status: "error", message: error.message }; }
   return ContentService.createTextOutput(JSON.stringify(output)).setMimeType(ContentService.MimeType.JSON);
 }

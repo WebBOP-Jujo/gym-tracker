@@ -1,581 +1,141 @@
 /* --- Estilos Generales y Contenedor --- */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    margin: 0;
-    background-color: #e9ecef;
-    color: #343a40;
-}
-
-.container {
-    max-width: 800px;
-    margin: 30px auto;
-    padding: 0 20px;
-}
-
-h1 { /* Título Principal */
-    color: #0056b3;
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 2.2em;
-    font-weight: 600;
-}
-
-/* --- Estilos Mejorados para el Formulario --- */
-#workout-form {
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    margin-bottom: 40px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #495057;
-}
-
-.form-group select,
-.form-group input[type="text"],
-.form-group input[type="number"] {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 1rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.form-group select:focus,
-.form-group input[type="text"]:focus,
-.form-group input[type="number"]:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-/* --- Estilos para los inputs de Series --- */
-#sets-inputs {
-    margin-top: 25px;
-    border-top: 1px solid #eee;
-    padding-top: 25px;
-}
-
-#sets-inputs .set-group {
-    border-bottom: 1px dashed #e0e0e0;
-    padding: 15px 0;
-    margin-bottom: 15px;
-    background-color: transparent;
-    border-radius: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-#sets-inputs .set-group strong {
-    min-width: 50px;
-    color: #0056b3;
-    font-weight: 600;
-}
-
-#sets-inputs .set-group label {
-    width: auto;
-    margin-bottom: 0;
-    font-weight: normal;
-    color: #6c757d;
-}
-
-#sets-inputs .set-group input[type="number"] {
-   width: 70px;
-   padding: 8px 10px;
-   margin-right: 0;
-   text-align: center;
-}
-
-#sets-inputs .remove-set-btn {
-    background-color: #ffc107;
-    color: #333;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    font-size: 12px;
-    font-weight: bold;
-    line-height: 24px;
-    text-align: center;
-    cursor: pointer;
-    margin-left: auto;
-    transition: background-color 0.2s ease;
-}
-
-#sets-inputs .remove-set-btn:hover {
-    background-color: #e0a800;
-}
-
-#add-set-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 10px 15px;
-    font-size: 0.9em;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: background-color 0.2s ease;
-    margin-top: 10px;
-}
-
-#add-set-button:hover {
-    background-color: #218838;
-}
-
-
-/* --- Estilo Botón Guardar Entrenamiento --- */
-#workout-form button[type="submit"] {
-    display: inline-flex;
-    width: auto;
-    padding: 12px 25px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    align-items: center;
-    gap: 8px;
-    margin-top: 25px;
-    min-height: 45px; /* Altura mínima para evitar saltos al cambiar contenido */
-    min-width: 150px; /* Ancho mínimo */
-    justify-content: center; /* Centrar contenido (icono y texto) */
-}
-
-#workout-form button[type="submit"]:hover {
-    background-color: #0056b3;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-#workout-form button[type="submit"]:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-    box-shadow: none;
-    opacity: 0.7;
-}
-
-#workout-form button[type="submit"] i.fa-spinner {
-    /* Estilo específico si el spinner está dentro del botón */
-    font-size: 1em; /* Ajustar tamaño si es necesario */
-}
-
-/* --- Estilos para la Sección de Progreso (Gráfica) --- */
-#progress-section {
-    background-color: #fff;
-    padding: 20px;
-    margin-bottom: 40px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-}
-
-#progress-section h2 {
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: #333;
-    font-size: 1.5em;
-}
-
-#graph-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-}
-
-#graph-controls label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 0;
-}
-
-#graph-controls select#graph-exercise-select {
-    padding: 8px 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 0.95rem;
-    min-width: 200px;
-    flex-grow: 1;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-#graph-controls select#graph-exercise-select:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-#graph-controls button {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease, opacity 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-
-#graph-controls button#show-graph-btn {
-    background-color: #17a2b8;
-    color: white;
-}
-#graph-controls button#show-graph-btn:hover {
-    background-color: #138496;
-}
-#graph-controls button#show-graph-btn:disabled {
-    background-color: #adb5bd;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-#graph-controls button#hide-graph-btn {
-    background-color: #6c757d;
-    color: white;
-}
-#graph-controls button#hide-graph-btn:hover {
-    background-color: #5a6268;
-}
-
-
-/* Contenedor de la gráfica (canvas) */
-#graph-container {
-    background-color: #fdfdfd;
-    padding: 15px 0; /* Mantenido de la corrección anterior */
-    border-radius: 4px;
-    border: 1px solid #eee;
-    margin-top: 20px; /* Añadido (estaba en el HTML inline antes) */
-    /* display: none; lo controla JS */
-}
-
-
-/* --- Estilos para el Filtro de Historial --- */
-#history-filter {
-    background-color: #fff;
-    padding: 15px 20px;
-    margin-bottom: 25px;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-#history-filter label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 0;
-}
-
-#history-filter input[type="date"] {
-    padding: 8px 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 0.95rem;
-    min-width: 150px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-#history-filter input[type="date"]:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-#history-filter button#clear-filter-btn {
-    padding: 8px 15px;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease;
-}
-
-#history-filter button#clear-filter-btn:hover {
-    background-color: #5a6268;
-}
-
-
-/* --- Estilos del Historial --- */
-#history-log {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-top: 0;
-    position: relative; /* AÑADIDO: Necesario para el spinner absoluto */
-    min-height: 150px; /* AÑADIDO: Espacio mínimo para mostrar el spinner */
-}
-
-#history-log h2 {
-     /* Este H2 está fuera de #history-log en el HTML, así que los estilos aquí no le aplicarían.
-        Si el H2 está justo ANTES de #history-log, sus estilos están bien como estaban.
-        Ej: #history-filter + h2 { ... } si es necesario */
-}
-
-#history-log h3 {
-   border-bottom: none;
-   padding-bottom: 0;
-   margin-bottom: 0;
-}
-
-/* Estilo del párrafo inicial dentro de #history-log */
-#history-log > p:first-of-type { /* Selecciona el primer párrafo (el de 'Aún no hay registros') */
-    margin-bottom: 10px;
-    text-align: center;
-    color: #777;
-    padding: 20px 0;
-}
-
-#history-log .history-date-header {
-    text-align: left;
-    margin-top: 30px;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #007bff;
-    color: #0056b3;
-    font-size: 1.4em;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-#history-log .history-date-header:first-of-type {
-    margin-top: 0;
-}
-
-.history-entry {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 15px 20px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: box-shadow 0.2s ease-in-out;
-}
-
-.history-entry:hover {
-     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-}
-
-.history-exercise-title {
-    margin-top: 0;
-    margin-bottom: 12px;
-    color: #333;
-    font-size: 1.2em;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.history-exercise-title i.fa-dumbbell {
-    color: #5cb85c;
-}
-
-.history-sets-list {
-    list-style: none;
-    padding-left: 10px;
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 0.95em;
-    color: #555;
-}
-
-.history-set-item {
-    margin-bottom: 6px;
-    position: relative;
-    padding-left: 15px;
-}
-
-.history-set-item::before {
-    content: '•';
-    color: #007bff;
-    font-weight: bold;
-    display: inline-block;
-    position: absolute;
-    left: 0;
-    top: 1px;
-}
-
-.history-entry-actions {
-    margin-top: 10px;
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-
-.history-entry-actions button {
-    padding: 5px 12px;
-    font-size: 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    color: white;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: opacity 0.2s ease;
-}
-
-.history-entry-actions button:hover {
-    opacity: 0.85;
-}
-
-.button-delete {
-    background-color: #d9534f;
-}
-
-.button-edit {
-    background-color: #777;
-}
-
-.button-edit:disabled {
-     cursor: not-allowed;
-     opacity: 0.6;
-}
-
-/* --- AÑADIDO: Estilos para el Spinner de Carga del Historial --- */
-.spinner-container {
-    position: absolute; /* Para superponerse */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco semitransparente */
-    display: flex; /* Usar flexbox para centrar */
-    flex-direction: column; /* Alinear icono y texto verticalmente */
-    justify-content: center; /* Centrar verticalmente */
-    align-items: center; /* Centrar horizontalmente */
-    z-index: 10; /* Asegurar que esté por encima del contenido */
-    border-radius: 8px; /* Heredar el borde redondeado del contenedor padre */
-    /* min-height: 100px; No necesario si el padre ya tiene min-height */
-    text-align: center;
-    color: #555; /* Color del texto "Procesando..." */
-    /* display: none; lo controla JS */
-}
-
-.spinner-container .fa-spinner {
-    color: #007bff; /* Color azul, como los botones */
-    margin-bottom: 15px; /* Espacio entre el icono y el texto */
-}
-/* --- FIN Estilos Spinner Historial --- */
-
-
-/* --- AÑADIDO: Estilos para Notificaciones Toast --- */
-.notification-container {
-    position: fixed; /* Fijo en la pantalla */
-    top: 20px;       /* Espacio desde arriba */
-    right: 20px;      /* Pegado a la derecha */
-    z-index: 1050;    /* Por encima de otros elementos */
-    display: flex;
-    flex-direction: column; /* Apilar notificaciones verticalmente */
-    align-items: flex-end; /* Alinear mensajes a la derecha */
-    gap: 10px; /* Espacio entre notificaciones */
-    width: auto; /* Ajustar al contenido */
-    max-width: 90%; /* Evitar que sea demasiado ancho en pantallas grandes */
-}
-
-.toast-notification {
-    padding: 12px 18px;
-    border-radius: 5px;
-    color: #fff; /* Texto blanco por defecto */
-    font-size: 0.9em;
-    font-weight: 500;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    min-width: 200px; /* Ancho mínimo */
-    /* max-width: 350px; Ajustado por el contenedor */
-    opacity: 0; /* Empezar invisible para animación */
-    transform: translateX(100%); /* Empezar fuera de la pantalla (derecha) */
-    animation: slideInFadeIn 0.5s forwards; /* Animación de entrada */
-    cursor: pointer; /* Indicar que se puede hacer clic para cerrar */
-    border-left: 5px solid transparent; /* Borde base */
-    word-wrap: break-word; /* Para mensajes largos */
-}
-
-/* Tipos de notificación */
-.toast-notification.success {
-    background-color: #28a745; /* Verde éxito */
-    border-left-color: #1f7a34; /* Borde izquierdo más oscuro */
-}
-
-.toast-notification.error {
-    background-color: #dc3545; /* Rojo error */
-    border-left-color: #a71d2a;
-}
-
-.toast-notification.info {
-    background-color: #0dcaf0; /* Cyan info */
-    border-left-color: #0a8fa7;
-}
-
-/* Animación de entrada */
-@keyframes slideInFadeIn {
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-/* Clase para animación de salida (añadida por JS) */
-.toast-notification.fade-out {
-    animation: slideOutFadeOut 0.5s 0.1s forwards; /* Pequeño delay antes de salir */
-}
-
-/* Animación de salida */
-@keyframes slideOutFadeOut {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(100%); /* Deslizar hacia la derecha */
-        /* Opcional: Añadir height: 0; padding: 0; margin: 0; para colapsar */
-    }
-}
-/* --- FIN Estilos Notificaciones Toast --- */
-
-
-/* --- Media Query ejemplo (Añadida en la corrección anterior, mantener si se usa) --- */
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; margin: 0; background-color: #e9ecef; color: #343a40; }
+.container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; font-weight: 600; }
+
+/* --- Estilos Formulario --- */
+#workout-form { background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); margin-bottom: 40px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #495057; }
+.form-group select, .form-group input[type="text"], .form-group input[type="number"],
+#graph-controls select#graph-exercise-select, #history-filter input[type="date"],
+/* AÑADIDO: Select de eliminar ejercicio */
+#delete-exercise-select {
+    width: 100%; padding: 12px 15px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box;
+    font-size: 1rem; transition: border-color 0.2s ease, box-shadow 0.2s ease; background-color: #fff;
+}
+.form-group select:focus, .form-group input[type="text"]:focus, .form-group input[type="number"]:focus,
+#graph-controls select#graph-exercise-select:focus, #history-filter input[type="date"]:focus,
+/* AÑADIDO: Focus para select de eliminar */
+#delete-exercise-select:focus {
+    border-color: #80bdff; outline: 0; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* --- Estilos Inputs Series --- */
+#sets-inputs { margin-top: 25px; border-top: 1px solid #eee; padding-top: 25px; }
+#sets-inputs .set-group { border-bottom: 1px dashed #e0e0e0; padding: 15px 0; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+#sets-inputs .set-group strong { min-width: 50px; color: #0056b3; font-weight: 600; flex-shrink: 0; }
+#sets-inputs .set-group label { width: auto; margin-bottom: 0; font-weight: normal; color: #6c757d; flex-shrink: 0; }
+#sets-inputs .set-group input[type="number"] { width: 75px; padding: 8px 10px; text-align: center; font-size: 0.95rem; }
+#sets-inputs .remove-set-btn { background-color: #ffc107; color: #333; border: none; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px; font-weight: bold; line-height: 24px; text-align: center; cursor: pointer; margin-left: auto; transition: background-color 0.2s ease; flex-shrink: 0; }
+#sets-inputs .remove-set-btn:hover { background-color: #e0a800; }
+#add-set-button { background-color: #28a745; color: white; border: none; border-radius: 4px; padding: 10px 15px; font-size: 0.9em; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: background-color 0.2s ease; margin-top: 10px; }
+#add-set-button:hover { background-color: #218838; }
+
+/* --- Botón Guardar Entrenamiento --- */
+#workout-form button[type="submit"] { display: inline-flex; width: auto; padding: 12px 25px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease; align-items: center; gap: 8px; margin-top: 25px; min-height: 45px; min-width: 150px; justify-content: center; }
+#workout-form button[type="submit"]:hover { background-color: #0056b3; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
+#workout-form button[type="submit"]:disabled { background-color: #6c757d; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
+#workout-form button[type="submit"] i.fa-spinner { font-size: 1em; }
+
+/* --- Botón Toggle Gestión Ejercicios --- */
+.manage-toggle-container { text-align: center; margin-bottom: 25px; margin-top: -15px; }
+#toggle-manage-btn { background-color: #6c757d; color: white; border: none; border-radius: 4px; padding: 10px 20px; font-size: 0.95em; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background-color 0.2s ease, box-shadow 0.2s ease; }
+#toggle-manage-btn:hover { background-color: #5a6268; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+#toggle-manage-btn.active { background-color: #5a6268; }
+
+/* --- Sección Gestión Ejercicios --- */
+#exercise-management-section { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); margin-bottom: 40px; /* display: none; */ }
+#exercise-management-section h2 { text-align: center; margin-top: 0; margin-bottom: 30px; color: #0056b3; font-size: 1.8em; font-weight: 600; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+.exercise-add-area h3, .exercise-delete-area h3 { font-size: 1.3em; color: #343a40; margin-top: 0; margin-bottom: 20px; font-weight: 500; }
+.exercise-add-area .form-group { margin-bottom: 15px; }
+#add-exercise-btn { background-color: #28a745; color: white; border: none; border-radius: 4px; padding: 10px 18px; font-size: 0.95em; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 0.2s ease, opacity 0.2s ease; }
+#add-exercise-btn:hover { background-color: #218838; }
+#add-exercise-btn:disabled { background-color: #6c757d; cursor: not-allowed; opacity: 0.7; }
+#add-exercise-spinner { color: #555; font-size: 0.9em; display: inline-flex; align-items: center; gap: 5px; }
+#add-exercise-spinner .fa-spinner { color: #007bff; }
+.exercise-delete-area { border-top: 1px dashed #ccc; padding-top: 25px; margin-top: 30px; }
+
+/* AÑADIDO: Estilos para controles de eliminar */
+.exercise-delete-area .form-group { margin-bottom: 15px; } /* Consistencia */
+#delete-exercise-btn {
+    background-color: #d9534f; /* Rojo */
+    color: white; border: none; border-radius: 4px; padding: 10px 18px; font-size: 0.95em; font-weight: 500;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+#delete-exercise-btn:hover { background-color: #c9302c; }
+#delete-exercise-btn:disabled { background-color: #adb5bd; cursor: not-allowed; opacity: 0.7; }
+#delete-exercise-spinner { color: #555; font-size: 0.9em; display: inline-flex; align-items: center; gap: 5px; }
+#delete-exercise-spinner .fa-spinner { color: #d9534f; } /* Spinner rojo */
+
+/* --- Sección Progreso (Gráfica) --- */
+#progress-section { background-color: #fff; padding: 20px; margin-bottom: 40px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
+#progress-section h2 { text-align: center; margin-top: 0; margin-bottom: 20px; color: #333; font-size: 1.5em; }
+#graph-controls { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+#graph-controls label { font-weight: 600; color: #495057; margin-bottom: 0; flex-shrink: 0; }
+#graph-controls select#graph-exercise-select { min-width: 200px; flex-grow: 1; width: auto; padding: 8px 10px; font-size: 0.95rem; }
+#graph-controls button { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s ease, opacity 0.2s ease; display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; }
+#graph-controls button#show-graph-btn { background-color: #17a2b8; color: white; }
+#graph-controls button#show-graph-btn:hover { background-color: #138496; }
+#graph-controls button#show-graph-btn:disabled { background-color: #adb5bd; cursor: not-allowed; opacity: 0.7; }
+#graph-controls button#hide-graph-btn { background-color: #6c757d; color: white; }
+#graph-controls button#hide-graph-btn:hover { background-color: #5a6268; }
+#graph-container { background-color: #fdfdfd; padding: 15px 0; border-radius: 4px; border: 1px solid #eee; margin-top: 20px; }
+
+/* --- Filtro Historial --- */
+#history-filter { background-color: #fff; padding: 15px 20px; margin-bottom: 25px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+#history-filter label { font-weight: 600; color: #495057; margin-bottom: 0; flex-shrink: 0; }
+#history-filter input[type="date"] { min-width: 150px; width: auto; padding: 8px 10px; font-size: 0.95rem; flex-grow: 1; }
+#history-filter button#clear-filter-btn { padding: 8px 15px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s ease; flex-shrink: 0; }
+#history-filter button#clear-filter-btn:hover { background-color: #5a6268; }
+
+/* --- Historial --- */
+#history-filter + h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.6em; color: #333; font-weight: 600; text-align: center; }
+#history-log { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; min-height: 150px; margin-top: 0; }
+#history-log > p:first-child { text-align: center; color: #777; padding: 20px 0; margin: 0; }
+#history-log .history-date-header { text-align: left; margin-top: 30px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #007bff; color: #0056b3; font-size: 1.4em; display: flex; align-items: center; gap: 10px; }
+#history-log .history-date-header:first-of-type { margin-top: 0; }
+.history-entry { background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 15px 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); transition: box-shadow 0.2s ease-in-out; }
+.history-entry:hover { box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08); }
+.history-exercise-title { margin-top: 0; margin-bottom: 12px; color: #333; font-size: 1.2em; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.history-exercise-title i.fa-dumbbell { color: #5cb85c; }
+.history-sets-list { list-style: none; padding-left: 10px; margin-top: 0; margin-bottom: 15px; font-size: 0.95em; color: #555; }
+.history-set-item { margin-bottom: 6px; position: relative; padding-left: 15px; }
+.history-set-item::before { content: '•'; color: #007bff; font-weight: bold; display: inline-block; position: absolute; left: 0; top: 1px; }
+.history-entry-actions { margin-top: 15px; padding-top: 10px; border-top: 1px solid #f0f0f0; display: flex; gap: 10px; justify-content: flex-end; }
+.history-entry-actions button { padding: 5px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; color: white; display: inline-flex; align-items: center; gap: 5px; transition: opacity 0.2s ease; }
+.history-entry-actions button:hover { opacity: 0.85; }
+.button-delete { background-color: #d9534f; }
+.button-edit { background-color: #777; }
+.button-edit:disabled { cursor: not-allowed; opacity: 0.6; }
+
+/* --- Spinner Historial --- */
+.spinner-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; border-radius: 8px; text-align: center; color: #555; }
+.spinner-container .fa-spinner { color: #007bff; margin-bottom: 15px; }
+.spinner-container p { font-size: 1em; font-weight: 500; margin: 0; }
+
+/* --- Notificaciones Toast --- */
+.notification-container { position: fixed; top: 20px; right: 20px; z-index: 1050; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; width: auto; max-width: 90%; pointer-events: none; }
+.toast-notification { padding: 12px 18px; border-radius: 5px; color: #fff; font-size: 0.9em; font-weight: 500; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); min-width: 200px; max-width: 350px; opacity: 0; transform: translateX(100%); animation: slideInFadeIn 0.5s forwards ease-out; cursor: pointer; border-left: 5px solid transparent; word-wrap: break-word; pointer-events: auto; margin-bottom: 5px; }
+.toast-notification.success { background-color: #28a745; border-left-color: #1f7a34; }
+.toast-notification.error   { background-color: #dc3545; border-left-color: #a71d2a; }
+.toast-notification.info    { background-color: #0dcaf0; border-left-color: #0a8fa7; }
+@keyframes slideInFadeIn { to { opacity: 1; transform: translateX(0); } }
+.toast-notification.fade-out { animation: slideOutFadeOut 0.5s 0.1s forwards ease-in; }
+@keyframes slideOutFadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); height: 0; padding-top: 0; padding-bottom: 0; margin: 0; border: 0; } }
+
+/* --- Media Query Responsividad --- */
+@media (max-width: 768px) { #workout-form, #exercise-management-section, #progress-section, #history-log { padding: 20px; } #history-filter { padding: 10px 15px; } #sets-inputs .set-group input[type="number"] { width: 65px; } }
 @media (max-width: 600px) {
-    .container {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-    #progress-section {
-         padding: 15px;
-    }
-    .toast-notification {
-        min-width: 150px; /* Más pequeñas en móvil */
-        font-size: 0.85em;
-    }
+    .container { padding-left: 10px; padding-right: 10px; margin-top: 20px; margin-bottom: 20px; }
+    h1 { font-size: 1.8em; margin-bottom: 20px; }
+    #exercise-management-section h2 { font-size: 1.5em; } #progress-section h2 { font-size: 1.3em; } #history-filter + h2 { font-size: 1.4em; }
+    .manage-toggle-container { margin-top: 0; }
+    #graph-controls, #history-filter { flex-direction: column; align-items: stretch; }
+    #graph-controls select#graph-exercise-select, #history-filter input[type="date"] { min-width: initial; width: 100%; }
+    #toggle-manage-btn, #graph-controls button, #history-filter button { width: 100%; justify-content: center; padding: 10px 15px; }
+    #sets-inputs .set-group { gap: 8px; padding: 10px 0; } #sets-inputs .set-group input[type="number"] { width: 60px; }
+    .notification-container { top: 10px; right: 10px; left: 10px; max-width: none; align-items: stretch; }
+    .toast-notification { min-width: initial; max-width: 100%; font-size: 0.85em; }
 }
-
 /* --- Fin Estilos --- */
