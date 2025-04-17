@@ -64,71 +64,39 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 #delete-exercise-spinner { color: #555; font-size: 0.9em; display: inline-flex; align-items: center; gap: 5px; }
 #delete-exercise-spinner .fa-spinner { color: #d9534f; }
 
-/* --- Sección Progreso (Gráfica) - AJUSTADA --- */
-#progress-section {
-    background-color: #fff;
-    padding: 15px 20px; /* Reducido padding vertical */
-    margin-bottom: 10px;
-    border-radius: 8px; /* Coincide con otros */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Sombra más sutil, como filtro */
-}
-/* H2 Eliminado */
-#graph-controls {
-    text-align: center;
-}
+/* --- Sección Progreso (Gráfica) --- */
+#progress-section { background-color: #fff; padding: 15px 20px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+#graph-controls { text-align: center; border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
 #graph-controls label { display: block; margin-bottom: 10px; font-weight: 600; color: #495057; }
-#graph-controls select#graph-exercise-select {
-    display: inline-block; vertical-align: middle; width: auto; max-width: 250px;
-    margin: 0 5px 5px 5px; padding: 8px 10px; font-size: 0.95rem; /* Igual que filtro */
-    /* Hereda estilos base */
-}
-#graph-controls button {
-    display: inline-block; vertical-align: middle; margin: 0 5px 5px 5px;
-    padding: 8px 15px; font-size: 0.9rem; /* Igual que filtro */
-    /* Colores específicos definidos abajo */
-}
+#graph-controls select#graph-exercise-select { display: inline-block; vertical-align: middle; width: auto; max-width: 250px; margin: 0 5px; padding: 8px 10px; font-size: 0.95rem; }
+#graph-controls button { display: inline-block; vertical-align: middle; margin: 0 5px; padding: 8px 15px; font-size: 0.9rem; }
 #graph-controls button#show-graph-btn { background-color: #17a2b8; color: white; }
 #graph-controls button#show-graph-btn:hover { background-color: #138496; }
 #graph-controls button#show-graph-btn:disabled { background-color: #adb5bd; cursor: not-allowed; opacity: 0.7; }
 #graph-controls button#hide-graph-btn { background-color: #6c757d; color: white; }
 #graph-controls button#hide-graph-btn:hover { background-color: #5a6268; }
-#graph-container {
-    background-color: #fdfdfd; padding: 15px 0; border-radius: 4px; border: 1px solid #eee;
-    margin-top: 15px; /* Ajustar margen si es necesario */
-}
+#graph-container { background-color: #fdfdfd; padding: 15px 0; border-radius: 4px; border: 1px solid #eee; margin-top: 15px; }
 
-/* --- Filtro Historial - REVISADO PARA CONSISTENCIA --- */
-#history-filter {
-    text-align: center;
-    background-color: #fff; padding: 15px 20px; margin-bottom: 25px;
-    border-radius: 8px; /* Coincide con otros */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Coincide con progreso */
-}
+/* --- Filtro Historial --- */
+#history-filter { text-align: center; background-color: #fff; padding: 15px 20px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 #history-filter label { display: block; margin-bottom: 10px; font-weight: 600; color: #495057; }
-#history-filter input[type="date"] {
-    display: inline-block; vertical-align: middle; width: auto; max-width: 180px;
-    margin: 0 5px 5px 5px; padding: 8px 10px; font-size: 0.95rem; /* Igual que select progreso */
-}
-#history-filter button#clear-filter-btn {
-    display: inline-block; vertical-align: middle; margin: 0 5px 5px 5px;
-    padding: 8px 15px; font-size: 0.9rem; /* Igual que botones progreso */
-    background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.2s ease;
-}
+#history-filter input[type="date"] { display: inline-block; vertical-align: middle; width: auto; max-width: 180px; margin: 0 5px; padding: 8px 10px; font-size: 0.95rem; }
+#history-filter button#clear-filter-btn { display: inline-block; vertical-align: middle; margin: 0 5px; padding: 8px 15px; font-size: 0.9rem; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.2s ease; }
 #history-filter button#clear-filter-btn:hover { background-color: #5a6268; }
 
 /* --- Historial --- */
 #history-filter + h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.6em; color: #333; font-weight: 600; text-align: center; }
 #history-log { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; min-height: 150px; margin-top: 0; }
 #history-log > p:first-child { text-align: center; color: #777; padding: 20px 0; margin: 0; }
-#history-log .history-date-header { text-align: left; margin-top: 30px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #0d6efd; /* Azul actualizado */ color: #0b5ed7; /* Azul actualizado */ font-size: 1.4em; display: flex; align-items: center; gap: 10px; }
+#history-log .history-date-header { text-align: left; margin-top: 30px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #0d6efd; color: #0b5ed7; font-size: 1.4em; display: flex; align-items: center; gap: 10px; }
 #history-log .history-date-header:first-of-type { margin-top: 0; }
 .history-entry { background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 15px 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); transition: box-shadow 0.2s ease-in-out; }
 .history-entry:hover { box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08); }
 .history-exercise-title { margin-top: 0; margin-bottom: 12px; color: #333; font-size: 1.2em; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.history-exercise-title i.fa-dumbbell { color: #198754; } /* Verde actualizado */
+.history-exercise-title i.fa-dumbbell { color: #198754; }
 .history-sets-list { list-style: none; padding-left: 10px; margin-top: 0; margin-bottom: 15px; font-size: 0.95em; color: #555; }
 .history-set-item { margin-bottom: 6px; position: relative; padding-left: 15px; }
-.history-set-item::before { content: '•'; color: #0d6efd; /* Azul actualizado */ font-weight: bold; display: inline-block; position: absolute; left: 0; top: 1px; }
+.history-set-item::before { content: '•'; color: #0d6efd; font-weight: bold; display: inline-block; position: absolute; left: 0; top: 1px; }
 .history-entry-actions { margin-top: 15px; padding-top: 10px; border-top: 1px solid #f0f0f0; display: flex; gap: 10px; justify-content: flex-end; }
 .history-entry-actions button { padding: 5px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; color: white; display: inline-flex; align-items: center; gap: 5px; transition: opacity 0.2s ease; }
 .history-entry-actions button:hover { opacity: 0.85; }
@@ -137,13 +105,13 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 
 /* --- Spinner Historial --- */
 .spinner-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; border-radius: 8px; text-align: center; color: #555; }
-.spinner-container .fa-spinner { color: #0d6efd; /* Azul actualizado */ margin-bottom: 15px; }
+.spinner-container .fa-spinner { color: #0d6efd; margin-bottom: 15px; }
 .spinner-container p { font-size: 1em; font-weight: 500; margin: 0; }
 
 /* --- Notificaciones Toast --- */
 .notification-container { position: fixed; top: 20px; right: 20px; z-index: 1050; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; width: auto; max-width: 90%; pointer-events: none; }
 .toast-notification { padding: 12px 18px; border-radius: 5px; color: #fff; font-size: 0.9em; font-weight: 500; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); min-width: 200px; max-width: 350px; opacity: 0; transform: translateX(100%); animation: slideInFadeIn 0.5s forwards ease-out; cursor: pointer; border-left: 5px solid transparent; word-wrap: break-word; pointer-events: auto; margin-bottom: 5px; }
-.toast-notification.success { background-color: #198754; border-left-color: #146c43; } /* Verde actualizado */
+.toast-notification.success { background-color: #198754; border-left-color: #146c43; }
 .toast-notification.error   { background-color: #dc3545; border-left-color: #a71d2a; }
 .toast-notification.info    { background-color: #0dcaf0; border-left-color: #0a8fa7; }
 @keyframes slideInFadeIn { to { opacity: 1; transform: translateX(0); } }
@@ -157,8 +125,36 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
     h1 { font-size: 1.8em; margin-bottom: 20px; }
     #exercise-management-section h2 { font-size: 1.5em; } #history-filter + h2 { font-size: 1.4em; }
     .manage-toggle-container { margin-top: 0; }
-    #graph-controls select#graph-exercise-select, #history-filter input[type="date"] { max-width: 90%; }
-    #toggle-manage-btn, #graph-controls button, #history-filter button { width: auto; padding: 10px 15px; } /* Botones no ocupan todo el ancho en móvil */
+
+    /* --- MODIFICACIONES PARA LAYOUT DE CONTROLES EN MÓVIL --- */
+    #graph-controls, #history-filter {
+        /* Mantener text-align: center; */
+    }
+    #graph-controls label, #history-filter label {
+        display: block; /* Asegurar label en su línea */
+        margin-bottom: 8px; /* Espacio reducido bajo label */
+    }
+    #graph-controls select#graph-exercise-select {
+        display: inline-block; vertical-align: middle;
+        width: auto; max-width: calc(60% - 10px); /* Reducir ancho select */
+        margin: 0 2px 5px 2px; padding: 7px 8px; font-size: 0.85rem;
+    }
+    #graph-controls button {
+        display: inline-block; vertical-align: middle;
+        width: auto; margin: 0 2px 5px 2px; padding: 7px 12px; font-size: 0.85rem;
+        white-space: nowrap; /* Evitar salto línea en botón */
+    }
+     #history-filter input[type="date"] {
+        display: inline-block; vertical-align: middle; width: auto; max-width: 150px; /* Ajustar si es necesario */
+        margin: 0 3px 5px 3px; padding: 7px 8px; font-size: 0.85rem;
+    }
+    #history-filter button#clear-filter-btn {
+        display: inline-block; vertical-align: middle; width: auto;
+        margin: 0 3px 5px 3px; padding: 7px 12px; font-size: 0.85rem;
+    }
+    /* --- FIN MODIFICACIONES LAYOUT CONTROLES MÓVIL --- */
+
+    #toggle-manage-btn { width: auto; padding: 10px 15px; }
     .notification-container { top: 10px; right: 10px; left: 10px; max-width: none; align-items: stretch; }
     .toast-notification { min-width: initial; max-width: 100%; font-size: 0.85em; }
 }
