@@ -32,7 +32,9 @@
                 <label for="sets">Número de Series:</label>
                 <input type="number" id="sets" name="sets" min="0" placeholder="Nº Series (o añade abajo)">
             </div>
-            <div id="sets-inputs"></div>
+            <div id="sets-inputs">
+                <!-- Inputs para cada serie generados por JS -->
+            </div>
             <button type="submit"><i class="fas fa-save"></i> Guardar Entrenamiento</button>
         </form>
 
@@ -62,7 +64,7 @@
                 </span>
             </div>
 
-            <!-- Área para Eliminar Ejercicios (MODIFICADO) -->
+            <!-- Área para Eliminar Ejercicios -->
             <div class="exercise-delete-area">
                  <h3>Eliminar Ejercicio Existente</h3>
                  <div class="form-group">
@@ -75,7 +77,6 @@
                  <button id="delete-exercise-btn" disabled>
                     <i class="fas fa-trash-alt"></i> Eliminar Seleccionado
                  </button>
-                 <!-- Indicador de carga para eliminar -->
                  <span id="delete-exercise-spinner" style="display: none; margin-left: 10px;">
                     <i class="fas fa-spinner fa-spin"></i> Eliminando...
                  </span>
@@ -83,11 +84,12 @@
 
         </div> <!-- Fin exercise-management-section -->
 
-        <!-- Sección Progreso (Gráfica) -->
+        <!-- Sección Progreso (Gráfica) - MODIFICADO: Sin H2 -->
         <div id="progress-section">
-            <h2>Visualización de Progreso</h2>
+            <!-- ELIMINADO: <h2>Visualización de Progreso</h2> -->
             <div id="graph-controls">
                 <label for="graph-exercise-select">Ver progresión para:</label>
+                <!-- Select y botones van aquí -->
                 <select id="graph-exercise-select" name="graph-exercise">
                     <option value="" disabled selected>-- Selecciona ejercicio --</option>
                     <!-- Opciones pobladas por JS -->
@@ -103,6 +105,7 @@
         <!-- Sección Filtro Historial -->
         <div id="history-filter">
              <label for="filter-date">Ver fecha específica:</label>
+             <!-- Input y botón van aquí -->
              <input type="date" id="filter-date" name="filter-date">
              <button id="clear-filter-btn" title="Mostrar los últimos entrenamientos registrados">Mostrar Recientes</button>
         </div>
