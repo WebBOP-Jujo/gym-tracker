@@ -1,4 +1,4 @@
-Resumen de Mejoras y Correcciones (Post-V1 Inicial):
+esumen de Mejoras y Correcciones (Post-V1 Inicial):
 Corrección del Contador Total de Días:
 Se solucionó el bug que causaba que el contador siempre mostrara "0 días".
 El problema estaba en Google Apps Script (codigo.gs), que no interpretaba correctamente las celdas formateadas como "Fecha" en Google Sheets. Se modificó para manejar tanto objetos Date como strings "DD/MM/YYYY".
@@ -27,3 +27,7 @@ Se añade la funcionalidad de que al registrar un ejercicio si no hay datos ante
 NUEVO:
 Se añade la funcionalidad de que cuando hay registros anteriores para un ejercicio, que los kilos no sean un placeholder sino que ponga el dato como tal, ya que el peso no se cambia mucho de un día a otro.
 Se añade también la opción de que al hacer esto, el foco va directamente a Resp de la primera serie.
+NUEVO V12
+Se añaden la opciones de añadir y borrar ejercicio. También debido a esto se ha quitado la opción "otro" del desplegable.
+NEUEVO V13
+Se hacen mejor visuales sobre todo para moviles.
