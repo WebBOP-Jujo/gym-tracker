@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     exerciseSelect.addEventListener('change', handleExerciseChange);
     setsInput.addEventListener('change', handleSetsChange);
     form.addEventListener('submit', handleFormSubmit);
-    filterDateInput.addEventListener('change', handleFilterChange);
+    filterDateInput.addEventListener('change', handleFilterChange); // <--- Este listener llama a la función corregida
     clearFilterBtn.addEventListener('click', handleClearFilter);
     graphExerciseSelect.addEventListener('change', handleGraphExerciseSelectChange);
     showGraphBtn.addEventListener('click', displayExerciseProgressGraph);
@@ -52,39 +52,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (deleteExerciseBtn) { deleteExerciseBtn.addEventListener('click', handleDeleteExercise); }
 
     // --- Funciones de Notificación Toast ---
-    function showNotification(message, type = 'info', duration = 3000) { /* ... (sin cambios) ... */
-        const notificationArea = document.getElementById('notification-area'); if (!notificationArea) { console.error("Área '#notification-area' no encontrada."); console.warn(`NOTIF (${type}): ${message}`); return; } const notification = document.createElement('div'); notification.classList.add('toast-notification', type); notification.textContent = message; notificationArea.insertBefore(notification, notificationArea.firstChild); const timer = setTimeout(() => { notification.classList.add('fade-out'); notification.addEventListener('animationend', () => { if (notification.parentNode === notificationArea) notificationArea.removeChild(notification); }, { once: true }); }, duration); notification.addEventListener('click', () => { clearTimeout(timer); notification.classList.add('fade-out'); notification.addEventListener('animationend', () => { if (notification.parentNode === notificationArea) notificationArea.removeChild(notification); }, { once: true }); }, { once: true });
-    }
+    function showNotification(message, type = 'info', duration = 3000) { /* ... (sin cambios) ... */ const nArea=document.getElementById('notification-area'); if(!nArea){console.error("No #notification-area"); console.warn(`NOTIF(${type}): ${message}`); return;} const n=document.createElement('div'); n.classList.add('toast-notification',type); n.textContent=message; nArea.insertBefore(n,nArea.firstChild); const t=setTimeout(()=>{n.classList.add('fade-out'); n.addEventListener('animationend',()=>{if(n.parentNode===nArea)nArea.removeChild(n);},{once:true});},duration); n.addEventListener('click',()=>{clearTimeout(t); n.classList.add('fade-out'); n.addEventListener('animationend',()=>{if(n.parentNode===nArea)nArea.removeChild(n);},{once:true});},{once:true}); }
 
     // --- Funciones de Spinner ---
-    function showHistorySpinner(message = "Procesando...") { /* ... (sin cambios) ... */ if (historySpinner) { const p = historySpinner.querySelector('p'); if (p) p.textContent = message; historySpinner.style.display = 'flex'; } if (historyLog && historySpinner) { Array.from(historyLog.children).forEach(child => { if (child !== historySpinner) historyLog.removeChild(child); }); } }
-    function hideHistorySpinner() { /* ... (sin cambios) ... */ if (historySpinner) historySpinner.style.display = 'none'; }
+    function showHistorySpinner(message = "Procesando...") { /* ... (sin cambios) ... */ if(historySpinner){const p=historySpinner.querySelector('p'); if(p)p.textContent=message; historySpinner.style.display='flex';} if(historyLog&&historySpinner){Array.from(historyLog.children).forEach(c=>{if(c!==historySpinner)historyLog.removeChild(c);});} }
+    function hideHistorySpinner() { /* ... (sin cambios) ... */ if(historySpinner)historySpinner.style.display='none'; }
 
     // --- Funciones del Formulario y Series ---
     function handleExerciseChange() { /* ... (sin cambios) ... */ const sv = exerciseSelect.value; if (sv) { if (initiallyLoadedData?.length > 0) prefillFormWithLastWorkout(sv); else { console.log("No datos. 1 serie."); setsInput.value=1; generateSetsInputs(1,false); } } else { generateSetsInputs(0,false); setsInput.value=''; } }
     function handleSetsChange() { /* ... (sin cambios) ... */ const ns = parseInt(setsInput.value) || 0; generateSetsInputs(ns, false); }
     function generateSetsInputs(numberOfSets, shouldPrefill = false, lastData = null) { /* ... (sin cambios) ... */ setsInputsContainer.innerHTML = ''; const num = Math.max(0, numberOfSets); if (num>0 && num<=20) { for(let i=1;i<=num;i++) addSingleSetInput(i); if (shouldPrefill && lastData?.sets) { setTimeout(()=>updatePlaceholders(lastData), 0); } } else if (num>20) { showNotification("Máx 20 series.",'info'); } addAddSetButton(); updateSetNumbers(); }
-
-    // MODIFICADO: Implementa estructura HTML para layout híbrido
-    function addSingleSetInput(setNumber) {
-        const setGroup = document.createElement('div'); setGroup.classList.add('set-group');
-        setGroup.innerHTML = `
-            <div class="set-main-line">
-                <strong>Serie ${setNumber}:</strong>
-                <div class="set-input-pair">
-                    <label for="reps-set-${setNumber}">Reps:</label>
-                    <input type="number" id="reps-set-${setNumber}" name="reps-set-${setNumber}" min="0" required placeholder="Reps">
-                </div>
-                <div class="set-input-pair">
-                    <label for="weight-set-${setNumber}">Peso(kg):</label> <!-- Label más corto -->
-                    <input type="number" id="weight-set-${setNumber}" name="weight-set-${setNumber}" min="0" step="0.1" required placeholder="kg">
-                </div>
-            </div>
-            <button type="button" class="remove-set-btn" onclick="removeSetInput(this)" title="Quitar serie">X</button>`;
-        const addButton = document.getElementById('add-set-button');
-        if (addButton) setsInputsContainer.insertBefore(setGroup, addButton); else setsInputsContainer.appendChild(setGroup);
-    }
-
+    function addSingleSetInput(setNumber) { /* ... (sin cambios) ... */ const setGroup = document.createElement('div'); setGroup.classList.add('set-group'); setGroup.innerHTML = ` <div class="set-main-line"> <strong>Serie ${setNumber}:</strong> <div class="set-input-pair"> <label for="reps-set-${setNumber}">Reps:</label> <input type="number" id="reps-set-${setNumber}" name="reps-set-${setNumber}" min="0" required placeholder="Reps"> </div> <div class="set-input-pair"> <label for="weight-set-${setNumber}">Peso(kg):</label> <input type="number" id="weight-set-${setNumber}" name="weight-set-${setNumber}" min="0" step="0.1" required placeholder="kg"> </div> </div> <button type="button" class="remove-set-btn" onclick="removeSetInput(this)" title="Quitar serie">X</button>`; const addButton = document.getElementById('add-set-button'); if (addButton) setsInputsContainer.insertBefore(setGroup, addButton); else setsInputsContainer.appendChild(setGroup); }
     function addAddSetButton() { /* ... (sin cambios) ... */ if (!document.getElementById('add-set-button')) { const btn = document.createElement('button'); btn.type='button'; btn.id='add-set-button'; btn.innerHTML=`<i class="fas fa-plus"></i> Añadir Serie`; btn.onclick=addSetInput; setsInputsContainer.appendChild(btn); } }
     window.addSetInput = function() { /* ... (sin cambios) ... */ const cs = setsInputsContainer.querySelectorAll('.set-group').length; const next=cs+1; if(next>20) { showNotification("Máx 20.",'info'); return; } addSingleSetInput(next); updateSetNumbers(); }
     window.removeSetInput = function(button) { /* ... (sin cambios) ... */ button.closest('.set-group').remove(); updateSetNumbers(); }
@@ -103,7 +81,62 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadInitialHistory() { /* ... (sin cambios) ... */ filterDateInput.value=''; hideProgressGraph(); if(historyTitleElement)historyTitleElement.textContent=baseHistoryTitle+'...'; showHistorySpinner("Cargando..."); const res=await fetchHistoryData(); hideHistorySpinner(); if(res.status==='success'){ if(res.exerciseList?.length>=0){masterExerciseList=res.exerciseList; console.log("Lista:",masterExerciseList); populateFormExerciseSelect(masterExerciseList); populateGraphExerciseSelect(masterExerciseList); populateDeleteExerciseSelect(masterExerciseList);} else{console.error("No lista RX."); masterExerciseList=[]; populateFormExerciseSelect([]); populateGraphExerciseSelect([]); populateDeleteExerciseSelect([]); showNotification("Error lista.", "error");} initiallyLoadedData=res.data||[]; loadedDatesSet.clear(); initiallyLoadedData.forEach(e=>{if(e.timestamp)try{loadedDatesSet.add(new Date(e.timestamp).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'}));}catch(e){}}); console.log("Fechas locales:",loadedDatesSet); if(historyTitleElement){historyTitleElement.textContent=`${baseHistoryTitle} ${res.totalWorkoutDays!==undefined?`(Total: ${res.totalWorkoutDays} días)`:''}`;} displayGroupedHistory(initiallyLoadedData);} else{displayGroupedHistory([]); showNotification(res.message||'Error carga.','error'); initiallyLoadedData=[]; loadedDatesSet.clear(); masterExerciseList=[]; populateFormExerciseSelect([]); populateGraphExerciseSelect([]); populateDeleteExerciseSelect([]); if(historyTitleElement)historyTitleElement.textContent=baseHistoryTitle;} }
     async function loadSpecificDateHistory(dateYMD) { /* ... (sin cambios) ... */ hideProgressGraph(); if(historyTitleElement)historyTitleElement.textContent=baseHistoryTitle+'...'; let dDate=dateYMD; try{dDate=new Date(dateYMD+'T00:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){} showHistorySpinner(`Cargando ${dDate}...`); const res=await fetchHistoryData(dateYMD); hideHistorySpinner(); if(res.status==='success'){if(historyTitleElement)historyTitleElement.textContent=`Historial para ${dDate}`; displayGroupedHistory(res.data||[]);} else{displayGroupedHistory([]); showNotification(res.message||`Error carga ${dDate}.`,'error'); if(historyTitleElement)historyTitleElement.textContent=baseHistoryTitle;} }
     function displayGroupedHistory(data) { /* ... (sin cambios) ... */ hideHistorySpinner(); historyLog.innerHTML=''; if(historySpinner&&!historyLog.contains(historySpinner)){historyLog.appendChild(historySpinner); hideHistorySpinner();} if(!data||data.length===0){const m=filterDateInput.value?'No registros fecha.':'Aún no hay registros.'; historyLog.innerHTML=`<p>${m}</p>`; return;} const grouped=data.reduce((acc,e)=>{if(!e?.timestamp)return acc; let ds; try{ds=new Date(e.timestamp).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(err){return acc;} if(!acc[ds])acc[ds]=[]; acc[ds].push(e); return acc;},{}); const dates=Object.keys(grouped).sort((a,b)=>{const[da,ma,ya]=a.split('/'); const[db,mb,yb]=b.split('/'); return new Date(yb,mb-1,db)-new Date(ya,ma-1,da);}); dates.forEach(date=>{ const h2=document.createElement('h2'); h2.classList.add('history-date-header'); h2.innerHTML=`<i class="fas fa-calendar-alt"></i> ${date}`; historyLog.appendChild(h2); grouped[date].forEach(e=>{ const div=document.createElement('div'); div.classList.add('history-entry'); div.dataset.workoutId=e.id||''; let sets=(e.sets||[]).sort((a,b)=>(a.set||0)-(b.set||0)).map(s=>`<li class="history-set-item">Serie ${s.set||'?'}: <strong>${s.reps||0}</strong> reps → <strong>${s.weight||0}</strong> kg</li>`).join(''); const id=e.id||''; const delBtn=`<button class="button-delete" onclick="deleteWorkoutEntry('${id}')" ${!id?'disabled':''} title="Eliminar registro"><i class="fas fa-trash-alt"></i> Eliminar</button>`; const editBtn=`<button class="button-edit" disabled onclick="editWorkoutEntry('${id}')" ${!id?'disabled':''} title="Editar (Próx)"><i class="fas fa-pencil-alt"></i> Editar</button>`; div.innerHTML=`<h3 class="history-exercise-title"><i class="fas fa-dumbbell"></i> ${e.exercise||'N/A'}</h3><ul class="history-sets-list">${sets||'<li>No series.</li>'}</ul><div class="history-entry-actions">${editBtn}${delBtn}</div>`; historyLog.appendChild(div); }); }); }
-    function handleFilterChange() { /* ... (sin cambios) ... */ const d=filterDateInput.value; if(!d){loadInitialHistory();return;} if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){showNotification("Fecha inválida.", "error"); filterDateInput.value='';return;} let ddmmyy; try{const[y,m,d]=d.split('-'); ddmmyy=`${d}/${m}/${y}`;}catch(e){showNotification("Error fecha.","error");return;} hideHistorySpinner(); if(loadedDatesSet.has(ddmmyy)){console.log("Filtro local:",ddmmyy); const f=initiallyLoadedData.filter(e=>{if(!e?.timestamp)return false; try{return new Date(e.timestamp).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'})===ddmmyy;}catch{return false;}}); if(historyTitleElement)historyTitleElement.textContent=`Historial para ${ddmmyy}`; displayGroupedHistory(f);} else{console.log("No local. Pidiendo:",d); loadSpecificDateHistory(d);} }
+
+    // --- Función handleFilterChange (CORREGIDA CON LOGS) ---
+    function handleFilterChange() {
+        const selectedDate = filterDateInput.value; // Formato YYYY-MM-DD
+        console.log("handleFilterChange - Fecha seleccionada:", selectedDate); // Log 1
+
+        if (!selectedDate) {
+            loadInitialHistory();
+            return;
+        }
+
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(selectedDate)) {
+             showNotification("Formato de fecha inválido. Usa el selector.", "error");
+             filterDateInput.value = '';
+             return;
+        }
+
+        let dateToCheck_DDMMYYYY;
+        try {
+            console.log("handleFilterChange - Intentando convertir fecha..."); // Log 2
+            const [y, m, d] = selectedDate.split('-');
+            if (!y || !m || !d || y.length !== 4 || m.length !== 2 || d.length !== 2) {
+                throw new Error("Resultado inesperado de split.");
+            }
+            dateToCheck_DDMMYYYY = `${d}/${m}/${y}`;
+            console.log("handleFilterChange - Fecha convertida a DD/MM/YYYY:", dateToCheck_DDMMYYYY); // Log 3
+        } catch (e) {
+            console.error("handleFilterChange - Error en el bloque try/catch de conversión:", e); // Log 4
+            showNotification("Error procesando fecha seleccionada.", "error"); // Mensaje más específico
+            return;
+        }
+
+        hideHistorySpinner();
+
+        console.log("handleFilterChange - Verificando si la fecha está en loadedDatesSet:", loadedDatesSet); // Log 5
+        if (loadedDatesSet.has(dateToCheck_DDMMYYYY)) {
+             console.log("handleFilterChange - Filtrando localmente para", dateToCheck_DDMMYYYY); // Log 6
+             const filtered = initiallyLoadedData.filter(e => {
+                 if (!e?.timestamp) return false;
+                 try {
+                     const entryDateStr = new Date(e.timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                     return entryDateStr === dateToCheck_DDMMYYYY;
+                 } catch (filterError) {
+                     console.error("handleFilterChange - Error al formatear/comparar fecha en filtro local:", filterError); // Log 7
+                     return false;
+                 }
+             });
+             if (historyTitleElement) { historyTitleElement.textContent = `Historial para ${dateToCheck_DDMMYYYY}`; }
+             displayGroupedHistory(filtered);
+        } else {
+            console.log("handleFilterChange - Fecha no encontrada localmente. Pidiendo al servidor:", selectedDate); // Log 8
+            loadSpecificDateHistory(selectedDate);
+        }
+     }
+    // --- Fin handleFilterChange ---
+
     function handleClearFilter() { /* ... (sin cambios) ... */ console.log("Limpiando filtro."); loadInitialHistory(); }
 
     // --- Funciones Poblar Desplegables ---
