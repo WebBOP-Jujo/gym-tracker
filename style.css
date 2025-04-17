@@ -4,7 +4,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height
 h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; font-weight: 600; }
 
 /* --- Estilos Formulario --- */
-#workout-form { background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); margin-bottom: 40px; }
+#workout-form { background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); margin-bottom: 20px; }
 .form-group { margin-bottom: 20px; }
 .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #495057; }
 .form-group select, .form-group input[type="text"], .form-group input[type="number"],
@@ -41,7 +41,7 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 #workout-form button[type="submit"] i.fa-spinner { font-size: 1em; }
 
 /* --- Botón Toggle Gestión Ejercicios --- */
-.manage-toggle-container { text-align: center; margin-bottom: 10px; margin-top: -30px; }
+.manage-toggle-container { text-align: center; margin-bottom: 10px; margin-top: -15px; }
 #toggle-manage-btn { background-color: #6c757d; color: white; border: none; border-radius: 4px; padding: 10px 20px; font-size: 0.95em; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background-color 0.2s ease, box-shadow 0.2s ease; }
 #toggle-manage-btn:hover { background-color: #5a6268; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 #toggle-manage-btn.active { background-color: #5a6268; }
