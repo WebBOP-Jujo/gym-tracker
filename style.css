@@ -170,14 +170,14 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 #graph-container { background-color: #fdfdfd; padding: 15px 0; border-radius: 4px; border: 1px solid #eee; margin-top: 15px; }
 
 /* --- Filtro Historial --- */
-#history-filter { text-align: center; background-color: #fff; padding: 15px 20px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+#history-filter { text-align: center; background-color: #fff; padding: 15px 20px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 #history-filter label { display: block; margin-bottom: 10px; font-weight: 600; color: #495057; }
 #history-filter input[type="date"] { display: inline-block; vertical-align: middle; width: auto; max-width: 180px; margin: 0 5px; padding: 8px 10px; font-size: 0.95rem; }
 #history-filter button#clear-filter-btn { display: inline-block; vertical-align: middle; margin: 0 5px; padding: 8px 15px; font-size: 0.9rem; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.2s ease; }
 #history-filter button#clear-filter-btn:hover { background-color: #5a6268; }
 
 /* --- Historial --- */
-#history-filter + h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.6em; color: #333; font-weight: 600; text-align: center; }
+#history-filter + h2 { margin-top: 0; margin-bottom: 10px; font-size: 1.6em; color: #333; font-weight: 600; text-align: center; }
 #history-log { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; min-height: 150px; margin-top: 0; }
 #history-log > p:first-child { text-align: center; color: #777; padding: 20px 0; margin: 0; }
 #history-log .history-date-header { text-align: left; margin-top: 30px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #0d6efd; color: #0b5ed7; font-size: 1.4em; display: flex; align-items: center; gap: 10px; }
