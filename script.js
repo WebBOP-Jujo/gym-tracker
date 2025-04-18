@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---------------------
 
     // --- Elementos del DOM ---
-    const form = document.getElementById('workout-form');
+    const form = document.getElementById('workout-form'); // Necesario para el scroll
     const exerciseSelect = document.getElementById('exercise');
     const setsInput = document.getElementById('sets');
     const setsInputsContainer = document.getElementById('sets-inputs');
@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const historySpinner = document.getElementById('history-spinner');
     const exerciseManagementSection = document.getElementById('exercise-management-section');
     const manageExerciseListBtn = document.getElementById('manage-exercise-list-btn');
-    // **** NUEVO: Obtener el botón de cierre X ****
     const closeManageSectionBtn = document.getElementById('close-manage-section-btn');
     const newExerciseInput = document.getElementById('new-exercise-name');
     const addExerciseBtn = document.getElementById('add-exercise-btn');
@@ -49,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     showGraphBtn.addEventListener('click', displayExerciseProgressGraph);
     hideGraphBtn.addEventListener('click', hideProgressGraph);
     if (manageExerciseListBtn) { manageExerciseListBtn.addEventListener('click', handleToggleManageSection); }
-    // **** NUEVO: Listener para el botón de cierre X ****
     if (closeManageSectionBtn) { closeManageSectionBtn.addEventListener('click', handleToggleManageSection); }
     if (addExerciseBtn) { addExerciseBtn.addEventListener('click', handleAddExercise); }
     if (deleteExerciseSelect) { deleteExerciseSelect.addEventListener('change', handleDeleteExerciseSelectChange); }
@@ -156,23 +154,28 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideProgressGraph() { if(progressChartInstance){progressChartInstance.destroy(); progressChartInstance=null; console.log("Gráfica destruida.");} if(graphContainer)graphContainer.style.display='none'; if(hideGraphBtn)hideGraphBtn.style.display='none'; }
 
     // --- Funciones Gestión Ejercicios ---
-    // MODIFICADO: Esta función ahora es llamada por ambos botones (el del form y el 'X')
+    // MODIFICADO: Añadido scroll al formulario al cerrar la sección
     function handleToggleManageSection() {
         if (!exerciseManagementSection || !manageExerciseListBtn) return;
 
         const isVisible = exerciseManagementSection.style.display === 'block';
 
         if (isVisible) {
+            // --- Ocultando la sección ---
             exerciseManagementSection.style.display = 'none';
             manageExerciseListBtn.classList.remove('active');
+
+            // **** MODIFICADO: Scroll hacia el formulario al cerrar ****
+            if (form) { // Asegurarse de que el formulario existe
+                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            // *****************************************************
+
         } else {
+            // --- Mostrando la sección ---
             exerciseManagementSection.style.display = 'block';
             manageExerciseListBtn.classList.add('active');
-            // Scroll solo si se abre desde el botón principal, no desde el 'X'
-            // (Podríamos comprobar qué botón se pulsó, pero es más simple así)
-            // if (event?.currentTarget === manageExerciseListBtn) { // Comprobación opcional
-                 exerciseManagementSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            // }
+            exerciseManagementSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     }
 
