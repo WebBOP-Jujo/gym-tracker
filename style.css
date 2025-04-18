@@ -7,16 +7,68 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 #workout-form { background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); margin-bottom: 20px; }
 .form-group { margin-bottom: 20px; }
 .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #495057; }
+
+/* Estilos generales para selects/inputs */
 .form-group select, .form-group input[type="text"], .form-group input[type="number"],
 #graph-controls select#graph-exercise-select, #history-filter input[type="date"],
 #delete-exercise-select {
     width: 100%; padding: 12px 15px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box;
     font-size: 1rem; transition: border-color 0.2s ease, box-shadow 0.2s ease; background-color: #fff;
+    /* Altura consistente para ayudar a alinear el botón icono */
+    min-height: calc(1.6em + 24px + 2px); /* Ajustar basado en line-height, padding, border */
 }
 .form-group select:focus, .form-group input[type="text"]:focus, .form-group input[type="number"]:focus,
 #graph-controls select#graph-exercise-select:focus, #history-filter input[type="date"]:focus,
 #delete-exercise-select:focus {
     border-color: #80bdff; outline: 0; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* --- NUEVO: Wrapper para Select de Ejercicio y Botón de Gestión --- */
+.exercise-select-wrapper {
+    display: flex;
+    align-items: center; /* Alinea verticalmente el select y el botón */
+    gap: 8px; /* Espacio entre select y botón */
+}
+
+/* Ajuste para el select dentro del wrapper */
+.exercise-select-wrapper select#exercise {
+    flex-grow: 1; /* Permite que el select ocupe el espacio disponible */
+    width: auto; /* Anula el width: 100% general para este select específico */
+    margin-bottom: 0; /* Quitar margen si lo hereda de .form-group > select */
+}
+
+/* --- NUEVO: Estilos para el Botón Icono de Gestión --- */
+.icon-button {
+    background-color: #f8f9fa;
+    border: 1px solid #28333e; /* Borde para mantener tamaño */
+    padding: 8px 10px; /* Ajusta el padding para tamaño de clic */
+    cursor: pointer;
+    color: #6c757d; /* Color gris estándar */
+    font-size: 1.1em; /* Tamaño del icono */
+    line-height: 1; /* Ayuda a centrar el icono si es necesario */
+    border-radius: 4px;
+    flex-shrink: 0; /* Evita que el botón se encoja */
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    height: calc(1.6em + 24px + 2px); /* Intentar igualar altura del select */
+    box-sizing: border-box;
+}
+
+.icon-button:hover {
+    color: #343a40; /* Color más oscuro */
+    background-color: #e9ecef; /* Fondo gris claro sutil */
+    border-color: #ced4da; /* Borde sutil al pasar el ratón */
+}
+
+.icon-button:focus {
+    outline: none;
+    border-color: #80bdff; /* Coincide con el foco del select */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Indicador de foco */
+}
+
+.icon-button.active {
+    color: #0d6efd; /* Azul para indicar activo */
+    background-color: #e7f1ff; /* Fondo azul claro */
+    border-color: #aaccff; /* Borde azul claro */
 }
 
 /* --- Estilos Inputs Series (Enfoque Híbrido) --- */
@@ -40,14 +92,16 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 #workout-form button[type="submit"]:disabled { background-color: #6c757d; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
 #workout-form button[type="submit"] i.fa-spinner { font-size: 1em; }
 
-/* --- Botón Toggle Gestión Ejercicios --- */
-.manage-toggle-container { text-align: center; margin-bottom: 10px; margin-top: -15px; }
-#toggle-manage-btn { background-color: #6c757d; color: white; border: none; border-radius: 4px; padding: 10px 20px; font-size: 0.95em; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background-color 0.2s ease, box-shadow 0.2s ease; }
-#toggle-manage-btn:hover { background-color: #5a6268; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-#toggle-manage-btn.active { background-color: #5a6268; }
+/* --- ELIMINADO: Estilos Botón Toggle Gestión Ejercicios --- */
+/*
+.manage-toggle-container { ... }
+#toggle-manage-btn { ... }
+#toggle-manage-btn:hover { ... }
+#toggle-manage-btn.active { ... }
+*/
 
-/* --- Sección Gestión Ejercicios --- */
-#exercise-management-section { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); margin-bottom: 40px; /* display: none; */ }
+/* --- Sección Gestión Ejercicios (Sin cambios aquí) --- */
+#exercise-management-section { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); margin-bottom: 40px; /* display: none; por defecto */ }
 #exercise-management-section h2 { text-align: center; margin-top: 0; margin-bottom: 30px; color: #0056b3; font-size: 1.8em; font-weight: 600; border-bottom: 1px solid #eee; padding-bottom: 15px; }
 .exercise-add-area h3, .exercise-delete-area h3 { font-size: 1.3em; color: #343a40; margin-top: 0; margin-bottom: 20px; font-weight: 500; }
 .exercise-add-area .form-group { margin-bottom: 15px; }
@@ -124,37 +178,18 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
     .container { padding-left: 10px; padding-right: 10px; margin-top: 20px; margin-bottom: 20px; }
     h1 { font-size: 1.8em; margin-bottom: 20px; }
     #exercise-management-section h2 { font-size: 1.5em; } #history-filter + h2 { font-size: 1.4em; }
-    .manage-toggle-container { margin-top: 0; }
+    /* ELIMINADO: .manage-toggle-container { margin-top: 0; } */
 
     /* --- MODIFICACIONES PARA LAYOUT DE CONTROLES EN MÓVIL --- */
-    #graph-controls, #history-filter {
-        /* Mantener text-align: center; */
-    }
-    #graph-controls label, #history-filter label {
-        display: block; /* Asegurar label en su línea */
-        margin-bottom: 8px; /* Espacio reducido bajo label */
-    }
-    #graph-controls select#graph-exercise-select {
-        display: inline-block; vertical-align: middle;
-        width: auto; max-width: calc(50% - 10px); /* Reducir ancho select */
-        margin: 0 2px 5px 2px; padding: 7px 8px; font-size: 0.85rem;
-    }
-    #graph-controls button {
-        display: inline-block; vertical-align: middle;
-        width: auto; margin: 0 2px 5px 2px; padding: 7px 12px; font-size: 0.85rem;
-        white-space: nowrap; /* Evitar salto línea en botón */
-    }
-     #history-filter input[type="date"] {
-        display: inline-block; vertical-align: middle; width: auto; max-width: 150px; /* Ajustar si es necesario */
-        margin: 0 3px 5px 3px; padding: 7px 8px; font-size: 0.85rem;
-    }
-    #history-filter button#clear-filter-btn {
-        display: inline-block; vertical-align: middle; width: auto;
-        margin: 0 3px 5px 3px; padding: 7px 12px; font-size: 0.85rem;
-    }
+    #graph-controls, #history-filter { /* Mantener text-align: center; */ }
+    #graph-controls label, #history-filter label { display: block; margin-bottom: 8px; }
+    #graph-controls select#graph-exercise-select { display: inline-block; vertical-align: middle; width: auto; max-width: calc(50% - 10px); margin: 0 2px 5px 2px; padding: 7px 8px; font-size: 0.85rem; }
+    #graph-controls button { display: inline-block; vertical-align: middle; width: auto; margin: 0 2px 5px 2px; padding: 7px 12px; font-size: 0.85rem; white-space: nowrap; }
+     #history-filter input[type="date"] { display: inline-block; vertical-align: middle; width: auto; max-width: 150px; margin: 0 3px 5px 3px; padding: 7px 8px; font-size: 0.85rem; }
+    #history-filter button#clear-filter-btn { display: inline-block; vertical-align: middle; width: auto; margin: 0 3px 5px 3px; padding: 7px 12px; font-size: 0.85rem; }
     /* --- FIN MODIFICACIONES LAYOUT CONTROLES MÓVIL --- */
 
-    #toggle-manage-btn { width: auto; padding: 10px 15px; }
+    /* ELIMINADO: #toggle-manage-btn { width: auto; padding: 10px 15px; } */
     .notification-container { top: 10px; right: 10px; left: 10px; max-width: none; align-items: stretch; }
     .toast-notification { min-width: initial; max-width: 100%; font-size: 0.85em; }
 }

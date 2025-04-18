@@ -31,3 +31,5 @@ NUEVO V12
 Se añaden la opciones de añadir y borrar ejercicio. También debido a esto se ha quitado la opción "otro" del desplegable.
 NEUEVO V13
 Se hacen mejor visuales sobre todo para moviles.
+v14
+Se cambia de sitio la funcion de gestionar ejercicios ahora es un icono al lado del desplegable
