@@ -23,13 +23,11 @@
         <form id="workout-form">
             <div class="form-group">
                 <label for="exercise">Ejercicio:</label>
-                <!-- NUEVO: Wrapper para select y botón de gestión -->
                 <div class="exercise-select-wrapper">
                     <select id="exercise" name="exercise" required>
                         <option value="" disabled selected>-- Selecciona un ejercicio --</option>
                         <!-- Opciones pobladas por JS -->
                     </select>
-                    <!-- NUEVO: Botón icono para gestionar -->
                     <button type="button" id="manage-exercise-list-btn" class="icon-button" title="Gestionar lista de ejercicios">
                         <i class="fas fa-list-ul"></i>
                     </button>
@@ -45,17 +43,12 @@
             <button type="submit"><i class="fas fa-save"></i> Guardar Entrenamiento</button>
         </form>
 
-        <!-- ELIMINADO: Contenedor del botón toggle anterior -->
-        <!--
-        <div class="manage-toggle-container">
-             <button id="toggle-manage-btn">
-                 <i class="fas fa-list-ul"></i> Gestionar Lista de Ejercicios
-             </button>
-        </div>
-        -->
-
-        <!-- Sección Gestión Ejercicios (Oculta por defecto - Sin cambios aquí) -->
+        <!-- Sección Gestión Ejercicios (Oculta por defecto) -->
         <div id="exercise-management-section" style="display: none;">
+             <!-- **** NUEVO: Botón de cierre X **** -->
+            <button type="button" id="close-manage-section-btn" class="close-section-button" title="Cerrar gestión">
+                <i class="fas fa-times"></i>
+            </button>
             <h2>Gestionar Lista de Ejercicios</h2>
 
             <!-- Área para Añadir Ejercicios -->

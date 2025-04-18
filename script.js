@@ -22,8 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const chartCanvas = document.getElementById('progress-chart')?.getContext('2d');
     const historySpinner = document.getElementById('history-spinner');
     const exerciseManagementSection = document.getElementById('exercise-management-section');
-    // MODIFICADO: Apunta al nuevo botón icono
     const manageExerciseListBtn = document.getElementById('manage-exercise-list-btn');
+    // **** NUEVO: Obtener el botón de cierre X ****
+    const closeManageSectionBtn = document.getElementById('close-manage-section-btn');
     const newExerciseInput = document.getElementById('new-exercise-name');
     const addExerciseBtn = document.getElementById('add-exercise-btn');
     const addExerciseSpinner = document.getElementById('add-exercise-spinner');
@@ -47,8 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
     graphExerciseSelect.addEventListener('change', handleGraphExerciseSelectChange);
     showGraphBtn.addEventListener('click', displayExerciseProgressGraph);
     hideGraphBtn.addEventListener('click', hideProgressGraph);
-    // MODIFICADO: Listener asignado al nuevo botón
     if (manageExerciseListBtn) { manageExerciseListBtn.addEventListener('click', handleToggleManageSection); }
+    // **** NUEVO: Listener para el botón de cierre X ****
+    if (closeManageSectionBtn) { closeManageSectionBtn.addEventListener('click', handleToggleManageSection); }
     if (addExerciseBtn) { addExerciseBtn.addEventListener('click', handleAddExercise); }
     if (deleteExerciseSelect) { deleteExerciseSelect.addEventListener('change', handleDeleteExerciseSelectChange); }
     if (deleteExerciseBtn) { deleteExerciseBtn.addEventListener('click', handleDeleteExercise); }
@@ -115,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        hideHistorySpinner(); // Ocultar spinner aquí antes de decidir si filtrar local o remoto
+        hideHistorySpinner();
 
         console.log("handleFilterChange - Verificando si la fecha está en loadedDatesSet:", loadedDatesSet);
         if (loadedDatesSet.has(dateToCheck_DDMMYYYY)) {
@@ -154,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideProgressGraph() { if(progressChartInstance){progressChartInstance.destroy(); progressChartInstance=null; console.log("Gráfica destruida.");} if(graphContainer)graphContainer.style.display='none'; if(hideGraphBtn)hideGraphBtn.style.display='none'; }
 
     // --- Funciones Gestión Ejercicios ---
-    // MODIFICADO: La función ahora usa manageExerciseListBtn y solo cambia la clase 'active'
+    // MODIFICADO: Esta función ahora es llamada por ambos botones (el del form y el 'X')
     function handleToggleManageSection() {
         if (!exerciseManagementSection || !manageExerciseListBtn) return;
 
@@ -162,12 +164,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isVisible) {
             exerciseManagementSection.style.display = 'none';
-            manageExerciseListBtn.classList.remove('active'); // Quitar clase activa
+            manageExerciseListBtn.classList.remove('active');
         } else {
             exerciseManagementSection.style.display = 'block';
-            manageExerciseListBtn.classList.add('active'); // Añadir clase activa
-            // Scroll suave hacia la sección cuando se muestra
-            exerciseManagementSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            manageExerciseListBtn.classList.add('active');
+            // Scroll solo si se abre desde el botón principal, no desde el 'X'
+            // (Podríamos comprobar qué botón se pulsó, pero es más simple así)
+            // if (event?.currentTarget === manageExerciseListBtn) { // Comprobación opcional
+                 exerciseManagementSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            // }
         }
     }
 
@@ -188,7 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function initializeApp() {
         console.log("Inicializando...");
         if(exerciseManagementSection) exerciseManagementSection.style.display = 'none';
-        // Asegurar que el botón de gestión no esté activo al inicio
         if(manageExerciseListBtn) manageExerciseListBtn.classList.remove('active');
         if(submitButton) {
             submitButton.innerHTML = '<i class="fas fa-save"></i> Guardar Entrenamiento';

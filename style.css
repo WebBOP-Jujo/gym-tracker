@@ -14,8 +14,7 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 #delete-exercise-select {
     width: 100%; padding: 12px 15px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box;
     font-size: 1rem; transition: border-color 0.2s ease, box-shadow 0.2s ease; background-color: #fff;
-    /* Altura consistente para ayudar a alinear el botón icono */
-    min-height: calc(1.6em + 24px + 2px); /* Ajustar basado en line-height, padding, border */
+    min-height: calc(1.6em + 24px + 2px);
 }
 .form-group select:focus, .form-group input[type="text"]:focus, .form-group input[type="number"]:focus,
 #graph-controls select#graph-exercise-select:focus, #history-filter input[type="date"]:focus,
@@ -23,52 +22,51 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
     border-color: #80bdff; outline: 0; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* --- NUEVO: Wrapper para Select de Ejercicio y Botón de Gestión --- */
+/* --- Wrapper para Select de Ejercicio y Botón de Gestión --- */
 .exercise-select-wrapper {
     display: flex;
-    align-items: center; /* Alinea verticalmente el select y el botón */
-    gap: 8px; /* Espacio entre select y botón */
+    align-items: center;
+    gap: 8px;
 }
 
-/* Ajuste para el select dentro del wrapper */
 .exercise-select-wrapper select#exercise {
-    flex-grow: 1; /* Permite que el select ocupe el espacio disponible */
-    width: auto; /* Anula el width: 100% general para este select específico */
-    margin-bottom: 0; /* Quitar margen si lo hereda de .form-group > select */
+    flex-grow: 1;
+    width: auto;
+    margin-bottom: 0;
 }
 
-/* --- NUEVO: Estilos para el Botón Icono de Gestión --- */
+/* --- Estilos para el Botón Icono de Gestión --- */
 .icon-button {
     background-color: #f8f9fa;
-    border: 1px solid #28333e; /* Borde para mantener tamaño */
-    padding: 8px 10px; /* Ajusta el padding para tamaño de clic */
+    border: 1px solid #28333e; /* Borde personalizado */
+    padding: 8px 10px;
     cursor: pointer;
-    color: #6c757d; /* Color gris estándar */
-    font-size: 1.1em; /* Tamaño del icono */
-    line-height: 1; /* Ayuda a centrar el icono si es necesario */
+    color: #6c757d;
+    font-size: 1.1em;
+    line-height: 1;
     border-radius: 4px;
-    flex-shrink: 0; /* Evita que el botón se encoja */
+    flex-shrink: 0;
     transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
-    height: calc(1.6em + 24px + 2px); /* Intentar igualar altura del select */
+    height: calc(1.6em + 24px + 2px);
     box-sizing: border-box;
 }
 
 .icon-button:hover {
-    color: #343a40; /* Color más oscuro */
-    background-color: #e9ecef; /* Fondo gris claro sutil */
-    border-color: #ced4da; /* Borde sutil al pasar el ratón */
+    color: #343a40;
+    background-color: #e9ecef;
+    border-color: #ced4da;
 }
 
 .icon-button:focus {
     outline: none;
-    border-color: #80bdff; /* Coincide con el foco del select */
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Indicador de foco */
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 .icon-button.active {
-    color: #0d6efd; /* Azul para indicar activo */
-    background-color: #e7f1ff; /* Fondo azul claro */
-    border-color: #aaccff; /* Borde azul claro */
+    color: #0d6efd;
+    background-color: #e7f1ff;
+    border-color: #aaccff;
 }
 
 /* --- Estilos Inputs Series (Enfoque Híbrido) --- */
@@ -92,17 +90,57 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 #workout-form button[type="submit"]:disabled { background-color: #6c757d; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
 #workout-form button[type="submit"] i.fa-spinner { font-size: 1em; }
 
-/* --- ELIMINADO: Estilos Botón Toggle Gestión Ejercicios --- */
-/*
-.manage-toggle-container { ... }
-#toggle-manage-btn { ... }
-#toggle-manage-btn:hover { ... }
-#toggle-manage-btn.active { ... }
-*/
+/* --- Sección Gestión Ejercicios --- */
+#exercise-management-section {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 40px;
+    display: none; /* Oculta por defecto */
+    position: relative; /* **** NUEVO: Contexto para posicionar el botón X **** */
+}
 
-/* --- Sección Gestión Ejercicios (Sin cambios aquí) --- */
-#exercise-management-section { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); margin-bottom: 40px; /* display: none; por defecto */ }
-#exercise-management-section h2 { text-align: center; margin-top: 0; margin-bottom: 30px; color: #0056b3; font-size: 1.8em; font-weight: 600; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+/* --- NUEVO: Estilos para el botón de cierre (X) --- */
+.close-section-button {
+    position: absolute;
+    top: 15px; /* Ajusta según tu preferencia */
+    right: 15px; /* Ajusta según tu preferencia */
+    background: none;
+    border: none;
+    color: #6c757d; /* Gris claro */
+    font-size: 1.2em; /* Tamaño del icono X */
+    line-height: 1;
+    padding: 5px 8px; /* Área de clic */
+    cursor: pointer;
+    border-radius: 50%; /* Hacerlo circular */
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.close-section-button:hover {
+    color: #343a40; /* Más oscuro */
+    background-color: #e9ecef; /* Fondo gris claro */
+}
+
+.close-section-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Indicador de foco */
+}
+/* --- FIN NUEVO: Estilos botón X --- */
+
+
+#exercise-management-section h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 30px; /* Dejar espacio si el botón X interfiere */
+    color: #0056b3;
+    font-size: 1.8em;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    padding-right: 30px; /* Asegura espacio para el botón X si el texto es largo */
+}
+
 .exercise-add-area h3, .exercise-delete-area h3 { font-size: 1.3em; color: #343a40; margin-top: 0; margin-bottom: 20px; font-weight: 500; }
 .exercise-add-area .form-group { margin-bottom: 15px; }
 #add-exercise-btn { background-color: #198754; color: white; border: none; border-radius: 4px; padding: 10px 18px; font-size: 0.95em; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 0.2s ease, opacity 0.2s ease; }
@@ -173,15 +211,20 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 @keyframes slideOutFadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); height: 0; padding-top: 0; padding-bottom: 0; margin: 0; border: 0; } }
 
 /* --- Media Query Responsividad --- */
-@media (max-width: 768px) { #workout-form, #exercise-management-section, #progress-section, #history-log { padding: 20px; } #history-filter { padding: 10px 15px; } }
+@media (max-width: 768px) {
+    #workout-form, #exercise-management-section, #progress-section, #history-log { padding: 20px; }
+    #history-filter { padding: 10px 15px; }
+    #exercise-management-section { padding-top: 45px; /* Más padding arriba para que el título no choque con el botón X */ }
+    .close-section-button { top: 10px; right: 10px; font-size: 1.1em; }
+}
 @media (max-width: 600px) {
     .container { padding-left: 10px; padding-right: 10px; margin-top: 20px; margin-bottom: 20px; }
     h1 { font-size: 1.8em; margin-bottom: 20px; }
-    #exercise-management-section h2 { font-size: 1.5em; } #history-filter + h2 { font-size: 1.4em; }
-    /* ELIMINADO: .manage-toggle-container { margin-top: 0; } */
+    #exercise-management-section h2 { font-size: 1.5em; padding-right: 25px; /* Aún más espacio para el botón X */ }
+    #history-filter + h2 { font-size: 1.4em; }
 
     /* --- MODIFICACIONES PARA LAYOUT DE CONTROLES EN MÓVIL --- */
-    #graph-controls, #history-filter { /* Mantener text-align: center; */ }
+    #graph-controls, #history-filter { }
     #graph-controls label, #history-filter label { display: block; margin-bottom: 8px; }
     #graph-controls select#graph-exercise-select { display: inline-block; vertical-align: middle; width: auto; max-width: calc(50% - 10px); margin: 0 2px 5px 2px; padding: 7px 8px; font-size: 0.85rem; }
     #graph-controls button { display: inline-block; vertical-align: middle; width: auto; margin: 0 2px 5px 2px; padding: 7px 12px; font-size: 0.85rem; white-space: nowrap; }
@@ -189,7 +232,6 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
     #history-filter button#clear-filter-btn { display: inline-block; vertical-align: middle; width: auto; margin: 0 3px 5px 3px; padding: 7px 12px; font-size: 0.85rem; }
     /* --- FIN MODIFICACIONES LAYOUT CONTROLES MÓVIL --- */
 
-    /* ELIMINADO: #toggle-manage-btn { width: auto; padding: 10px 15px; } */
     .notification-container { top: 10px; right: 10px; left: 10px; max-width: none; align-items: stretch; }
     .toast-notification { min-width: initial; max-width: 100%; font-size: 0.85em; }
 }
