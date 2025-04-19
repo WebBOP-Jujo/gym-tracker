@@ -164,7 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- Ocultando la sección ---
             exerciseManagementSection.style.display = 'none';
             manageExerciseListBtn.classList.remove('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (manageExerciseListBtn) { // Asegurarse de que el botón existe
+                manageExerciseListBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
 
         } else {
             // --- Mostrando la sección ---
