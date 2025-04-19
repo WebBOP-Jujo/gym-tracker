@@ -35,3 +35,5 @@ v14
 Se cambia de sitio la funcion de gestionar ejercicios ahora es un icono al lado del desplegable
 v15
 Se añada una x para cerrar la parte de gestion de ejercicios, ya que con los cambios anteriores para ocualtarla había que volver arriba y pulsar el icono.
+v16
+Se acorta la seccion de gestionar lista, quitando el subtitulo y poniendolo en los placeholders de añadir y el desplegable de borrar

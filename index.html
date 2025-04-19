@@ -45,7 +45,6 @@
 
         <!-- Sección Gestión Ejercicios (Oculta por defecto) -->
         <div id="exercise-management-section" style="display: none;">
-             <!-- **** NUEVO: Botón de cierre X **** -->
             <button type="button" id="close-manage-section-btn" class="close-section-button" title="Cerrar gestión">
                 <i class="fas fa-times"></i>
             </button>
@@ -55,8 +54,10 @@
             <div class="exercise-add-area">
                 <h3>Añadir Nuevo Ejercicio</h3>
                 <div class="form-group">
-                    <label for="new-exercise-name">Nombre del Nuevo Ejercicio:</label>
-                    <input type="text" id="new-exercise-name" placeholder="Ej: Sentadilla Frontal">
+                    <!-- **** MODIFICADO: Añadida clase visually-hidden **** -->
+                    <label for="new-exercise-name" class="visually-hidden">Nombre del Nuevo Ejercicio:</label>
+                    <!-- **** MODIFICADO: Placeholder más descriptivo **** -->
+                    <input type="text" id="new-exercise-name" placeholder="Nombre del nuevo ejercicio">
                 </div>
                 <button id="add-exercise-btn">
                     <i class="fas fa-plus"></i> Añadir a la Lista
@@ -70,9 +71,11 @@
             <div class="exercise-delete-area">
                  <h3>Eliminar Ejercicio Existente</h3>
                  <div class="form-group">
-                    <label for="delete-exercise-select">Selecciona Ejercicio a Eliminar:</label>
+                    <!-- **** MODIFICADO: Añadida clase visually-hidden **** -->
+                    <label for="delete-exercise-select" class="visually-hidden">Selecciona Ejercicio a Eliminar:</label>
                     <select id="delete-exercise-select">
-                        <option value="" disabled selected>-- Selecciona ejercicio a eliminar --</option>
+                         <!-- **** MODIFICADO: Texto opción por defecto más corto **** -->
+                        <option value="" disabled selected>-- Selecciona para eliminar --</option>
                         <!-- Opciones pobladas por JS -->
                     </select>
                  </div>
@@ -88,11 +91,11 @@
 
         <!-- Sección Progreso (Gráfica) - Sin cambios aquí -->
         <div id="progress-section">
-            <div id="graph-controls">
+             <!-- ... resto del contenido sin cambios ... -->
+             <div id="graph-controls">
                 <label for="graph-exercise-select">Ver progresión para:</label>
                 <select id="graph-exercise-select" name="graph-exercise">
                     <option value="" disabled selected>-- Selecciona ejercicio --</option>
-                    <!-- Opciones pobladas por JS -->
                 </select>
                 <button id="show-graph-btn" disabled><i class="fas fa-chart-line"></i> Mostrar Gráfica</button>
                 <button id="hide-graph-btn" style="display: none;"><i class="fas fa-eye-slash"></i> Ocultar Gráfica</button>
@@ -104,6 +107,7 @@
 
         <!-- Sección Filtro Historial - Sin cambios aquí -->
         <div id="history-filter">
+             <!-- ... resto del contenido sin cambios ... -->
              <label for="filter-date">Ver fecha específica:</label>
              <input type="date" id="filter-date" name="filter-date">
              <button id="clear-filter-btn" title="Mostrar los últimos entrenamientos registrados">Mostrar Recientes</button>
@@ -112,7 +116,8 @@
         <!-- Historial - Sin cambios aquí -->
         <h2>Historial de Entrenamientos</h2>
         <div id="history-log">
-            <div id="history-spinner" class="spinner-container" style="display: none;">
+             <!-- ... resto del contenido sin cambios ... -->
+             <div id="history-spinner" class="spinner-container" style="display: none;">
                 <i class="fas fa-spinner fa-spin fa-3x"></i>
                 <p>Procesando...</p>
             </div>

@@ -3,10 +3,37 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height
 .container { max-width: 800px; margin: 20px auto; padding: 0 20px; }
 h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; font-weight: 600; }
 
+/* --- NUEVO: Clase para Ocultar Visualmente (Accesibilidad) --- */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+/* --- FIN NUEVO --- */
+
+
 /* --- Estilos Formulario --- */
 #workout-form { background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); margin-bottom: 10px; }
 .form-group { margin-bottom: 20px; }
-.form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #495057; }
+/* Ocultar labels dentro de la sección de gestión si tienen la clase */
+#exercise-management-section .form-group label.visually-hidden {
+     /* Hereda estilos de .visually-hidden */
+     display: block; /* Asegurar que no afecte a otros labels si hay colisión */
+}
+/* Estilo normal para labels que NO deben ocultarse */
+.form-group label:not(.visually-hidden) {
+     display: block;
+     margin-bottom: 8px;
+     font-weight: 600;
+     color: #495057;
+}
+
 
 /* Estilos generales para selects/inputs */
 .form-group select, .form-group input[type="text"], .form-group input[type="number"],
@@ -38,7 +65,7 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 /* --- Estilos para el Botón Icono de Gestión --- */
 .icon-button {
     background-color: #f8f9fa;
-    border: 1px solid #28333e; /* Borde personalizado */
+    border: 1px solid #28333e;
     padding: 8px 10px;
     cursor: pointer;
     color: #6c757d;
@@ -75,7 +102,24 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 .set-main-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-grow: 1; }
 #sets-inputs .set-group strong { color: #0056b3; font-weight: 600; margin-right: 5px; white-space: nowrap; flex-shrink: 0; }
 .set-input-pair { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 5px; }
-#sets-inputs .set-group label { width: auto; margin-bottom: 0; font-weight: normal; color: #6c757d; white-space: nowrap; flex-shrink: 0; }
+/* Ajuste para labels dentro de las series (asegurar que no se oculten si reutilizas .visually-hidden accidentalmente) */
+#sets-inputs .set-group label {
+    width: auto;
+    margin-bottom: 0;
+    font-weight: normal;
+    color: #6c757d;
+    white-space: nowrap;
+    flex-shrink: 0;
+    /* Resetear estilos de ocultación si fuera necesario */
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    border: 0;
+}
 #sets-inputs .set-group input[type="number"] { width: 65px; padding: 6px 8px; text-align: center; font-size: 0.9rem; border: 1px solid #ced4da; border-radius: 3px; }
 #sets-inputs .remove-set-btn { background-color: #ffc107; color: #333; border: none; border-radius: 50%; width: 22px; height: 22px; padding: 0; font-size: 11px; font-weight: bold; line-height: 22px; text-align: center; cursor: pointer; transition: background-color 0.2s ease; flex-shrink: 0; }
 #sets-inputs .remove-set-btn:hover { background-color: #e0a800; }
@@ -97,59 +141,73 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     margin-bottom: 10px;
-    display: none; /* Oculta por defecto */
-    position: relative; /* **** NUEVO: Contexto para posicionar el botón X **** */
+    display: none;
+    position: relative;
 }
 
-/* --- NUEVO: Estilos para el botón de cierre (X) --- */
+/* Botón de cierre (X) */
 .close-section-button {
     position: absolute;
-    top: 15px; /* Ajusta según tu preferencia */
-    right: 15px; /* Ajusta según tu preferencia */
+    top: 15px;
+    right: 15px;
     background: none;
     border: none;
-    color: #6c757d; /* Gris claro */
-    font-size: 1.2em; /* Tamaño del icono X */
+    color: #6c757d;
+    font-size: 1.2em;
     line-height: 1;
-    padding: 5px 8px; /* Área de clic */
+    padding: 5px 8px;
     cursor: pointer;
-    border-radius: 50%; /* Hacerlo circular */
+    border-radius: 50%;
     transition: color 0.2s ease, background-color 0.2s ease;
 }
-
 .close-section-button:hover {
-    color: #343a40; /* Más oscuro */
-    background-color: #e9ecef; /* Fondo gris claro */
+    color: #343a40;
+    background-color: #e9ecef;
 }
-
 .close-section-button:focus {
     outline: none;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Indicador de foco */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
-/* --- FIN NUEVO: Estilos botón X --- */
-
 
 #exercise-management-section h2 {
     text-align: center;
     margin-top: 0;
-    margin-bottom: 30px; /* Dejar espacio si el botón X interfiere */
+    margin-bottom: 30px;
     color: #0056b3;
     font-size: 1.8em;
     font-weight: 600;
     border-bottom: 1px solid #eee;
     padding-bottom: 15px;
-    padding-right: 30px; /* Asegura espacio para el botón X si el texto es largo */
+    padding-right: 30px;
 }
 
-.exercise-add-area h3, .exercise-delete-area h3 { font-size: 1.3em; color: #343a40; margin-top: 0; margin-bottom: 20px; font-weight: 500; }
-.exercise-add-area .form-group { margin-bottom: 15px; }
+/* Ajuste de márgenes para H3 dentro de la sección de gestión */
+.exercise-add-area h3, .exercise-delete-area h3 {
+    font-size: 1.3em;
+    color: #343a40;
+    margin-top: 0;
+    /* **** MODIFICADO: Reducido margen inferior **** */
+    margin-bottom: 10px; /* Era 20px, reducido para compactar */
+    /* ********************************************** */
+    font-weight: 500;
+}
+
+/* Ajuste para el form-group que contiene el input/select oculto */
+#exercise-management-section .form-group {
+     margin-bottom: 15px; /* Mantener o ajustar si es necesario */
+}
+/* Quitar margen extra al label oculto si interfiere */
+#exercise-management-section .form-group label.visually-hidden {
+    margin-bottom: 0;
+}
+
+
 #add-exercise-btn { background-color: #198754; color: white; border: none; border-radius: 4px; padding: 10px 18px; font-size: 0.95em; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 0.2s ease, opacity 0.2s ease; }
 #add-exercise-btn:hover { background-color: #157347; }
 #add-exercise-btn:disabled { background-color: #6c757d; cursor: not-allowed; opacity: 0.7; }
 #add-exercise-spinner { color: #555; font-size: 0.9em; display: inline-flex; align-items: center; gap: 5px; }
 #add-exercise-spinner .fa-spinner { color: #007bff; }
 .exercise-delete-area { border-top: 1px dashed #ccc; padding-top: 25px; margin-top: 30px; }
-.exercise-delete-area .form-group { margin-bottom: 15px; }
 #delete-exercise-btn { background-color: #d9534f; color: white; border: none; border-radius: 4px; padding: 10px 18px; font-size: 0.95em; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 0.2s ease, opacity 0.2s ease; }
 #delete-exercise-btn:hover { background-color: #c9302c; }
 #delete-exercise-btn:disabled { background-color: #adb5bd; cursor: not-allowed; opacity: 0.7; }
@@ -214,13 +272,13 @@ h1 { color: #0056b3; text-align: center; margin-bottom: 30px; font-size: 2.2em; 
 @media (max-width: 768px) {
     #workout-form, #exercise-management-section, #progress-section, #history-log { padding: 20px; }
     #history-filter { padding: 10px 15px; }
-    #exercise-management-section { padding-top: 45px; /* Más padding arriba para que el título no choque con el botón X */ }
+    #exercise-management-section { padding-top: 45px; }
     .close-section-button { top: 10px; right: 10px; font-size: 1.1em; }
 }
 @media (max-width: 600px) {
     .container { padding-left: 10px; padding-right: 10px; margin-top: 10px; margin-bottom: 20px; }
     h1 { font-size: 1.8em; margin-bottom: 15px; }
-    #exercise-management-section h2 { font-size: 1.5em; padding-right: 25px; /* Aún más espacio para el botón X */ }
+    #exercise-management-section h2 { font-size: 1.5em; padding-right: 25px; }
     #history-filter + h2 { font-size: 1.4em; }
 
     /* --- MODIFICACIONES PARA LAYOUT DE CONTROLES EN MÓVIL --- */
