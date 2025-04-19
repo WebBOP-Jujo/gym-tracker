@@ -164,12 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- Ocultando la sección ---
             exerciseManagementSection.style.display = 'none';
             manageExerciseListBtn.classList.remove('active');
-
-            // **** MODIFICADO: Scroll hacia el formulario al cerrar ****
-            if (form) { // Asegurarse de que el formulario existe
-                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-            // *****************************************************
+            window.scrollTo({ top: 0, behavior: 'smooth' });
 
         } else {
             // --- Mostrando la sección ---
