@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- Mostrando la sección ---
             exerciseManagementSection.style.display = 'block';
             manageExerciseListBtn.classList.add('active');
-            exerciseManagementSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            exerciseManagementSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
