@@ -229,7 +229,7 @@ hr.exercise-separator { height: 1px; background-color: #e0e0e0; border: none; ma
     #graph-controls .filter-input-row button { flex-basis: 48%; }
 
     /* Series: layout más vertical */
-    .set-row-line-2 { padding-left: 0; }
+    .set-row-line-2 { }
     .remove-set-btn { margin-top: 5px; }
 
     /* Historial: Ajustes finos */
