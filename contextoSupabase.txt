@@ -1,0 +1,165 @@
+
+
+**Descripción de Contexto: Aplicación Web "Gym Tracker" con Supabase**
+
+**1. Propósito General:**
+
+Esta es una aplicación web sencilla (Single Page Application - SPA) diseñada para permitir a los usuarios registrados llevar un control personal de sus entrenamientos en el gimnasio. El objetivo principal es registrar los detalles de cada sesión: ejercicio realizado, número de series, repeticiones y peso levantado en cada serie. Adicionalmente, permite a cada usuario gestionar su propia lista maestra de ejercicios (añadir nuevos y eliminar existentes) y visualizar su progreso a lo largo del tiempo mediante un historial y una gráfica básica de Fuerza Máxima Estimada (e1RM).
+
+**2. Tecnologías y Arquitectura:**
+
+*   **Frontend:**
+    *   **Lenguajes:** HTML5, CSS3, JavaScript (Vanilla JS - ES6+).
+    *   **Estilos:** CSS puro para la maquetación y el diseño visual, utilizando Flexbox para layouts responsivos. Se incluyen iconos de Font Awesome para mejorar la interfaz.
+    *   **Librerías JS:**
+        *   `@supabase/supabase-js`: SDK oficial de Supabase para interactuar con el backend (autenticación, base de datos, funciones RPC) directamente desde el cliente.
+        *   `Chart.js`: Para renderizar la gráfica de progreso (e1RM).
+    *   **Arquitectura Frontend:** Aplicación de página única (SPA) con renderizado del lado del cliente (Client-Side Rendering - CSR). La lógica de la interfaz, el manejo del estado (variables globales JS) y la interacción con el backend residen en el archivo `script.js`.
+
+*   **Backend y Base de Datos (BaaS - Backend as a Service):**
+    *   **Proveedor:** **Supabase**. Se utiliza como backend completo, proporcionando:
+        *   **Autenticación:** Gestión de usuarios basada en Email/Contraseña (Supabase Auth).
+        *   **Base de Datos:** Base de datos PostgreSQL gestionada por Supabase.
+        *   **APIs:** El SDK de Supabase JS proporciona una interfaz para interactuar con la base de datos y la autenticación de forma segura.
+        *   **Funciones (RPC):** Se utiliza una función SQL (`count_distinct_workout_days`) expuesta vía RPC para cálculos específicos en la base de datos.
+    *   **Seguridad:** La autorización y el aislamiento de datos entre usuarios se implementa mediante **Row Level Security (RLS)** en las tablas PostgreSQL, asegurando que cada usuario solo pueda acceder y modificar sus propios datos.
+
+**3. Estructura de Datos (Base de Datos Supabase - PostgreSQL):**
+
+Se utilizan dos tablas principales en el esquema `public`, ambas con RLS habilitado:
+
+*   **Tabla `Ejercicios`:** Almacena la lista maestra de ejercicios *por usuario*.
+    *   `id` (bigint, PK): Identificador único del registro de ejercicio.
+    *   `user_id` (uuid, FK a `auth.users`, NOT NULL): ID del usuario propietario de este ejercicio. Clave foránea con `ON DELETE CASCADE`.
+    *   `nombre` (text, NOT NULL): Nombre del ejercicio (ej: "Press Banca Plano").
+    *   `created_at` (timestamptz, NOT NULL): Fecha y hora de creación.
+    *   `Constraint`: `unique_exercise_per_user` (UNIQUE en `user_id`, `nombre`) para evitar duplicados exactos a nivel DB (aunque la lógica JS valida case-insensitive).
+    *   **Políticas RLS:**
+        *   `SELECT`: Permitido si `auth.uid() = user_id`.
+        *   `INSERT`: Permitido `WITH CHECK (auth.uid() = user_id)`.
+        *   `DELETE`: Permitido si `auth.uid() = user_id`.
+        *   `UPDATE`: Permitido `USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id)` (aunque no se use actualmente).
+
+*   **Tabla `Entrenamientos`:** Almacena cada *serie individual* de cada ejercicio realizado.
+    *   `id` (bigint, PK): Identificador único de la fila/serie.
+    *   `user_id` (uuid, FK a `auth.users`, NOT NULL): ID del usuario que realizó esta serie. Clave foránea con `ON DELETE CASCADE`.
+    *   `"WorkoutID"` (uuid, NOT NULL, DEFAULT `gen_random_uuid()`): Identificador único que agrupa todas las series pertenecientes al *mismo entrenamiento/sesión* (ej., todas las series de Press Banca y Remo hechas el mismo día). Esencial para borrar entradas completas del historial.
+    *   `"Date"` (text, NOT NULL): Fecha del entrenamiento en formato "DD/MM/YYYY".
+    *   `"Exercise"` (text, NOT NULL): Nombre del ejercicio realizado (debería coincidir con uno de la tabla `Ejercicios`).
+    *   `"SetNumber"` (smallint, NOT NULL): Número de la serie (1, 2, 3...).
+    *   `"Reps"` (smallint, NULL): Repeticiones realizadas.
+    *   `"Weight"` (numeric, NULL): Peso utilizado (permite decimales).
+    *   `"Timestamp"` (timestamptz, NOT NULL, DEFAULT `now()`): Fecha y hora exacta en que se registró esta fila de serie.
+    *   **Índices:** Creados en `(user_id, "Date" DESC)`, `(user_id, "Exercise")`, y `"WorkoutID"` para optimizar consultas.
+    *   **Políticas RLS:**
+        *   `SELECT`: Permitido si `auth.uid() = user_id`.
+        *   `INSERT`: Permitido `WITH CHECK (auth.uid() = user_id)`.
+        *   `DELETE`: Permitido si `auth.uid() = user_id`.
+        *   `UPDATE`: Permitido `USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id)`.
+
+*   **Función SQL `count_distinct_workout_days()`:**
+    *   Devuelve un `integer` con el conteo de fechas (`"Date"`) únicas en la tabla `Entrenamientos` para el `auth.uid()` actual.
+    *   Se llama desde JS usando `supabaseClient.rpc()`.
+
+**4. Funcionalidades Clave Implementadas:**
+
+1.  **Autenticación:** Registro e inicio de sesión seguro por Email/Contraseña gestionado por Supabase Auth. La interfaz muestra el email del usuario y un botón de logout.
+2.  **Registro de Entrenamientos:**
+    *   Formulario principal con campos para Fecha (input `date`), Ejercicio (select `#exercise`), y Número de Series (input `number`).
+    *   El desplegable `#exercise` se puebla dinámicamente desde la lista `Ejercicios` del usuario.
+    *   Al cambiar el número de series, se generan/eliminan dinámicamente filas (`div.set-row`) con inputs para Reps y Peso.
+    *   **Pre-relleno:** Al seleccionar un ejercicio en `#exercise`, se busca el último registro de ese ejercicio en el historial local (`workoutHistory`). Si se encuentra, se autocompleta el número de series, el *valor* del peso, y el *placeholder* de las repeticiones del último entrenamiento. El foco se pone en el primer input de reps. Si no se encuentra, se muestra 1 serie por defecto.
+    *   Botón `+` (`#add-set-button`) para añadir una serie manualmente.
+    *   Botón `X` en cada fila de serie para eliminarla.
+    *   Botón "Guardar Entrenamiento" (`#save-workout-button`) que realiza un `INSERT` asíncrono a la tabla `Entrenamientos` (una fila por cada serie, todas con el mismo `WorkoutID`). Muestra un spinner durante la carga. Llama a `fetchTotalWorkoutDays` para actualizar el contador.
+3.  **Gestión de la Lista de Ejercicios:**
+    *   Sección colapsable (`#exercise-management-section`) controlada por un botón icono (`#toggle-manage-btn`) junto al selector de ejercicios. El icono del botón cambia (`fa-list-ul` / `fa-eye-slash`).
+    *   **Añadir:** Input `#new-exercise-name` y botón `#add-exercise-btn`. Valida localmente duplicados (ignorando mayúsculas/minúsculas). Realiza `INSERT` en `Ejercicios` (enviando `user_id` explícito). Actualiza la lista maestra local (`masterExerciseList`) y repuebla los desplegables (`#exercise`, `#delete-exercise-select`).
+    *   **Eliminar:** Desplegable `#delete-exercise-select` poblado dinámicamente. Botón `#delete-exercise-btn` se habilita al seleccionar. Pide confirmación (`confirm()`). Realiza `DELETE` en `Ejercicios` basado en el nombre. Actualiza `masterExerciseList`, repuebla desplegables y actualiza el desplegable de la gráfica.
+4.  **Visualización del Historial:**
+    *   Al iniciar la app, se carga el historial reciente (`fetchAndDisplayWorkoutHistory('recent')`).
+    *   Se muestra en `#history-log`, agrupado por fecha (más reciente primero).
+    *   Cada entrada de entrenamiento (agrupando series por `WorkoutID`) muestra el nombre del ejercicio y luego cada serie en formato `SN: Repsr → Pesokg`.
+    *   Se muestra un contador total de días de entrenamiento (`#history-count`), obtenido llamando a la función SQL `count_distinct_workout_days`.
+5.  **Filtrado de Historial por Fecha:**
+    *   Sección `#history-filter-section` con input `date` y botones "Filtrar" y "Mostrar Recientes".
+    *   "Filtrar" busca localmente si la fecha ya está cargada (`loadedDatesSet`) o realiza un fetch específico (`WHERE "Date" = ...`) si no. Actualiza el contador a formato `(DD/MM/YYYY - N días)`.
+    *   "Mostrar Recientes" limpia el filtro, llama a `fetchTotalWorkoutDays` para restaurar el contador total, y muestra el historial reciente.
+6.  **Gráfica de Progreso (e1RM):**
+    *   Sección `#progress-section` siempre visible con controles (`#graph-controls`).
+    *   Desplegable `#graph-exercise-select` poblado dinámicamente **solo** con ejercicios que tienen datos válidos en el historial cargado (`workoutHistory`) para calcular e1RM (Reps y Peso > 0).
+    *   Botón `#show-selected-graph-btn` (inicialmente visible, deshabilitado si no hay selección/opciones). Al pulsar, muestra el contenedor de la gráfica (`div.chart-container`), se oculta a sí mismo, muestra el botón `#hide-graph-btn` y renderiza la gráfica.
+    *   Botón `#hide-graph-btn` (inicialmente oculto). Al pulsar, oculta el contenedor de la gráfica, se oculta a sí mismo y muestra `#show-selected-graph-btn`.
+    *   El contenedor `div.chart-container` (con el canvas `#progress-chart`) está oculto por defecto y se muestra/oculta con los botones.
+    *   La gráfica (Chart.js, tipo línea) muestra el e1RM promedio diario (calculado con fórmula de Epley: `Peso * (1 + Reps / 30)`) para el ejercicio seleccionado.
+    *   Ajustes responsivos básicos para la gráfica.
+7.  **Edición/Eliminación Entradas Historial:**
+    *   Cada entrada de entrenamiento en el historial tiene un botón "Eliminar" (<i class="fas fa-trash-alt"></i>) que borra **todas** las series con el mismo `WorkoutID`. Llama a `fetchTotalWorkoutDays` para actualizar el contador.
+    *   Cada *serie individual* tiene un botón Editar (<i class="fas fa-edit"></i>) que abre un modal (`#edit-modal`).
+    *   El modal permite modificar Reps y Peso para esa serie específica. Al guardar, realiza un `UPDATE` en la fila correspondiente de `Entrenamientos`.
+8.  **Ejercicios por Defecto:** Al iniciar sesión, si la lista de ejercicios del usuario está vacía, se inserta automáticamente una lista predefinida (`defaultExercises`) en la tabla `Ejercicios` para ese usuario (enviando `user_id` explícito).
+
+**5. Flujo de Usuario Típico:**
+
+1.  Usuario accede a la página. Ve el formulario de Login/Registro.
+2.  Se registra o inicia sesión.
+3.  La aplicación se carga (`initializeAppData`): se obtiene el total de días, se cargan ejercicios (se insertan defaults si es nuevo), se carga historial reciente, se pueblan desplegables, se configura el formulario.
+4.  **Para Registrar:** Selecciona fecha, elige ejercicio del desplegable (el formulario se pre-rellena si hay historial), ajusta nº de series (o añade/quita), rellena reps/peso, pulsa "Guardar". Se actualiza el contador total, el historial reciente y el dropdown de la gráfica.
+5.  **Para Gestionar Ejercicios:** Pulsa el icono junto al selector, se expande la sección. Añade un nuevo nombre y pulsa "Añadir" o selecciona uno existente y pulsa "Eliminar" (con confirmación). Los desplegables se actualizan.
+6.  **Para Ver Historial:** El historial reciente se muestra por defecto. Puede usar el filtro de fecha para ver un día específico o pulsar "Mostrar Recientes" para volver. El contador se actualiza según el filtro.
+7.  **Para Ver Progreso:** Selecciona un ejercicio del desplegable `#graph-exercise-select` (solo aparecen los que tienen datos). Pulsa "Mostrar Gráfica". Aparece la gráfica de e1RM. Puede pulsar "Ocultar Gráfica" para cerrarla.
+8.  **Para Editar/Eliminar:** En el historial, pulsa el icono de papelera en una entrada para eliminar todo el entrenamiento de ese día/ejercicio, o pulsa el icono de lápiz en una serie para abrir el modal y editar reps/peso de esa serie.
+9.  Pulsa el botón de Logout para cerrar sesión y volver a la pantalla de autenticación.
+
+**6. Análisis Detallado de Funcionalidad: Gestión de Ejercicios**
+
+*   **UI (HTML/CSS):**
+    *   Un `div#exercise-management-section.collapsible-section.hidden` contiene los controles.
+    *   Un `button#toggle-manage-btn` con un `<i>` dentro controla la visibilidad del div anterior.
+    *   Dentro, hay dos `div.exercise-manage-item`: uno para añadir (input `#new-exercise-name`, button `#add-exercise-btn`) y otro para eliminar (select `#delete-exercise-select`, button `#delete-exercise-btn`).
+    *   Un `p#manage-exercise-status` muestra mensajes de éxito/error.
+    *   CSS se encarga de ocultar/mostrar la sección y estilizar los elementos.
+
+*   **Lógica JS (`script.js`):**
+    *   **Mostrar/Ocultar:** El listener de `toggleManageBtn` añade/quita la clase `hidden` a `#exercise-management-section` y cambia la clase del icono `<i>` entre `fa-list-ul` y `fa-eye-slash`.
+    *   **Añadir:**
+        *   El listener de `addExerciseBtn` (y el keypress 'Enter' en `#new-exercise-name`) llama a `addExerciseToDB`.
+        *   `addExerciseToDB`:
+            1.  Obtiene el valor del input, lo limpia (`trim`).
+            2.  Valida que no esté vacío.
+            3.  Busca en `masterExerciseList` si ya existe (comparación `toLowerCase`). Muestra error si existe.
+            4.  Si es nuevo, llama a `supabaseClient.from('Ejercicios').insert({ nombre: trimmedName, user_id: currentUser.id })`. Se incluye `user_id` explícito.
+            5.  Maneja errores (duplicado `23505`, tabla no existe `42P01`, RLS `42501`).
+            6.  Si éxito, limpia el input, añade el nuevo ejercicio (con el ID devuelto por `.select()`) a `masterExerciseList`, ordena `masterExerciseList`, y llama a `populateExerciseDropdowns` para actualizar los selects `#exercise` y `#delete-exercise-select`.
+    *   **Eliminar:**
+        *   El listener `change` de `#delete-exercise-select` habilita/deshabilita `#delete-exercise-btn`.
+        *   El listener `click` de `#delete-exercise-btn` llama a `deleteExerciseFromDB`.
+        *   `deleteExerciseFromDB`:
+            1.  Obtiene el valor del select.
+            2.  Muestra un `confirm()` al usuario.
+            3.  Si confirma, llama a `supabaseClient.from('Ejercicios').delete().eq('nombre', exerciseNameToDelete)`. RLS asegura que solo se borren los del usuario.
+            4.  Maneja errores (tabla no existe `42P01`).
+            5.  Si éxito, filtra el ejercicio de `masterExerciseList`, llama a `populateExerciseDropdowns` (que resetea el select de eliminar), y llama a `updateGraphDropdownAndChart` para actualizar también el select de la gráfica.
+
+*   **Backend/DB (Supabase):**
+    *   La tabla `Ejercicios` almacena los datos.
+    *   La política RLS `INSERT ... WITH CHECK (auth.uid() = user_id)` permite añadir el ejercicio.
+    *   La política RLS `DELETE ... USING (auth.uid() = user_id)` permite eliminar el ejercicio.
+    *   La constraint `UNIQUE (user_id, nombre)` previene duplicados exactos (case-sensitive) a nivel de base de datos.
+
+**7. Estado Actual y Posibles Mejoras:**
+
+*   **Estado:** La aplicación es funcional y cumple con todos los requisitos especificados en la descripción inicial y las refactorizaciones posteriores. La interfaz es simple pero usable. El código maneja los casos de uso principales y tiene manejo básico de errores y estados de carga.
+*   **Mejoras Potenciales:**
+    *   **UI/UX:** Diseño más pulido, transiciones, feedback visual más claro.
+    *   **Historial:** Paginación o carga infinita para historiales largos, búsqueda/filtrado por ejercicio dentro del historial.
+    *   **Formulario:** Permitir añadir notas al entrenamiento o a series específicas. Selección múltiple de ejercicios para super-series (más complejo). Unidades (Kg/Lbs).
+    *   **Gráficas:** Más tipos de gráficas (volumen total, récords personales), selección de rango de fechas para la gráfica.
+    *   **Gestión de Ejercicios:** Permitir editar nombres de ejercicios, categorizar ejercicios.
+    *   **Rendimiento:** Optimizar consultas si la cantidad de datos crece mucho (aunque Supabase y los índices ayudan).
+    *   **Offline:** Implementar alguna capacidad offline básica usando Service Workers o almacenamiento local (más complejo).
+    *   **Testing:** Añadir pruebas unitarias o de integración.
+    *   **Refactorización:** Organizar el código JS en módulos si crece mucho más.
+
+---
+

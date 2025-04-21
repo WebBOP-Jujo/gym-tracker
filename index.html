@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Entrenamiento</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Sección de Autenticación -->
+        <div id="auth-section">
+            <h2>Acceso / Registro</h2>
+            <div class="auth-form">
+                <input type="email" id="auth-email" placeholder="Email" required>
+                <input type="password" id="auth-password" placeholder="Contraseña" required>
+                <button id="login-btn">Iniciar Sesión</button>
+                <button id="signup-btn">Registrarse</button>
+                 <p id="auth-error" class="error-message"></p>
+            </div>
+             <p>¿Ya tienes cuenta? Inicia sesión.</p>
+             <p>¿Nuevo? Regístrate.</p>
+        </div>
+
+        <!-- Sección Principal de la Aplicación -->
+        <div id="app-section" class="hidden">
+            <div class="header">
+                 <h1>Gym Tracker</h1>
+                 <div id="user-info">
+                    <span id="user-email"></span>
+                    <button id="logout-btn" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+            <div id="status-message"></div>
+
+            <!-- =========================================== -->
+            <!-- ORDEN DE SECCIONES REQUERIDO               -->
+            <!-- =========================================== -->
+
+            <!-- 1. Formulario de Registro -->
+            <section id="workout-form-section">
+                <h2>Registrar Nuevo Entrenamiento</h2>
+                <form id="workout-form">
+                    <!-- ... (contenido del formulario como antes) ... -->
+                     <label for="workout-date">Fecha:</label>
+                    <input type="date" id="workout-date" required>
+                    <label for="exercise">Ejercicio:</label>
+                    <div class="exercise-selector-container">
+                        <select id="exercise" required>
+                            <option value="" disabled selected>Selecciona un ejercicio...</option>
+                        </select>
+                        <button type="button" id="toggle-manage-btn" title="Gestionar Lista de Ejercicios"><i class="fas fa-list-ul"></i></button>
+                    </div>
+                    <div id="exercise-management-section" class="hidden collapsible-section">
+                        <h3>Gestionar Ejercicios</h3>
+                        <div class="exercise-manage-item">
+                            <label for="new-exercise-name">Añadir:</label>
+                            <input type="text" id="new-exercise-name" placeholder="Nuevo ejercicio">
+                            <button type="button" id="add-exercise-btn">Añadir</button>
+                        </div>
+                        <div class="exercise-manage-item">
+                            <label for="delete-exercise-select">Eliminar:</label>
+                            <select id="delete-exercise-select"><option value="" disabled selected>Selecciona...</option></select>
+                            <button type="button" id="delete-exercise-btn" disabled>Eliminar</button>
+                        </div>
+                         <p id="manage-exercise-status" class="status-inline"></p>
+                    </div>
+                    <label for="num-sets">Número de Series:</label>
+                    <input type="number" id="num-sets" min="1" value="1" required>
+                    <div id="sets-container"></div>
+                    <div class="button-group">
+                        <button type="button" id="add-set-button" class="add-set-btn"><i class="fas fa-plus"></i> Añadir Serie</button>
+                        <button type="submit" id="save-workout-button" class="save-workout-btn">Guardar Entrenamiento <span class="spinner hidden"></span></button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- 2. Ver Progresión (Sección ahora siempre visible) -->
+            <section id="progress-section">
+                 <h2>Ver Progresión</h2> <!-- Título fijo -->
+                 <div id="graph-controls" class="filter-controls">
+                    <label for="graph-exercise-select">Selecciona Ejercicio (con datos)</label>
+                    <div>
+                        <select id="graph-exercise-select">
+                            <option value="" disabled selected>Cargando ejercicios...</option>
+                            <!-- Poblado dinámicamente SOLO con ejercicios con datos -->
+                        </select>
+                         <!-- Botones separados para Mostrar y Ocultar -->
+                         <button type="button" id="show-selected-graph-btn" disabled>
+                             <i class="fas fa-chart-line"></i> Mostrar Gráfica
+                         </button>
+                         <button type="button" id="hide-graph-btn" class="hidden">
+                             <i class="fas fa-eye-slash"></i> Ocultar Gráfica
+                         </button>
+                    </div>
+                </div>
+                <!-- Contenedor de la gráfica, oculto inicialmente -->
+                <div class="chart-container hidden">
+                    <canvas id="progress-chart"></canvas>
+                </div>
+                 <p id="chart-status" class="status-inline"></p>
+            </section>
+
+            <!-- 3. Filtrar Historial -->
+            <section id="history-filter-section">
+                 <h2>Filtrar Historial</h2>
+                 <div id="history-filter" class="filter-controls">
+                     <label for="filter-date">Filtrar por Fecha</label>
+                    <div>
+                        <input type="date" id="filter-date">
+                        <button type="button" id="filter-date-btn">Filtrar</button>
+                        <button type="button" id="show-recent-btn">Mostrar Recientes</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Historial de Entrenamientos -->
+            <section id="history-section">
+                <h2>Historial <span id="history-count">(Total: 0 días)</span></h2>
+                <div id="history-log">
+                    <p>Cargando historial...</p>
+                </div>
+            </section>
+
+        </div> <!-- Fin de #app-section -->
+
+        <!-- Modal para Editar Entrada -->
+        <div id="edit-modal" class="modal hidden">
+            <!-- ... (contenido del modal como antes) ... -->
+             <div class="modal-content"> <span class="close-modal-btn">×</span> <h2>Editar Serie</h2> <form id="edit-form"> <input type="hidden" id="edit-entry-id"> <p><strong>Ejercicio:</strong> <span id="edit-exercise-name"></span></p> <p><strong>Fecha:</strong> <span id="edit-date"></span></p> <p><strong>Serie Nº:</strong> <span id="edit-set-number"></span></p><label for="edit-reps">Repeticiones:</label> <input type="number" id="edit-reps" min="0"> <label for="edit-weight">Peso (kg):</label> <input type="number" id="edit-weight" step="0.01" min="0"> <button type="submit" id="save-edit-btn">Guardar Cambios <span class="spinner hidden"></span></button> <button type="button" class="cancel-edit-btn">Cancelar</button> <p id="edit-status" class="status-inline"></p> </form> </div>
+        </div>
+
+    </div> <!-- Fin de .container -->
+    <script src="script.js"></script>
+</body>
+</html>
