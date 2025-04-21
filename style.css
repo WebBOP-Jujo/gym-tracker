@@ -221,7 +221,7 @@ hr.exercise-separator { height: 1px; background-color: #e0e0e0; border: none; ma
 /* Media Query para layout de filtros/gráfica y ajustes finos historial */
 @media (max-width: 420px) {
     /* Filtros/Gráfica: 2 columnas */
-    .filter-input-row { flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+    .filter-input-row { justify-content: space-between; gap: 8px; }
     .filter-input-row > * { flex-basis: 48%; flex-grow: 0; flex-shrink: 0; text-align: center; max-width: none; }
     .filter-input-row > *:not(:last-child) { margin-bottom: 8px; }
     .filter-input-row input[type="date"] { text-align: left; }
