@@ -247,7 +247,7 @@ button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opa
 
 
 /* --- Sección Filtro Historial --- */
-#history-filter-section { margin-top: 15px; }
+#history-filter-section { margin-top: 0px; }
 
 
 /* --- Sección Historial --- */
