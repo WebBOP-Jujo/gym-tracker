@@ -27,17 +27,23 @@ h1, h2, h3 {
     margin-bottom: 15px;
 }
 
+/* Estilos para los H2 que SÍ existen (ej: en Formulario y Historial) */
 h2 {
     border-bottom: 2px solid #e0e0e0;
     padding-bottom: 8px;
-    margin-top: 25px;
+    margin-top: 25px; /* Espacio ANTES de los títulos H2 */
+}
+/* El H2 del historial no necesita borde inferior */
+#history-section h2 {
+    border-bottom: none;
 }
 
+/* Espaciado general ENTRE secciones */
 section {
-    margin-bottom: 30px;
+    margin-bottom: 10px; /* Espacio DESPUÉS de cada sección */
 }
 
-/* Utilidades */
+/* --- Utilidades --- */
 .hidden {
     display: none !important;
 }
@@ -70,7 +76,6 @@ section {
     margin-left: 5px;
     vertical-align: middle; /* Alinea el spinner con el texto */
 }
-
 
 @keyframes spin {
     to { transform: rotate(360deg); }
@@ -122,7 +127,7 @@ button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opa
 #toggle-manage-btn i { font-size: 1.1em; } #toggle-manage-btn:hover { background-color: #eee; }
 
 /* --- Sección Colapsable de Gestión de Ejercicios --- */
-.collapsible-section { border: 1px solid #e0e0e0; border-radius: 5px; padding: 15px; margin-top: 15px; margin-bottom: 20px; background-color: #f9f9f9; }
+.collapsible-section { border: 1px solid #e0e0e0; border-radius: 5px; padding: 15px; margin-top: 15px; margin-bottom: 20px; /* Espacio INTERNO debajo de los controles de gestión */ background-color: #f9f9f9; }
 .collapsible-section h3 { margin-top: 0; margin-bottom: 15px; font-size: 1.1em; }
 .exercise-manage-item { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 .exercise-manage-item label { flex-basis: 120px; margin-bottom: 0; margin-top: 0; font-weight: normal; /* Hacer etiquetas más ligeras */ color: #666; font-size: 0.95em; }
@@ -138,11 +143,19 @@ button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opa
 
 
 /* --- Filtros (Gráfica e Historial) --- */
-.filter-controls { text-align: center; border: 1px solid #e0e0e0; border-radius: 5px; padding: 15px; margin-bottom: 20px; background-color: #f9f9f9; }
+/* Contenedor de los controles de filtro */
+.filter-controls {
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 15px; /* Espacio interior */
+    margin-bottom: 0; /* Sin espacio extra debajo del bloque de filtros */
+    background-color: #f9f9f9;
+}
 .filter-controls label { display: block; margin-bottom: 10px; font-weight: bold; }
 .filter-controls div { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
-.filter-controls input[type="date"], .filter-controls select { width: auto; /* Ancho automático */ flex-grow: 1; /* Permitir que crezca */ max-width: 200px; /* Ancho máximo */ margin-bottom: 0; }
-.filter-controls button { padding: 8px 12px; font-size: 0.9em; flex-shrink: 0; /* Evitar que los botones se encojan demasiado */ }
+.filter-controls input[type="date"], .filter-controls select { width: auto; flex-grow: 1; max-width: 200px; margin-bottom: 0; }
+.filter-controls button { padding: 8px 12px; font-size: 0.9em; flex-shrink: 0; }
 
 /* Estilos específicos para botones de gráfica dentro de los controles */
 #show-selected-graph-btn { background-color: #28a745; color: white; }
@@ -153,36 +166,53 @@ button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opa
 #show-selected-graph-btn i, #hide-graph-btn i { margin-right: 4px; }
 
 
-/* --- Sección de Progresión y Gráfica --- */
-#progress-section h2 { border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; margin-top: 25px; }
+/* --- Sección de Progresión (Gráfica) --- */
+/* Ya no necesita estilos para su H2 */
+#progress-section {
+    /* Reducir espacio DESPUÉS de esta sección */
+    margin-bottom: 0px; /* Ajusta 10px, 5px o 0px según prefieras */
+}
 .chart-container {
     position: relative;
     width: 100%;
-    margin-top: 15px;
+    margin-top: 15px; /* Espacio ANTES del contenedor de la gráfica */
     border: 1px solid #e0e0e0;
     padding: 10px;
     border-radius: 5px;
     background-color: #fdfdfd;
-    min-height: 280px; /* Darle una altura mínima */
+    min-height: 280px;
 }
 .chart-container.hidden {
-    /* display: none !important; Ya controlado por la clase .hidden */
-    /* Podríamos añadir estilos específicos si quisiéramos una transición, */
-    /* pero display: none es lo más simple */
-     min-height: 0; /* Quitar altura mínima si está oculto */
+     min-height: 0;
      padding: 0;
      border: none;
-     margin-top: 0;
+     margin-top: 0; /* Sin margen superior si está oculto */
 }
 
 
 /* --- Sección Filtro Historial --- */
-#history-filter-section h2 { border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; margin-top: 25px; }
+/* Ya no necesita estilos para su H2 */
+
 
 /* --- Sección Historial --- */
-#history-section { margin-top: 30px; }
-#history-section h2 { border-bottom: none; } /* El H2 del historial ya no necesita borde */
-#history-log { margin-top: 10px; max-height: 400px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 15px; border-radius: 5px; background-color: #fdfdfd; }
+#history-section {
+    margin-top: 20px; /* Espacio ANTES de la sección de historial, ajustado para consistencia */
+}
+/* El H2 de esta sección SÍ existe y no necesita borde */
+#history-section h2 {
+    border-bottom: none;
+    margin-top: 0; /* Quitar margen superior extra si el general de section ya es suficiente */
+                   /* O ajustar si se ve muy pegado al filtro */
+}
+#history-log {
+    margin-top: 10px; /* Espacio entre el H2 del historial y el log */
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #fdfdfd;
+}
 .history-date-group { margin-bottom: 20px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; }
 .history-date-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 .history-date-header { font-weight: bold; font-size: 1.1em; color: #3498db; margin-bottom: 10px; }
