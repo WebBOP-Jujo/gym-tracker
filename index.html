@@ -28,10 +28,12 @@
 
         <!-- Sección Principal de la Aplicación -->
         <div id="app-section" class="hidden">
+            <!-- Título principal movido FUERA del header -->
+            <h1>Registro de Entrenamiento</h1>
+
             <div class="header">
-                 <h1>Gym Tracker</h1>
+                 <!-- El header ahora solo contiene la info de usuario/logout -->
                  <div id="user-info">
-                    <span id="user-email"></span>
                     <button id="logout-btn" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </div>
@@ -43,11 +45,11 @@
 
             <!-- 1. Formulario de Registro -->
             <section id="workout-form-section">
-                <h2>Registrar Nuevo Entrenamiento</h2>
                 <form id="workout-form">
-                    <!-- ... (contenido del formulario como antes) ... -->
-                     <label for="workout-date">Fecha:</label>
-                    <input type="date" id="workout-date" required>
+                    <div class="inline-label-input">
+                        <label for="workout-date">Fecha:</label>
+                        <input type="date" id="workout-date" required>
+                    </div>
                     <label for="exercise">Ejercicio:</label>
                     <div class="exercise-selector-container">
                         <select id="exercise" required>
@@ -71,6 +73,7 @@
                     </div>
                     <label for="num-sets">Número de Series:</label>
                     <input type="number" id="num-sets" min="1" value="1" required>
+                    <!-- Contenedor de series (se generará con nuevo formato de dos líneas) -->
                     <div id="sets-container"></div>
                     <div class="button-group">
                         <button type="button" id="add-set-button" class="add-set-btn"><i class="fas fa-plus"></i> Añadir Serie</button>
@@ -79,16 +82,15 @@
                 </form>
             </section>
 
-            <!-- 2. Ver Progresión (Sección ahora siempre visible) -->
+            <!-- 2. Ver Progresión -->
             <section id="progress-section">
                  <div id="graph-controls" class="filter-controls">
-                    <label for="graph-exercise-select">Selecciona Ejercicio (con datos)</label>
-                    <div>
+                    <label class="filter-title-label">Ver progresión para:</label>
+                    <div class="filter-input-row">
+                        <!-- Select con ancho reducido -->
                         <select id="graph-exercise-select">
                             <option value="" disabled selected>Cargando ejercicios...</option>
-                            <!-- Poblado dinámicamente SOLO con ejercicios con datos -->
                         </select>
-                         <!-- Botones separados para Mostrar y Ocultar -->
                          <button type="button" id="show-selected-graph-btn" disabled>
                              <i class="fas fa-chart-line"></i> Mostrar Gráfica
                          </button>
@@ -96,24 +98,24 @@
                              <i class="fas fa-eye-slash"></i> Ocultar Gráfica
                          </button>
                     </div>
-                </div>
-                <!-- Contenedor de la gráfica, oculto inicialmente -->
-                <div class="chart-container hidden">
-                    <canvas id="progress-chart"></canvas>
-                </div>
-                 <p id="chart-status" class="status-inline"></p>
+                 </div>
+                 <div class="chart-container hidden">
+                     <canvas id="progress-chart"></canvas>
+                 </div>
+                  <p id="chart-status" class="status-inline"></p>
             </section>
 
             <!-- 3. Filtrar Historial -->
             <section id="history-filter-section">
                  <div id="history-filter" class="filter-controls">
-                     <label for="filter-date">Filtrar por Fecha</label>
-                    <div>
+                    <label class="filter-title-label">Ver fecha específica:</label>
+                    <div class="filter-input-row">
+                        <!-- Input date con ancho reducido -->
                         <input type="date" id="filter-date">
-                        <button type="button" id="filter-date-btn">Filtrar</button>
+                        <!-- Botón con ancho/padding reducido -->
                         <button type="button" id="show-recent-btn">Mostrar Recientes</button>
                     </div>
-                </div>
+                 </div>
             </section>
 
             <!-- 4. Historial de Entrenamientos -->
@@ -128,7 +130,6 @@
 
         <!-- Modal para Editar Entrada -->
         <div id="edit-modal" class="modal hidden">
-            <!-- ... (contenido del modal como antes) ... -->
              <div class="modal-content"> <span class="close-modal-btn">×</span> <h2>Editar Serie</h2> <form id="edit-form"> <input type="hidden" id="edit-entry-id"> <p><strong>Ejercicio:</strong> <span id="edit-exercise-name"></span></p> <p><strong>Fecha:</strong> <span id="edit-date"></span></p> <p><strong>Serie Nº:</strong> <span id="edit-set-number"></span></p><label for="edit-reps">Repeticiones:</label> <input type="number" id="edit-reps" min="0"> <label for="edit-weight">Peso (kg):</label> <input type="number" id="edit-weight" step="0.01" min="0"> <button type="submit" id="save-edit-btn">Guardar Cambios <span class="spinner hidden"></span></button> <button type="button" class="cancel-edit-btn">Cancelar</button> <p id="edit-status" class="status-inline"></p> </form> </div>
         </div>
 
