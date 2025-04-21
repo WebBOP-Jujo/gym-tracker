@@ -126,7 +126,7 @@ button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opa
 
 .inline-label-input { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; }
 .inline-label-input label { display: inline; margin: 0; flex-shrink: 0; }
-.inline-label-input input[type="date"] { width: auto; max-width: 140px; padding: 8px 10px; margin-bottom: 0; flex-grow: 1; }
+.inline-label-input input[type="date"] { width: auto; max-width: 130px; padding: 8px 10px; margin-bottom: 0; flex-grow: 1; }
 
 /* Estilo específico botones */
 #login-btn, #signup-btn, .save-workout-btn { background-color: #3498db; color: white; }
