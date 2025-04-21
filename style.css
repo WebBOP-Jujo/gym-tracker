@@ -215,7 +215,7 @@ button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opa
     font-size: 0.9em; /* Fuente un poco más pequeña */
     /* Anchos máximos MUY reducidos */
     min-width: 80px; /* Mínimo absoluto */
-    max-width: 130px; /* Ancho máximo general reducido */
+    max-width: 200px; /* Ancho máximo general reducido */
 }
 #history-filter .filter-input-row input[type="date"] {
     max-width: 115px; /* Aún más reducido para fecha */
@@ -311,7 +311,7 @@ button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opa
 
      /* Filas de series: layout más vertical */
      .set-row-line-2 {
-         padding-left: 0; /* Quitar indentación */
+      
      }
      .remove-set-btn {
           margin-top: 5px;
