@@ -18,8 +18,8 @@
             <div class="auth-form">
                 <input type="email" id="auth-email" placeholder="Email" required>
                 <input type="password" id="auth-password" placeholder="Contraseña" required>
-                <button id="login-btn">Iniciar Sesión</button>
-                <button id="signup-btn">Registrarse</button>
+                <button id="login-btn"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</button>
+                <button id="signup-btn"><i class="fas fa-user-plus"></i> Registrarse</button>
                  <p id="auth-error" class="error-message"></p>
             </div>
              <p>¿Ya tienes cuenta? Inicia sesión.</p>
@@ -28,20 +28,13 @@
 
         <!-- Sección Principal de la Aplicación -->
         <div id="app-section" class="hidden">
-            <!-- Título principal movido FUERA del header -->
             <h1>Registro de Entrenamiento</h1>
-
             <div class="header">
-                 <!-- El header ahora solo contiene la info de usuario/logout -->
                  <div id="user-info">
                     <button id="logout-btn" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </div>
             <div id="status-message"></div>
-
-            <!-- =========================================== -->
-            <!-- ORDEN DE SECCIONES REQUERIDO               -->
-            <!-- =========================================== -->
 
             <!-- 1. Formulario de Registro -->
             <section id="workout-form-section">
@@ -62,22 +55,21 @@
                         <div class="exercise-manage-item">
                             <label for="new-exercise-name">Añadir:</label>
                             <input type="text" id="new-exercise-name" placeholder="Nuevo ejercicio">
-                            <button type="button" id="add-exercise-btn">Añadir</button>
+                            <button type="button" id="add-exercise-btn"><i class="fas fa-plus"></i> Añadir</button>
                         </div>
                         <div class="exercise-manage-item">
                             <label for="delete-exercise-select">Eliminar:</label>
                             <select id="delete-exercise-select"><option value="" disabled selected>Selecciona...</option></select>
-                            <button type="button" id="delete-exercise-btn" disabled>Eliminar</button>
+                            <button type="button" id="delete-exercise-btn" disabled><i class="fas fa-trash-alt"></i> Eliminar</button>
                         </div>
                          <p id="manage-exercise-status" class="status-inline"></p>
                     </div>
                     <label for="num-sets">Número de Series:</label>
                     <input type="number" id="num-sets" min="1" value="1" required>
-                    <!-- Contenedor de series (se generará con nuevo formato de dos líneas) -->
                     <div id="sets-container"></div>
                     <div class="button-group">
                         <button type="button" id="add-set-button" class="add-set-btn"><i class="fas fa-plus"></i> Añadir Serie</button>
-                        <button type="submit" id="save-workout-button" class="save-workout-btn">Guardar Entrenamiento <span class="spinner hidden"></span></button>
+                        <button type="submit" id="save-workout-button" class="save-workout-btn"><i class="fas fa-save"></i> Guardar Entrenamiento <span class="spinner hidden"></span></button>
                     </div>
                 </form>
             </section>
@@ -87,7 +79,6 @@
                  <div id="graph-controls" class="filter-controls">
                     <label class="filter-title-label">Ver progresión para:</label>
                     <div class="filter-input-row">
-                        <!-- Select con ancho reducido -->
                         <select id="graph-exercise-select">
                             <option value="" disabled selected>Cargando ejercicios...</option>
                         </select>
@@ -110,17 +101,16 @@
                  <div id="history-filter" class="filter-controls">
                     <label class="filter-title-label">Ver fecha específica:</label>
                     <div class="filter-input-row">
-                        <!-- Input date con ancho reducido -->
                         <input type="date" id="filter-date">
-                        <!-- Botón con ancho/padding reducido -->
-                        <button type="button" id="show-recent-btn">Mostrar Recientes</button>
+                        <button type="button" id="show-recent-btn"><i class="fas fa-history"></i> Mostrar Recientes</button>
                     </div>
                  </div>
             </section>
 
             <!-- 4. Historial de Entrenamientos -->
             <section id="history-section">
-                <h2>Historial de Entrenamientos <span id="history-count">(Total: 0 días)</span></h2>
+                 <!-- Título cambiado y centrado (CSS) -->
+                <h2>Historial de entrenamientos <span id="history-count">(Total: 0 días)</span></h2>
                 <div id="history-log">
                     <p>Cargando historial...</p>
                 </div>
@@ -130,7 +120,10 @@
 
         <!-- Modal para Editar Entrada -->
         <div id="edit-modal" class="modal hidden">
-             <div class="modal-content"> <span class="close-modal-btn">×</span> <h2>Editar Serie</h2> <form id="edit-form"> <input type="hidden" id="edit-entry-id"> <p><strong>Ejercicio:</strong> <span id="edit-exercise-name"></span></p> <p><strong>Fecha:</strong> <span id="edit-date"></span></p> <p><strong>Serie Nº:</strong> <span id="edit-set-number"></span></p><label for="edit-reps">Repeticiones:</label> <input type="number" id="edit-reps" min="0"> <label for="edit-weight">Peso (kg):</label> <input type="number" id="edit-weight" step="0.01" min="0"> <button type="submit" id="save-edit-btn">Guardar Cambios <span class="spinner hidden"></span></button> <button type="button" class="cancel-edit-btn">Cancelar</button> <p id="edit-status" class="status-inline"></p> </form> </div>
+             <div class="modal-content"> <span class="close-modal-btn">×</span> <h2>Editar Serie</h2> <form id="edit-form"> <input type="hidden" id="edit-entry-id"> <p><strong>Ejercicio:</strong> <span id="edit-exercise-name"></span></p> <p><strong>Fecha:</strong> <span id="edit-date"></span></p> <p><strong>Serie Nº:</strong> <span id="edit-set-number"></span></p><label for="edit-reps">Repeticiones:</label> <input type="number" id="edit-reps" min="0"> <label for="edit-weight">Peso (kg):</label> <input type="number" id="edit-weight" step="0.01" min="0">
+                 <button type="submit" id="save-edit-btn"><i class="fas fa-save"></i> Guardar Cambios <span class="spinner hidden"></span></button>
+                 <button type="button" class="cancel-edit-btn"><i class="fas fa-times"></i> Cancelar</button>
+                 <p id="edit-status" class="status-inline"></p> </form> </div>
         </div>
 
     </div> <!-- Fin de .container -->

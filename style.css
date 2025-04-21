@@ -1,132 +1,47 @@
 /* Reset básico y estilos generales */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; background-color: #f4f7f6; color: #333; padding: 10px; }
+.container { max-width: 800px; margin: 10px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    background-color: #f4f7f6;
-    color: #333;
-    padding: 10px;
-}
+/* Títulos */
+h1 { color: #2c3e50; margin-bottom: 15px; font-size: 1.6em; text-align: center; }
+h2, h3 { color: #2c3e50; margin-bottom: 15px; }
+h2 { border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; margin-top: 25px; font-size: 1.3em; }
+#history-section h2 { border-bottom: none; margin-top: 0; text-align: center; }
 
-.container {
-    max-width: 800px;
-    margin: 10px auto;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Título principal de la app (movido fuera del header) */
-h1 {
-    color: #2c3e50;
-    margin-bottom: 15px; /* Espacio debajo del título principal */
-    font-size: 1.6em;
-    text-align: center; /* Centrado */
-}
-/* Otros títulos H2, H3 */
-h2, h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-}
-
-/* Estilos para los H2 que SÍ existen */
-h2 {
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 8px;
-    margin-top: 25px;
-    font-size: 1.3em;
-}
-#history-section h2 {
-    border-bottom: none;
-    margin-top: 0;
-}
-
-/* Espaciado general ENTRE secciones */
-section {
-    margin-bottom: 20px;
-}
+/* Espaciado secciones */
+section { margin-bottom: 20px; }
 
 /* --- Utilidades --- */
-.hidden {
-    display: none !important;
-}
-
-.error-message, .success-message {
-    font-size: 0.9em;
-    margin-top: 5px;
-    display: block; /* Asegurar que ocupe su línea */
-}
+.hidden { display: none !important; }
+.error-message, .success-message { font-size: 0.9em; margin-top: 5px; display: block; }
 .error-message { color: #e74c3c; }
 .success-message { color: #2ecc71; }
-
-.status-inline {
-    display: inline-block;
-    margin-left: 10px;
-    font-size: 0.9em;
-}
+.status-inline { display: inline-block; margin-left: 10px; font-size: 0.9em; }
 .status-inline.error-message { color: #e74c3c; }
 .status-inline.success-message { color: #2ecc71; }
-
-
-.spinner {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-    margin-left: 5px;
-    vertical-align: middle;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+.spinner { display: inline-block; width: 1em; height: 1em; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; margin-left: 5px; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* --- Autenticación --- */
 #auth-section { text-align: center; padding-top: 20px; }
 .auth-form { display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 20px auto; }
 #auth-section p { margin-top: 15px; font-size: 0.9em; color: #555; }
 
-
-/* --- Cabecera App (Solo contiene logout ahora) --- */
-.header {
-    display: flex;
-    justify-content: flex-end; /* Alinear logout a la derecha */
-    align-items: center;
-    margin-bottom: 15px; /* Menos espacio debajo del header */
-    height: 30px; /* Altura fija para evitar saltos */
-}
-#logout-btn {
-    background: none;
-    border: none;
-    color: #6c757d; /* Color gris por defecto */
-    font-size: 1.2em; /* Tamaño reducido */
-    cursor: pointer;
-    padding: 5px;
-    line-height: 1; /* Ajustar línea */
-}
-#logout-btn:hover {
-    color: #e74c3c; /* Rojo en hover */
-}
-
+/* --- Cabecera App --- */
+.header { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 15px; height: 30px; }
+#logout-btn { background: none; border: none; color: #6c757d; font-size: 1.2em; cursor: pointer; padding: 5px; line-height: 1; }
+#logout-btn:hover { color: #e74c3c; }
 
 /* --- Formulario y Controles --- */
 label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; margin-top: 10px; }
 input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
 button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; transition: background-color 0.3s ease; }
 button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opacity: 0.7; }
-
+button > i.fas, button > i.far, button > i.fab { margin-right: 6px; font-size: 0.9em; vertical-align: middle; }
 .inline-label-input { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; }
 .inline-label-input label { display: inline; margin: 0; flex-shrink: 0; }
-.inline-label-input input[type="date"] { width: auto; max-width: 135px; padding: 8px 10px; margin-bottom: 0; flex-grow: 1; }
+.inline-label-input input[type="date"] { width: auto; max-width: 140px; padding: 8px 10px; margin-bottom: 0; flex-grow: 1; }
 
 /* Estilo específico botones */
 #login-btn, #signup-btn, .save-workout-btn { background-color: #3498db; color: white; }
@@ -137,18 +52,14 @@ button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opa
 #add-exercise-btn:hover { background-color: #31b0d5; }
 #delete-exercise-btn { background-color: #e74c3c; color: white; padding: 8px 12px; margin-left: 5px; }
 #delete-exercise-btn:hover:not(:disabled) { background-color: #c0392b; }
-/* Botón eliminar serie rehecho más abajo */
-.edit-entry-btn, .delete-entry-btn { background: none; border: none; cursor: pointer; margin-left: 8px; font-size: 0.9em; padding: 2px 4px; }
-.edit-entry-btn { color: #f0ad4e; } .edit-entry-btn:hover { color: #ec971f; }
-.delete-entry-btn { color: #e74c3c; } .delete-entry-btn:hover { color: #c0392b; }
 .button-group { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-
 
 /* --- Selector de Ejercicio y Botón de Gestión --- */
 .exercise-selector-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .exercise-selector-container select { flex-grow: 1; margin-bottom: 0; }
 #toggle-manage-btn { background: none; border: 1px solid #ccc; color: #555; padding: 8px 10px; border-radius: 4px; cursor: pointer; flex-shrink: 0; line-height: 1; }
-#toggle-manage-btn i { font-size: 1.1em; } #toggle-manage-btn:hover { background-color: #eee; }
+#toggle-manage-btn i { font-size: 1.1em; margin-right: 0; }
+#toggle-manage-btn:hover { background-color: #eee; }
 
 /* --- Sección Colapsable de Gestión de Ejercicios --- */
 .collapsible-section { border: 1px solid #e0e0e0; border-radius: 5px; padding: 15px; margin-top: 15px; margin-bottom: 20px; background-color: #f9f9f9; }
@@ -157,112 +68,129 @@ button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opa
 .exercise-manage-item label { flex-basis: auto; margin: 0; font-weight: normal; color: #666; font-size: 0.95em; }
 .exercise-manage-item input[type="text"], .exercise-manage-item select { flex-grow: 1; min-width: 150px; margin-bottom: 0; }
 
-/* --- Contenedor de Series (Layout Forzado 2 Líneas) --- */
+/* --- Contenedor de Series --- */
 #sets-container { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
-.set-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 5px 15px;
-    padding: 10px;
-    border: 1px solid #eee;
-    border-radius: 4px;
-    background-color: #fafafa;
-}
-.set-row-line-1 {
-    display: flex;
-    align-items: center;
-    flex-basis: 100%;
-    gap: 5px 15px;
-    flex-wrap: wrap;
-}
+.set-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 15px; padding: 10px; border: 1px solid #eee; border-radius: 4px; background-color: #fafafa; }
+.set-row-line-1 { display: flex; align-items: center; flex-basis: 100%; gap: 5px 15px; flex-wrap: wrap; }
 .set-number-label { font-weight: bold; color: #555; min-width: 55px; margin-right: 5px; }
 .set-input-group { display: flex; align-items: center; gap: 5px; }
 .set-input-group label { display: inline; font-size: 0.9em; color: #666; margin: 0; font-weight: normal; }
 .set-row input[type="number"] { width: 65px; padding: 6px; margin-bottom: 0; font-size: 0.95em; border: 1px solid #ddd; }
-.set-row-line-2 { display: flex; align-items: center; justify-content: space-between; flex-basis: 100%; padding-left: 75px; /* Ajustar esta indentación si es necesario */ }
+.set-row-line-2 { display: flex; align-items: center; justify-content: space-between; flex-basis: 100%; padding-left: 75px; /* <-- AJUSTAR ESTE VALOR PARA ALINEAR */ }
 .set-input-group span { font-size: 0.9em; color: #666; margin-left: 2px; }
 .remove-set-btn { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 50%; width: 24px; height: 24px; line-height: 22px; text-align: center; cursor: pointer; font-size: 0.8em; padding: 0; flex-shrink: 0; }
 .remove-set-btn:hover { background-color: #e74c3c; color: white; border-color: #c0392b; }
 
-
-/* --- Filtros (Gráfica e Historial - Layout Ajustado para una línea) --- */
-.filter-controls {
-    text-align: center; /* Alineación de la etiqueta */
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    padding: 15px;
-    margin-bottom: 0;
-    background-color: #f9f9f9;
-}
+/* --- Filtros (Gráfica e Historial) --- */
+.filter-controls { text-align: center; border: 1px solid #e0e0e0; border-radius: 5px; padding: 15px; margin-bottom: 0; background-color: #f9f9f9; }
 .filter-title-label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 1em; color: #555; }
-.filter-input-row {
-    display: flex;
-    align-items: center;
-    gap: 5px; /* <-- GAP MUY REDUCIDO */
-    flex-wrap: nowrap; /* <-- FORZAR NO-WRAP por defecto */
-    justify-content: center; /* Centrar la fila de controles */
-}
-
-/* Ajustes drásticos para select e input date */
+.filter-input-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; justify-content: center; }
 .filter-input-row select,
-.filter-input-row input[type="date"] {
-    width: auto; /* Ancho automático */
-    /* flex-grow: 1; --- ELIMINADO */
-    flex-shrink: 1; /* Permitir que encojan si es necesario */
-    margin-bottom: 0;
-    padding: 6px 8px; /* Menos padding */
-    font-size: 0.9em; /* Fuente un poco más pequeña */
-    /* Anchos máximos MUY reducidos */
-    min-width: 80px; /* Mínimo absoluto */
-    max-width: 200px; /* Ancho máximo general reducido */
-}
-#history-filter .filter-input-row input[type="date"] {
-    max-width: 115px; /* Aún más reducido para fecha */
-}
-
-/* Ajustes drásticos para botones */
-.filter-input-row button {
-    padding: 6px 8px; /* <-- PADDING REDUCIDO */
-    font-size: 0.85em; /* <-- FUENTE MÁS PEQUEÑA */
-    flex-shrink: 0; /* No encoger botón */
-    white-space: nowrap; /* Evitar que el texto se parta */
-    line-height: 1.4; /* Ajustar línea si el texto es pequeño */
-}
-
-
-/* Estilos botones gráfica */
+.filter-input-row input[type="date"] { width: auto; flex-grow: 1; flex-shrink: 1; margin-bottom: 0; padding: 6px 8px; font-size: 0.9em; min-width: 100px; max-width: 160px; height: 32px; line-height: normal; }
+#history-filter .filter-input-row input[type="date"] { max-width: 130px; }
+.filter-input-row button { padding: 6px 10px; font-size: 0.9em; flex-shrink: 0; white-space: nowrap; height: 32px; }
+#show-recent-btn { min-width: auto; }
+#show-selected-graph-btn i, #hide-graph-btn i { margin-right: 4px; }
 #show-selected-graph-btn { background-color: #28a745; color: white; }
 #show-selected-graph-btn:disabled { background-color: #6c757d !important; }
 #show-selected-graph-btn:hover:not(:disabled) { background-color: #218838; }
 #hide-graph-btn { background-color: #dc3545; color: white; }
 #hide-graph-btn:hover { background-color: #c82333; }
-#show-selected-graph-btn i, #hide-graph-btn i { margin-right: 4px; }
-
 
 /* --- Sección de Progresión (Gráfica) --- */
 #progress-section { margin-bottom: 0px; }
 .chart-container { position: relative; width: 100%; margin-top: 15px; border: 1px solid #e0e0e0; padding: 10px; border-radius: 5px; background-color: #fdfdfd; min-height: 250px; }
 .chart-container.hidden { min-height: 0; padding: 0; border: none; margin-top: 0; }
 
-
 /* --- Sección Filtro Historial --- */
-#history-filter-section { margin-top: 0px; }
-
+#history-filter-section { margin-top: 15px; }
 
 /* --- Sección Historial --- */
 #history-section { margin-top: 20px; }
 #history-log { margin-top: 10px; max-height: 400px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 15px; border-radius: 5px; background-color: #fdfdfd; }
-.history-date-group { margin-bottom: 20px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; }
-.history-date-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-.history-date-header { font-weight: bold; font-size: 1.1em; color: #3498db; margin-bottom: 10px; }
-.history-entry { margin-bottom: 10px; padding-left: 15px; position: relative; }
-.history-entry::before { content: "•"; position: absolute; left: 0; color: #777; }
-.history-exercise-name { font-weight: bold; display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; color: #2c3e50; }
-.history-exercise-name .delete-entry-btn { margin-left: 10px; font-size: 1em; }
-.history-set-detail { font-size: 0.95em; margin-left: 10px; color: #555; display: block; }
+.history-date-group { margin-bottom: 20px; padding-bottom: 0; border-bottom: none; }
+.history-date-group:last-child { margin-bottom: 0; }
+/* Cabecera de fecha con icono y tamaño aumentado */
+.history-date-header {
+    font-weight: bold;
+    font-size: 1.15em; /* <-- TAMAÑO AUMENTADO */
+    color: #3498db;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.history-date-header i.fa-calendar-alt { font-size: 0.95em; /* Ajustar tamaño icono relativo */ }
+/* Separador después de la fecha */
+hr.date-separator { height: 2px; background-color: #3498db; border: none; margin: 10px 0 15px 0; }
+.history-entry { margin-bottom: 0; padding-left: 0; position: relative; }
+/* Separador después de cada ejercicio */
+hr.exercise-separator { height: 1px; background-color: #e0e0e0; border: none; margin: 15px 0 15px 0; }
+.history-date-group .history-entry:last-of-type hr.exercise-separator { display: none; }
+/* Cabecera del ejercicio: Icono + Nombre + Botón Eliminar */
+.history-exercise-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Alinear al inicio */
+    gap: 8px; /* Espacio entre icono-nombre y botón */
+    margin-bottom: 8px;
+    flex-wrap: wrap; /* Permitir wrap del botón si no cabe */
+}
+/* Contenedor para Icono + Nombre */
+.history-exercise-name-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+    font-size: 1.05em; /* <-- TAMAÑO AUMENTADO */
+    color: #2c3e50;
+    /* flex-grow: 1; No necesario si el botón no está al final */
+}
+.history-exercise-name-text i.fa-dumbbell { font-size: 0.9em; color: #555; }
+/* Botón Eliminar Entrenamiento (al lado del nombre) */
+.delete-workout-btn {
+    background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;
+    border-radius: 4px; padding: 2px 5px; font-size: 0.75em; cursor: pointer;
+    flex-shrink: 0;
+    margin-left: 5px; /* Pequeño espacio después del nombre */
+}
+.delete-workout-btn:hover { background-color: #e74c3c; color: white; border-color: #c0392b; }
+.delete-workout-btn i.fas { margin-right: 4px; }
+/* Detalle de la serie con bullet point */
+.history-set-detail {
+    font-size: 0.95em;
+    color: #555;
+    display: flex;
+    justify-content: space-between; /* Poner botón Editar al final */
+    align-items: center;
+    line-height: 1.5;
+    margin-bottom: 5px; /* Espacio entre series */
+    padding-left: 15px; /* Espacio para el bullet */
+    position: relative; /* Para posicionar el bullet */
+    margin-left: 15px; /* Indentación general de las series */
+}
+/* Bullet point para cada serie */
+.history-set-detail::before {
+    content: "•";
+    position: absolute;
+    left: 0px; /* Posición horizontal del bullet */
+    top: 0.1em; /* Ajuste vertical fino */
+    color: #888; /* Color del bullet */
+    font-size: 1.2em; /* Tamaño del bullet */
+}
+.history-set-text { /* Contenedor del texto de la serie */
+   flex-grow: 1; /* Ocupar espacio disponible */
+   margin-right: 10px; /* Espacio antes del botón editar */
+}
 .history-set-detail strong { color: #333; }
-.history-set-detail .history-actions { display: inline-block; margin-left: 10px; }
+/* Botón Editar Serie (al final) */
+.edit-set-btn {
+    background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;
+    border-radius: 4px; padding: 3px 7px; font-size: 0.8em; cursor: pointer;
+    flex-shrink: 0;
+}
+.edit-set-btn:hover { background-color: #ffe8a1; }
+.edit-set-btn i.fas { margin-right: 4px; }
 
 
 /* --- Modal --- */
@@ -273,47 +201,41 @@ button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opa
 .close-modal-btn:hover { color: #777; }
 #edit-form p { margin-bottom: 10px; font-size: 0.95em; } #edit-form p strong { color: #555; } #edit-form label { margin-top: 15px; } #edit-form input { margin-bottom: 15px; }
 #edit-form button { margin-top: 15px; }
-.cancel-edit-btn { background-color: #777; color: white; margin-left: 10px; } .cancel-edit-btn:hover { background-color: #555; }
+.cancel-edit-btn { background-color: #777; color: white; margin-left: 10px; }
+.cancel-edit-btn:hover { background-color: #555; }
+.cancel-edit-btn > i.fas { margin-right: 6px; }
 
 /* --- Responsividad General --- */
 @media (max-width: 600px) {
     body { padding: 5px; }
     .container { padding: 15px; margin: 5px auto; width: calc(100% - 10px);}
-    h1 { font-size: 1.7em; }
+    h1 { font-size: 1.5em; }
     h2 { font-size: 1.2em; margin-top: 20px;}
-
-    /* Gestión ejercicios */
     .exercise-manage-item { flex-direction: column; align-items: stretch; }
     .exercise-manage-item label { flex-basis: auto; margin-bottom: 5px; text-align: left; }
     .exercise-manage-item button { width: 100%; margin-left: 0; margin-top: 5px; }
-
     .chart-container { min-height: 220px; }
     .modal-content { padding: 20px; }
 }
 
-/* Media Query como ÚLTIMO RECURSO si filtro/gráfica sigue sin caber */
-@media (max-width: 400px) { /* Ajusta este breakpoint si es necesario */
-    .filter-input-row {
-        flex-wrap: wrap; /* Permitir wrap en pantallas MUY estrechas */
-        justify-content: flex-start; /* Alinear a la izquierda cuando wrappea */
-        gap: 8px; /* Un poco más de gap si se apilan */
-    }
-    /* Hacer que cada elemento ocupe su línea cuando wrappea */
-    .filter-input-row > * {
-        flex-basis: 48%;
-        max-width: none !important; /* Ignorar max-width cuando se apilan */
-        text-align: center; /* Centrar texto en botones/select cuando ocupan todo */
-        margin-bottom: 5px; /* Espacio si se apilan */
-    }
-    .filter-input-row input[type="date"] {
-         text-align: left; /* Mantener fecha alineada izquierda */
-    }
+/* Media Query para layout de filtros/gráfica y ajustes finos historial */
+@media (max-width: 420px) {
+    /* Filtros/Gráfica: 2 columnas */
+    .filter-input-row { flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+    .filter-input-row > * { flex-basis: 48%; flex-grow: 0; flex-shrink: 0; text-align: center; max-width: none; }
+    .filter-input-row > *:not(:last-child) { margin-bottom: 8px; }
+    .filter-input-row input[type="date"] { text-align: left; }
+    #graph-controls .filter-input-row select { flex-basis: 100%; margin-bottom: 8px; }
+    #graph-controls .filter-input-row button { flex-basis: 48%; }
 
-     /* Filas de series: layout más vertical */
-     .set-row-line-2 {
-      
-     }
-     .remove-set-btn {
-          margin-top: 5px;
-     }
+    /* Series: layout más vertical */
+    .set-row-line-2 { padding-left: 0; }
+    .remove-set-btn { margin-top: 5px; }
+
+    /* Historial: Ajustes finos */
+    .history-exercise-header { gap: 5px; /* Menos gap */ }
+    .delete-workout-btn { padding: 2px 5px; font-size: 0.75em; /* Botón eliminar más pequeño */ }
+    .history-set-detail { margin-left: 5px; /* Menos indentación */ padding-left: 12px; /* Menos espacio bullet */}
+    .history-set-detail::before { left: 2px; }
+    .edit-set-btn { padding: 2px 5px; font-size: 0.75em; /* Botón editar más pequeño */ }
 }
