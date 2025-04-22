@@ -244,7 +244,7 @@ hr.exercise-separator { height: 1px; background-color: #e0e0e0; border: none; ma
 /* --- Notificaciones Toast --- */
 .notification-container {
     position: fixed; /* Fijo en la ventana */
-    bottom: 20px;    /* Posición abajo */
+    top: 20px;    /* Posición abajo */
     right: 20px;     /* Posición derecha */
     z-index: 1050;   /* Asegurar que esté encima de otros elementos */
     display: flex;
