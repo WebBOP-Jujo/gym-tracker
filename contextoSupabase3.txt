@@ -1,0 +1,198 @@
+Te paso el contexto de una web app que estamos construyendo:
+
+**Descripción de Contexto: Aplicación Web "Gym Tracker" con Supabase**
+
+**1. Propósito General:**
+
+Esta es una aplicación web sencilla (Single Page Application - SPA) diseñada para permitir a los usuarios registrados llevar un control personal de sus entrenamientos en el gimnasio. El objetivo principal es registrar los detalles de cada sesión: ejercicio realizado, número de series, repeticiones y peso levantado en cada serie. Adicionalmente, permite a cada usuario gestionar su propia lista maestra de ejercicios (añadir nuevos y eliminar existentes) y visualizar su progreso a lo largo del tiempo mediante un historial y una gráfica básica de Fuerza Máxima Estimada (e1RM).
+
+**2. Tecnologías y Arquitectura:**
+
+*   **Frontend:**
+    *   **Lenguajes:** HTML5, CSS3, JavaScript (Vanilla JS - ES6+).
+    *   **Estilos:** CSS puro para la maquetación y el diseño visual, utilizando Flexbox para layouts responsivos. Se incluyen iconos de Font Awesome para mejorar la interfaz.
+    *   **Librerías JS:**
+        *   `@supabase/supabase-js`: SDK oficial de Supabase para interactuar con el backend (autenticación, base de datos, funciones RPC) directamente desde el cliente.
+        *   `Chart.js`: Para renderizar la gráfica de progreso (e1RM).
+    *   **Arquitectura Frontend:** Aplicación de página única (SPA) con renderizado del lado del cliente (Client-Side Rendering - CSR). La lógica de la interfaz, el manejo del estado (variables globales JS) y la interacción con el backend residen en el archivo `script.js`.
+
+*   **Backend y Base de Datos (BaaS - Backend as a Service):**
+    *   **Proveedor:** **Supabase**. Se utiliza como backend completo, proporcionando:
+        *   **Autenticación:** Gestión de usuarios basada en Email/Contraseña (Supabase Auth).
+        *   **Base de Datos:** Base de datos PostgreSQL gestionada por Supabase.
+        *   **APIs:** El SDK de Supabase JS proporciona una interfaz para interactuar con la base de datos y la autenticación de forma segura.
+        *   **Funciones (RPC):** Se utiliza una función SQL (`count_distinct_workout_days`) expuesta vía RPC para cálculos específicos en la base de datos.
+    *   **Seguridad:** La autorización y el aislamiento de datos entre usuarios se implementa mediante **Row Level Security (RLS)** en las tablas PostgreSQL, asegurando que cada usuario solo pueda acceder y modificar sus propios datos.
+
+**3. Estructura de Datos (Base de Datos Supabase - PostgreSQL):**
+
+Se utilizan dos tablas principales en el esquema `public`, ambas con RLS habilitado:
+
+*   **Tabla `Ejercicios`:** Almacena la lista maestra de ejercicios *por usuario*.
+    *   `id` (bigint, PK): Identificador único del registro de ejercicio.
+    *   `user_id` (uuid, FK a `auth.users`, NOT NULL): ID del usuario propietario de este ejercicio. Clave foránea con `ON DELETE CASCADE`.
+    *   `nombre` (text, NOT NULL): Nombre del ejercicio (ej: "Press Banca Plano").
+    *   `created_at` (timestamptz, NOT NULL): Fecha y hora de creación.
+    *   `Constraint`: `unique_exercise_per_user` (UNIQUE en `user_id`, `nombre`) para evitar duplicados exactos a nivel DB (aunque la lógica JS valida case-insensitive).
+    *   **Políticas RLS:**
+        *   `SELECT`: Permitido si `auth.uid() = user_id`.
+        *   `INSERT`: Permitido `WITH CHECK (auth.uid() = user_id)`.
+        *   `DELETE`: Permitido si `auth.uid() = user_id`.
+        *   `UPDATE`: Permitido `USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id)` (aunque no se use actualmente).
+
+*   **Tabla `Entrenamientos`:** Almacena cada *serie individual* de cada ejercicio realizado.
+    *   `id` (bigint, PK): Identificador único de la fila/serie.
+    *   `user_id` (uuid, FK a `auth.users`, NOT NULL): ID del usuario que realizó esta serie. Clave foránea con `ON DELETE CASCADE`.
+    *   `"WorkoutID"` (uuid, NOT NULL, DEFAULT `gen_random_uuid()`): Identificador único que agrupa todas las series pertenecientes al *mismo entrenamiento/sesión* (ej., todas las series de Press Banca y Remo hechas el mismo día). Esencial para borrar entradas completas del historial.
+    *   `"Date"` (text, NOT NULL): Fecha del entrenamiento en formato "DD/MM/YYYY".
+    *   `"Exercise"` (text, NOT NULL): Nombre del ejercicio realizado (debería coincidir con uno de la tabla `Ejercicios`).
+    *   `"SetNumber"` (smallint, NOT NULL): Número de la serie (1, 2, 3...).
+    *   `"Reps"` (smallint, NULL): Repeticiones realizadas.
+    *   `"Weight"` (numeric, NULL): Peso utilizado (permite decimales).
+    *   `"Timestamp"` (timestamptz, NOT NULL, DEFAULT `now()`): Fecha y hora exacta en que se registró esta fila de serie.
+    *   **Índices:** Creados en `(user_id, "Date" DESC)`, `(user_id, "Exercise")`, y `"WorkoutID"` para optimizar consultas.
+    *   **Políticas RLS:**
+        *   `SELECT`: Permitido si `auth.uid() = user_id`.
+        *   `INSERT`: Permitido `WITH CHECK (auth.uid() = user_id)`.
+        *   `DELETE`: Permitido si `auth.uid() = user_id`.
+        *   `UPDATE`: Permitido `USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id)`.
+
+*   **Función SQL `count_distinct_workout_days()`:**
+    *   Devuelve un `integer` con el conteo de fechas (`"Date"`) únicas en la tabla `Entrenamientos` para el `auth.uid()` actual.
+    *   Se llama desde JS usando `supabaseClient.rpc()`.
+
+**4. Funcionalidades Clave Implementadas (con Mejoras UI/UX):**
+
+1.  **Autenticación:**
+    *   Registro e inicio de sesión por Email/Contraseña (Supabase Auth).
+    *   Botones de "Iniciar Sesión" y "Registrarse" **con iconos** (`fa-sign-in-alt`, `fa-user-plus`).
+2.  **Interfaz Principal Post-Login:**
+    *   **Título Principal:** Ahora muestra "**Registro de Entrenamiento**" (`<h1>`) centrado en la parte superior.
+    *   **Logout:** El botón de logout es un **icono** (`fa-sign-out-alt`) posicionado de forma absoluta en la esquina superior derecha, visualmente alineado con una **línea decorativa azul** que aparece debajo del título principal.
+3.  **Registro de Entrenamientos:**
+    *   Formulario principal:
+        *   **Input de Fecha:** La etiqueta "Fecha:" y el input `type="date"` ahora aparecen **en línea** y el input es más estrecho para optimizar espacio.
+        *   Selector de Ejercicio (`#exercise`) y botón de gestión (`#toggle-manage-btn`) siguen igual.
+        *   Input para Número de Series (`#num-sets`).
+    *   **Filas de Series (`div.set-row`):**
+        *   **Layout Mejorado (2 líneas):** Cada fila ahora se estructura visualmente en dos líneas para mayor claridad en móviles:
+            *   Línea 1: "Serie X:" y el input para "Reps:".
+            *   Línea 2: Input para "Peso:", la unidad "kg" y el botón "×" para eliminar la serie (pequeño y redondo).
+        *   Se utilizan divs internos (`.set-row-line-1`, `.set-row-line-2`) y CSS (Flexbox) para forzar esta estructura.
+    *   **Botones de Acción:**
+        *   "Añadir Serie" (`#add-set-button`) con icono `fa-plus`.
+        *   "Guardar Entrenamiento" (`#save-workout-button`) con icono `fa-save`.
+    *   Pre-relleno de formulario al seleccionar ejercicio sigue funcionando igual.
+4.  **Gestión de la Lista de Ejercicios:**
+    *   Sección colapsable (`#exercise-management-section`) sin cambios funcionales.
+    *   Botones "Añadir" (`#add-exercise-btn`) y "Eliminar" (`#delete-exercise-btn`) ahora **incluyen iconos** (`fa-plus`, `fa-trash-alt`).
+5.  **Visualización del Historial (`#history-section`):**
+    *   **Título:** Muestra "**Historial de entrenamientos**" y está **centrado**. El contador de días (`#history-count`) permanece.
+    *   **Estructura Visual Mejorada:**
+        *   **Cabecera de Fecha:** Muestra icono `fa-calendar-alt` seguido de la fecha (DD/MM/YYYY), con **fuente ligeramente más grande**.
+        *   **Separador de Fecha:** Una **línea horizontal azul** (`hr.date-separator`) aparece debajo de cada fecha.
+        *   **Cabecera de Ejercicio:** Muestra icono `fa-dumbbell` seguido del nombre del ejercicio (con **fuente ligeramente más grande**) y, a continuación, el botón **"Borrar"** (icono `fa-trash-alt` + texto, estilizado para ser pequeño).
+        *   **Detalle de Series:**
+            *   Cada serie aparece indentada con un **bullet point** (`::before`) a la izquierda.
+            *   El formato de texto es ahora explícito: **`Serie X: Y Reps → Z Kg`**.
+            *   Al final de cada línea de serie se encuentra el botón **"Editar"** (icono `fa-edit` + texto, estilizado para ser pequeño).
+        *   **Separador de Ejercicio:** Una **línea horizontal gris** (`hr.exercise-separator`) aparece después de cada bloque de ejercicio (excepto el último del día).
+6.  **Filtrado de Historial por Fecha:**
+    *   **Sin Título `<h2>`:** Se eliminó el título de la sección.
+    *   **Layout Mejorado (2 líneas):** Muestra primero la etiqueta "Ver fecha específica:" y debajo una fila con el input `type="date"` (más estrecho) y el botón "Mostrar Recientes" (con icono `fa-history`).
+    *   **Auto-Filtro:** Se **eliminó el botón "Filtrar"**. El historial se filtra automáticamente cuando el usuario selecciona una fecha en el input (`change` event).
+    *   **Adaptación Móvil:** En pantallas muy estrechas (<420px), el input y el botón se disponen en formato de ~2 columnas (`flex-basis: 48%`).
+7.  **Gráfica de Progreso (e1RM):**
+    *   **Sin Título `<h2>`:** Se eliminó el título de la sección.
+    *   **Layout Mejorado (2 líneas):** Muestra primero la etiqueta "Ver progresión para:" y debajo una fila con el `select` de ejercicio (más estrecho) y los botones "Mostrar Gráfica" / "Ocultar Gráfica" (con iconos).
+    *   **Adaptación Móvil:** En pantallas muy estrechas (<420px), el select ocupa el 100% y los botones intentan distribuirse debajo en ~2 columnas.
+    *   Funcionalidad de cálculo y renderizado sin cambios.
+8.  **Edición/Eliminación Entradas Historial:**
+    *   Los botones ahora tienen texto ("Borrar", "Editar") además de icono y están reposicionados como se describe en la sección de Visualización del Historial.
+    *   El modal de edición (`#edit-modal`) ahora tiene **iconos** en sus botones "Guardar Cambios" (`fa-save`) y "Cancelar" (`fa-times`).
+9.  **Ejercicios por Defecto:** Al iniciar sesión, si la lista de ejercicios del usuario está vacía, se inserta automáticamente una lista predefinida (`defaultExercises`) en la tabla `Ejercicios` para ese usuario (enviando `user_id` explícito).
+
+**5. Flujo de Usuario Típico (Actualizado):**
+
+1.  Usuario accede. Ve formulario Login/Registro (botones con iconos).
+2.  Se registra/inicia sesión.
+3.  La aplicación se carga: Título "**Registro de Entrenamiento**" visible, icono de logout en la esquina superior derecha integrado con la línea decorativa. Se carga total de días, ejercicios (con defaults si es nuevo), historial reciente (con nuevo formato visual), se pueblan desplegables.
+4.  **Para Registrar:** Selecciona fecha (input en línea), elige ejercicio, ajusta nº series (filas con nuevo formato 2 líneas), rellena reps/peso, pulsa "Guardar Entrenamiento" (botón con icono). Se actualiza contador, historial reciente (formato nuevo), dropdown gráfica.
+5.  **Para Gestionar Ejercicios:** Pulsa icono `fa-list-ul`, se expande sección. Añade/Elimina (botones con iconos).
+6.  **Para Ver Historial:** Se muestra historial reciente con nuevo formato (iconos, separadores, botones con texto).
+7.  **Para Filtrar Historial:** Usa sección sin título. **Selecciona una fecha y el historial se filtra automáticamente.** Pulsa "Mostrar Recientes" (botón con icono) para volver.
+8.  **Para Ver Progreso:** Usa sección sin título. Selecciona ejercicio, pulsa "Mostrar Gráfica".
+9.  **Para Editar/Eliminar Historial:** Pulsa botón "Borrar" (icono+texto) junto al nombre del ejercicio para eliminar toda la entrada, o pulsa botón "Editar" (icono+texto) al final de una serie para abrir el modal (botones con iconos).
+10. Pulsa el icono de Logout en la esquina superior derecha.
+
+**6. Análisis Detallado de Funcionalidad: Gestión de Ejercicios**
+
+*   **UI (HTML/CSS):**
+    *   Un `div#exercise-management-section.collapsible-section.hidden` contiene los controles.
+    *   Un `button#toggle-manage-btn` con un `<i>` dentro controla la visibilidad del div anterior.
+    *   Dentro, hay dos `div.exercise-manage-item`: uno para añadir (input `#new-exercise-name`, button `#add-exercise-btn`) y otro para eliminar (select `#delete-exercise-select`, button `#delete-exercise-btn`).
+    *   Un `p#manage-exercise-status` muestra mensajes de éxito/error.
+    *   CSS se encarga de ocultar/mostrar la sección y estilizar los elementos.
+
+*   **Lógica JS (`script.js`):**
+    *   **Mostrar/Ocultar:** El listener de `toggleManageBtn` añade/quita la clase `hidden` a `#exercise-management-section` y cambia la clase del icono `<i>` entre `fa-list-ul` y `fa-eye-slash`.
+    *   **Añadir:**
+        *   El listener de `addExerciseBtn` (y el keypress 'Enter' en `#new-exercise-name`) llama a `addExerciseToDB`.
+        *   `addExerciseToDB`:
+            1.  Obtiene el valor del input, lo limpia (`trim`).
+            2.  Valida que no esté vacío.
+            3.  Busca en `masterExerciseList` si ya existe (comparación `toLowerCase`). Muestra error si existe.
+            4.  Si es nuevo, llama a `supabaseClient.from('Ejercicios').insert({ nombre: trimmedName, user_id: currentUser.id })`. Se incluye `user_id` explícito.
+            5.  Maneja errores (duplicado `23505`, tabla no existe `42P01`, RLS `42501`).
+            6.  Si éxito, limpia el input, añade el nuevo ejercicio (con el ID devuelto por `.select()`) a `masterExerciseList`, ordena `masterExerciseList`, y llama a `populateExerciseDropdowns` para actualizar los selects `#exercise` y `#delete-exercise-select`.
+    *   **Eliminar:**
+        *   El listener `change` de `#delete-exercise-select` habilita/deshabilita `#delete-exercise-btn`.
+        *   El listener `click` de `#delete-exercise-btn` llama a `deleteExerciseFromDB`.
+        *   `deleteExerciseFromDB`:
+            1.  Obtiene el valor del select.
+            2.  Muestra un `confirm()` al usuario.
+            3.  Si confirma, llama a `supabaseClient.from('Ejercicios').delete().eq('nombre', exerciseNameToDelete)`. RLS asegura que solo se borren los del usuario.
+            4.  Maneja errores (tabla no existe `42P01`).
+            5.  Si éxito, filtra el ejercicio de `masterExerciseList`, llama a `populateExerciseDropdowns` (que resetea el select de eliminar), y llama a `updateGraphDropdownAndChart` para actualizar también el select de la gráfica.
+
+*   **Backend/DB (Supabase):**
+    *   La tabla `Ejercicios` almacena los datos.
+    *   La política RLS `INSERT ... WITH CHECK (auth.uid() = user_id)` permite añadir el ejercicio.
+    *   La política RLS `DELETE ... USING (auth.uid() = user_id)` permite eliminar el ejercicio.
+    *   La constraint `UNIQUE (user_id, nombre)` previene duplicados exactos (case-sensitive) a nivel de base de datos.
+	
+	6.1 Análisis Detallado de Funcionalidad: Visualización del Historial (Actualizado)**
+
+*   **UI (HTML/CSS):**
+    *   El título `<h2>` ahora es "Historial de entrenamientos" y está centrado (`#history-section h2 { text-align: center; }`).
+    *   El JS genera dinámicamente `div.history-date-group` por cada fecha.
+    *   Dentro de cada grupo:
+        *   Un `h3.history-date-header` con un `<i>` (fa-calendar-alt) y el texto de la fecha.
+        *   Un `<hr class="date-separator">` (azul).
+        *   Un `div.history-entry` por cada `WorkoutID`.
+        *   Dentro de cada entry:
+            *   Un `div.history-exercise-header` con `span.history-exercise-name-text` (con `<i>` fa-dumbbell y nombre) y `button.delete-workout-btn` (con `<i>` fa-trash-alt y texto "Borrar"). CSS usa Flexbox para alinearlos.
+            *   Varios `div.history-set-detail` por cada serie.
+            *   Cada `div.history-set-detail` tiene un pseudo-elemento `::before` para el bullet point. Contiene `span.history-set-text` con el formato "Serie X: Y Reps -> Z Kg" y `button.edit-set-btn` (con `<i>` fa-edit y texto "Editar") al final. CSS usa Flexbox con `space-between`.
+            *   Un `<hr class="exercise-separator">` (gris) después del bloque de series (oculto para el último ejercicio del día).
+    *   CSS define los estilos para los iconos, separadores, botones con texto, tamaños de fuente aumentados y la indentación de las series.
+
+*   **Lógica JS (`script.js` - `displayWorkoutHistory`):**
+    *   Itera sobre el historial agrupado.
+    *   Genera dinámicamente el `innerHTML` o los elementos DOM correspondientes a la nueva estructura descrita arriba, incluyendo los `<i>` para iconos, los `<hr>` y los botones con sus clases, iconos y textos correctos.
+    *   Adjunta los listeners `onclick` a los botones "Borrar" y "Editar".
+
+**7. Estado Actual y Posibles Mejoras:**
+
+*   **Estado:** La aplicación es funcional y cumple los requisitos iniciales. La **interfaz de usuario ha sido significativamente mejorada** para mayor claridad visual, consistencia (uso extendido de iconos) y **adaptación a dispositivos móviles** (layouts de filtros/gráfica, formato de series, input de fecha). Se han optimizado flujos como el filtrado de historial (auto-filtro).
+*   **Mejoras Potenciales:** (Siguen siendo válidas las anteriores, más algunas nuevas)
+    *   **UI/UX:** Animaciones sutiles, feedback de carga más visual en historial/gráfica, mejorar contraste de colores si es necesario. Considerar un tema oscuro.
+    *   **Historial:** Paginación/Scroll infinito si el historial crece mucho. Búsqueda por nombre de ejercicio dentro del historial.
+    *   **Formulario:** Notas, unidades (Kg/Lbs), RPE (Rate of Perceived Exertion).
+    *   **Gráficas:** Más tipos, rangos de fechas.
+    *   **Logout:** Si la descubribilidad del logout actual es un problema, implementar el menú desplegable con icono de usuario.
+    *   **Rendimiento:** Optimizar `displayWorkoutHistory` si se vuelve lento con muchos datos (ej. usando `document.createDocumentFragment`).
+    *   **Testing, Offline, Refactorización:** Siguen siendo mejoras relevantes.
+
+Cuando me digas que has entendido todo, paso a enviarte los archivos de los que se compone la web app, para que los analices y los memorices, los archivos son index.html, style.css y script.js
+

@@ -130,6 +130,8 @@ button > i.fas, button > i.far, button > i.fab { margin-right: 6px; font-size: 0
 .set-input-group span { font-size: 0.9em; color: #666; margin-left: 2px; }
 .remove-set-btn { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 50%; width: 24px; height: 24px; line-height: 22px; text-align: center; cursor: pointer; font-size: 0.8em; padding: 0; flex-shrink: 0; }
 .remove-set-btn:hover { background-color: #e74c3c; color: white; border-color: #c0392b; }
+/* Estilo para resaltar fila con error de validación */
+.set-row.input-error { border-left: 3px solid #e74c3c; background-color: #fbeeee; }
 
 /* --- Filtros (Gráfica e Historial) --- */
 .filter-controls { text-align: center; border: 1px solid #e0e0e0; border-radius: 5px; padding: 15px; margin-bottom: 0; background-color: #f9f9f9; }
@@ -151,6 +153,8 @@ button > i.fas, button > i.far, button > i.fab { margin-right: 6px; font-size: 0
 #progress-section { margin-bottom: 0px; }
 .chart-container { position: relative; width: 100%; margin-top: 15px; border: 1px solid #e0e0e0; padding: 10px; border-radius: 5px; background-color: #fdfdfd; min-height: 250px; }
 .chart-container.hidden { min-height: 0; padding: 0; border: none; margin-top: 0; }
+/* El párrafo #chart-status mostrará el mensaje de validación */
+#chart-status { text-align: center; margin-top: 5px; }
 
 /* --- Sección Filtro Historial --- */
 #history-filter-section { margin-top: 15px; }
@@ -213,10 +217,11 @@ hr.exercise-separator { height: 1px; background-color: #e0e0e0; border: none; ma
     /* Filtros/Gráfica: 2 columnas */
     .filter-input-row { justify-content: space-between; gap: 8px; }
     .filter-input-row > * { flex-basis: 48%; flex-grow: 0; flex-shrink: 0; text-align: center; max-width: none; }
-    .filter-input-row > *:not(:last-child) { margin-bottom: 8px; }
-    .filter-input-row input[type="date"] { text-align: left; }
-    #graph-controls .filter-input-row select { flex-basis: 100%; margin-bottom: 8px; }
-    #graph-controls .filter-input-row button { flex-basis: 48%; }
+    /* Ajuste para que el select ocupe el 100% y los botones vayan abajo */
+    #graph-controls .filter-input-row select,
+    #history-filter .filter-input-row input[type="date"] { flex-basis: 100%; margin-bottom: 8px; }
+    #graph-controls .filter-input-row button,
+    #history-filter .filter-input-row button { flex-basis: 48%; }
 
     /* Series: layout más vertical */
     .set-row-line-2 {}
@@ -232,4 +237,83 @@ hr.exercise-separator { height: 1px; background-color: #e0e0e0; border: none; ma
     /* Título y Logout: Ajustes finos */
     .title-container::after { left: 8%; right: 8%; }
     #logout-btn { bottom: -2px; /* Ajuste fino vertical */ }
+}
+
+/* --- (Estilos anteriores) --- */
+
+/* --- Notificaciones Toast --- */
+.notification-container {
+    position: fixed; /* Fijo en la ventana */
+    bottom: 20px;    /* Posición abajo */
+    right: 20px;     /* Posición derecha */
+    z-index: 1050;   /* Asegurar que esté encima de otros elementos */
+    display: flex;
+    flex-direction: column; /* Apilar toasts verticalmente */
+    align-items: flex-end;  /* Alinear toasts a la derecha */
+    gap: 10px;         /* Espacio entre toasts */
+    width: auto;
+    max-width: 90%;    /* Evitar que sea demasiado ancho en pantallas pequeñas */
+    pointer-events: none; /* Permitir clicks "a través" del contenedor */
+}
+
+.toast-notification {
+    padding: 12px 18px;
+    border-radius: 5px;
+    color: #fff;        /* Texto blanco */
+    font-size: 0.9em;
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    min-width: 200px;    /* Ancho mínimo */
+    max-width: 350px;    /* Ancho máximo */
+    opacity: 0;          /* Empieza invisible */
+    transform: translateX(100%); /* Empieza fuera de la pantalla a la derecha */
+    animation: slideInFadeIn 0.5s forwards ease-out; /* Animación de entrada */
+    cursor: pointer;     /* Indicar que se puede hacer clic */
+    border-left: 5px solid transparent; /* Borde izquierdo para énfasis */
+    word-wrap: break-word; /* Ajustar texto largo */
+    pointer-events: auto; /* Hacer el toast clickeable */
+    margin-bottom: 5px; /* Pequeño margen inferior */
+}
+
+/* Colores por tipo */
+.toast-notification.success {
+    background-color: #2ecc71; /* Verde */
+    border-left-color: #25a25a;
+}
+.toast-notification.error {
+    background-color: #e74c3c; /* Rojo */
+    border-left-color: #c0392b;
+}
+.toast-notification.info {
+    background-color: #3498db; /* Azul */
+    border-left-color: #2980b9;
+}
+
+/* Animación de entrada */
+@keyframes slideInFadeIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Clase y animación de salida */
+.toast-notification.fade-out {
+    animation: slideOutFadeOut 0.5s 0.1s forwards ease-in;
+}
+@keyframes slideOutFadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+        /* Encoger para una desaparición más suave */
+        height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin: 0;
+        border: 0;
+    }
 }
