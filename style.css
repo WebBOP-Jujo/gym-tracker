@@ -4,10 +4,61 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height
 .container { max-width: 800px; margin: 10px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
 
 /* Títulos */
-h1 { color: #2c3e50; margin-bottom: 15px; font-size: 1.6em; text-align: center; }
+/* h1 ahora está dentro de .title-container, se estiliza allí */
 h2, h3 { color: #2c3e50; margin-bottom: 15px; }
 h2 { border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; margin-top: 25px; font-size: 1.3em; }
 #history-section h2 { border-bottom: none; margin-top: 0; text-align: center; }
+
+/* === NUEVOS ESTILOS PARA TÍTULO Y LOGOUT === */
+.title-container {
+    position: relative; /* Para posicionar el botón y la línea */
+    text-align: center; /* Centrar el H1 */
+    margin-bottom: 25px; /* Espacio debajo de todo el conjunto */
+    padding-bottom: 10px; /* Espacio para la línea y el botón */
+}
+.title-container h1 {
+    color: #3498db; /* Color azul */
+    font-size: 1.6em; /* Tamaño original o ajustado */
+    display: inline-block; /* Para que no ocupe todo el ancho */
+    margin: 0;
+    padding: 0;
+    border-bottom: none; /* Asegurar que no tenga borde propio */
+    vertical-align: middle; /* Ayuda a alinear con icono si existe */
+}
+.title-container h1 > i.fas { /* Estilo para icono opcional en H1 */
+    margin-right: 8px;
+    font-size: 0.9em; /* Icono un poco más pequeño que el texto */
+}
+/* Línea decorativa usando pseudo-elemento */
+.title-container::after {
+    content: '';
+    position: absolute;
+    left: 15%; /* Ajustar indentación inicial/final */
+    right: 15%;
+    bottom: 5px; /* Posición vertical de la línea (AJUSTAR ESTE VALOR) */
+    height: 2px; /* Grosor de la línea */
+    background-color: #3498db; /* Color azul */
+}
+/* Estilos MODIFICADOS/NUEVOS para #logout-btn */
+#logout-btn {
+    position: absolute;
+    right: 0; /* Alinear a la derecha del contenedor */
+    bottom: 0px; /* Alinear verticalmente con la línea (AJUSTAR ESTE VALOR) */
+    background: none;
+    border: none;
+    color: #6c757d; /* Color por defecto */
+    font-size: 1.2em; /* Tamaño del icono */
+    cursor: pointer;
+    padding: 5px; /* Padding alrededor del icono */
+    line-height: 1; /* Para consistencia */
+    /* Quitar estilos previos si los había */
+    margin: 0;
+    height: auto;
+}
+#logout-btn:hover { color: #e74c3c; /* Rojo en hover */ }
+#logout-btn > i { margin-right: 0; /* Icono no necesita margen si está solo */ }
+/* === FIN DE NUEVOS ESTILOS === */
+
 
 /* Espaciado secciones */
 section { margin-bottom: 20px; }
@@ -29,9 +80,8 @@ section { margin-bottom: 20px; }
 #auth-section p { margin-top: 15px; font-size: 0.9em; color: #555; }
 
 /* --- Cabecera App --- */
-.header { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 15px; height: 30px; }
-#logout-btn { background: none; border: none; color: #6c757d; font-size: 1.2em; cursor: pointer; padding: 5px; line-height: 1; }
-#logout-btn:hover { color: #e74c3c; }
+/* .header ya no se usa o está vacío, puedes eliminar la regla si quieres */
+/* .header { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 15px; height: 30px; } */
 
 /* --- Formulario y Controles --- */
 label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; margin-top: 10px; }
@@ -110,88 +160,25 @@ button > i.fas, button > i.far, button > i.fab { margin-right: 6px; font-size: 0
 #history-log { margin-top: 10px; max-height: 400px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 15px; border-radius: 5px; background-color: #fdfdfd; }
 .history-date-group { margin-bottom: 20px; padding-bottom: 0; border-bottom: none; }
 .history-date-group:last-child { margin-bottom: 0; }
-/* Cabecera de fecha con icono y tamaño aumentado */
-.history-date-header {
-    font-weight: bold;
-    font-size: 1.15em; /* <-- TAMAÑO AUMENTADO */
-    color: #3498db;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.history-date-header i.fa-calendar-alt { font-size: 0.95em; /* Ajustar tamaño icono relativo */ }
-/* Separador después de la fecha */
+.history-date-header { font-weight: bold; font-size: 1.15em; color: #3498db; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.history-date-header i.fa-calendar-alt { font-size: 0.95em; }
 hr.date-separator { height: 2px; background-color: #3498db; border: none; margin: 10px 0 15px 0; }
 .history-entry { margin-bottom: 0; padding-left: 0; position: relative; }
-/* Separador después de cada ejercicio */
 hr.exercise-separator { height: 1px; background-color: #e0e0e0; border: none; margin: 15px 0 15px 0; }
 .history-date-group .history-entry:last-of-type hr.exercise-separator { display: none; }
-/* Cabecera del ejercicio: Icono + Nombre + Botón Eliminar */
-.history-exercise-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; /* Alinear al inicio */
-    gap: 8px; /* Espacio entre icono-nombre y botón */
-    margin-bottom: 8px;
-    flex-wrap: wrap; /* Permitir wrap del botón si no cabe */
-}
-/* Contenedor para Icono + Nombre */
-.history-exercise-name-text {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: bold;
-    font-size: 1.05em; /* <-- TAMAÑO AUMENTADO */
-    color: #2c3e50;
-    /* flex-grow: 1; No necesario si el botón no está al final */
-}
+.history-exercise-header { display: flex; align-items: center; justify-content: flex-start; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.history-exercise-name-text { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 1.05em; color: #2c3e50; }
 .history-exercise-name-text i.fa-dumbbell { font-size: 0.9em; color: #555; }
-/* Botón Eliminar Entrenamiento (al lado del nombre) */
-.delete-workout-btn {
-    background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;
-    border-radius: 4px; padding: 2px 5px; font-size: 0.75em; cursor: pointer;
-    flex-shrink: 0;
-    margin-left: 5px; /* Pequeño espacio después del nombre */
-}
+.delete-workout-btn { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; padding: 2px 5px; font-size: 0.75em; cursor: pointer; flex-shrink: 0; margin-left: 5px; font-weight: normal; vertical-align: middle; }
 .delete-workout-btn:hover { background-color: #e74c3c; color: white; border-color: #c0392b; }
-.delete-workout-btn i.fas { margin-right: 4px; }
-/* Detalle de la serie con bullet point */
-.history-set-detail {
-    font-size: 0.95em;
-    color: #555;
-    display: flex;
-    justify-content: space-between; /* Poner botón Editar al final */
-    align-items: center;
-    line-height: 1.5;
-    margin-bottom: 5px; /* Espacio entre series */
-    padding-left: 15px; /* Espacio para el bullet */
-    position: relative; /* Para posicionar el bullet */
-    margin-left: 15px; /* Indentación general de las series */
-}
-/* Bullet point para cada serie */
-.history-set-detail::before {
-    content: "•";
-    position: absolute;
-    left: 0px; /* Posición horizontal del bullet */
-    top: 0.1em; /* Ajuste vertical fino */
-    color: #888; /* Color del bullet */
-    font-size: 1.2em; /* Tamaño del bullet */
-}
-.history-set-text { /* Contenedor del texto de la serie */
-   flex-grow: 1; /* Ocupar espacio disponible */
-   margin-right: 10px; /* Espacio antes del botón editar */
-}
+.delete-workout-btn i.fas { margin-right: 3px; }
+.history-set-detail { font-size: 0.95em; color: #555; display: flex; justify-content: space-between; align-items: center; line-height: 1.5; margin-bottom: 5px; padding-left: 15px; position: relative; margin-left: 15px; }
+.history-set-detail::before { content: "•"; position: absolute; left: 0px; top: 0.1em; color: #888; font-size: 1.2em; }
+.history-set-text { flex-grow: 1; margin-right: 10px; }
 .history-set-detail strong { color: #333; }
-/* Botón Editar Serie (al final) */
-.edit-set-btn {
-    background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;
-    border-radius: 4px; padding: 3px 7px; font-size: 0.8em; cursor: pointer;
-    flex-shrink: 0;
-}
+.edit-set-btn { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 4px; padding: 3px 7px; font-size: 0.8em; cursor: pointer; flex-shrink: 0; }
 .edit-set-btn:hover { background-color: #ffe8a1; }
 .edit-set-btn i.fas { margin-right: 4px; }
-
 
 /* --- Modal --- */
 .modal { position: fixed; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
@@ -209,16 +196,19 @@ hr.exercise-separator { height: 1px; background-color: #e0e0e0; border: none; ma
 @media (max-width: 600px) {
     body { padding: 5px; }
     .container { padding: 15px; margin: 5px auto; width: calc(100% - 10px);}
-    h1 { font-size: 1.85em; }
+    .title-container h1 { font-size: 1.5em; } /* Ajustar título principal */
     h2 { font-size: 1.4em; margin-top: 20px;}
     .exercise-manage-item { flex-direction: column; align-items: stretch; }
     .exercise-manage-item label { flex-basis: auto; margin-bottom: 5px; text-align: left; }
     .exercise-manage-item button { width: 100%; margin-left: 0; margin-top: 5px; }
     .chart-container { min-height: 220px; }
     .modal-content { padding: 20px; }
+    /* Ajustes para línea y botón logout en pantallas medianas */
+    .title-container::after { left: 10%; right: 10%; }
+    #logout-btn { font-size: 1.1em; }
 }
 
-/* Media Query para layout de filtros/gráfica y ajustes finos historial */
+/* Media Query para filtros y ajustes finos historial/logout */
 @media (max-width: 420px) {
     /* Filtros/Gráfica: 2 columnas */
     .filter-input-row { justify-content: space-between; gap: 8px; }
@@ -229,13 +219,17 @@ hr.exercise-separator { height: 1px; background-color: #e0e0e0; border: none; ma
     #graph-controls .filter-input-row button { flex-basis: 48%; }
 
     /* Series: layout más vertical */
-    .set-row-line-2 { }
+    .set-row-line-2 {}
     .remove-set-btn { margin-top: 5px; }
 
     /* Historial: Ajustes finos */
-    .history-exercise-header { gap: 5px; /* Menos gap */ }
-    .delete-workout-btn { padding: 2px 5px; font-size: 0.75em; /* Botón eliminar más pequeño */ }
-    .history-set-detail { margin-left: 5px; /* Menos indentación */ padding-left: 12px; /* Menos espacio bullet */}
+    .history-exercise-header { gap: 5px; }
+    .delete-workout-btn { padding: 2px 5px; font-size: 0.75em; }
+    .history-set-detail { margin-left: 5px; padding-left: 12px; }
     .history-set-detail::before { left: 2px; }
-    .edit-set-btn { padding: 2px 5px; font-size: 0.75em; /* Botón editar más pequeño */ }
+    .edit-set-btn { padding: 2px 5px; font-size: 0.75em; }
+
+    /* Título y Logout: Ajustes finos */
+    .title-container::after { left: 8%; right: 8%; }
+    #logout-btn { bottom: -2px; /* Ajuste fino vertical */ }
 }

@@ -28,12 +28,14 @@
 
         <!-- Sección Principal de la Aplicación -->
         <div id="app-section" class="hidden">
-            <h1>Registro de Entrenamiento</h1>
-            <div class="header">
-                 <div id="user-info">
-                    <button id="logout-btn" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></button>
-                </div>
+
+            <!-- Nuevo Contenedor para Título, Línea y Logout -->
+            <div class="title-container">
+                <h1><i class="fas fa-clipboard-list"></i> Registro de Entrenamiento</h1>
+                <button id="logout-btn" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></button>
             </div>
+            <!-- El div.header anterior se elimina ya que queda vacío -->
+
             <div id="status-message"></div>
 
             <!-- 1. Formulario de Registro -->
@@ -109,7 +111,6 @@
 
             <!-- 4. Historial de Entrenamientos -->
             <section id="history-section">
-                 <!-- Título cambiado y centrado (CSS) -->
                 <h2>Historial de entrenamientos <span id="history-count">(Total: 0 días)</span></h2>
                 <div id="history-log">
                     <p>Cargando historial...</p>
