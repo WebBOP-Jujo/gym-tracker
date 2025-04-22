@@ -10,113 +10,130 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="container">
+    <!-- Contenedor principal eliminado o ajustado si solo envuelve #app-section -->
+    <!-- <div class="container"> -->
 
-        <!-- Sección de Autenticación -->
+        <!-- Sección de Autenticación MODIFICADA -->
         <div id="auth-section">
-            <h2>Acceso / Registro</h2>
-            <div class="auth-form">
-                <input type="email" id="auth-email" placeholder="Email" required>
-                <input type="password" id="auth-password" placeholder="Contraseña" required>
-                <button id="login-btn"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</button>
-                <button id="signup-btn"><i class="fas fa-user-plus"></i> Registrarse</button>
-                 <p id="auth-error" class="error-message"></p>
-            </div>
-             <p>¿Ya tienes cuenta? Inicia sesión.</p>
-             <p>¿Nuevo? Regístrate.</p>
+             <div class="auth-card"> <!-- <= NUEVO CONTENEDOR TARJETA -->
+                <h2>Gym-Tracker</h2> <!-- <= TÍTULO AÑADIDO -->
+                <p class="auth-subtitle">Accede o regístrate para continuar</p> <!-- <= SUBTÍTULO OPCIONAL -->
+
+                <div class="auth-form">
+                    <div class="input-group-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="auth-email" placeholder="Email" required>
+                    </div>
+                    <div class="input-group-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="auth-password" placeholder="Contraseña" required>
+                    </div>
+                    <!-- Botón primario -->
+                    <button id="login-btn" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión <span class="spinner hidden"></span>
+                    </button>
+                    <!-- Botón secundario -->
+                    <button id="signup-btn" class="btn-secondary">
+                        <i class="fas fa-user-plus"></i> Registrarse <span class="spinner hidden"></span>
+                    </button>
+                    <p id="auth-error" class="error-message"></p>
+                </div>
+
+                <!-- Mensajes de ayuda originales eliminados, la UI implica la acción -->
+                <!-- <p>¿Ya tienes cuenta? Inicia sesión.</p> -->
+                <!-- <p>¿Nuevo? Regístrate.</p> -->
+            </div> <!-- <= FIN NUEVO CONTENEDOR TARJETA -->
         </div>
 
-        <!-- Sección Principal de la Aplicación -->
+        <!-- Sección Principal de la Aplicación (Sin cambios estructurales aquí) -->
         <div id="app-section" class="hidden">
-
-            <!-- Nuevo Contenedor para Título, Línea y Logout -->
-            <div class="title-container">
-                <h1><i class="fas fa-clipboard-list"></i> Registro de Entrenamiento</h1>
-                <button id="logout-btn" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></button>
-            </div>
-            <!-- El div.header anterior se elimina ya que queda vacío -->
-
-            <div id="status-message"></div>
-
-            <!-- 1. Formulario de Registro -->
-            <section id="workout-form-section">
-                <form id="workout-form">
-                    <div class="inline-label-input">
-                        <label for="workout-date">Fecha:</label>
-                        <input type="date" id="workout-date" required>
-                    </div>
-                    <label for="exercise">Ejercicio:</label>
-                    <div class="exercise-selector-container">
-                        <select id="exercise" required>
-                            <option value="" disabled selected>Selecciona un ejercicio...</option>
-                        </select>
-                        <button type="button" id="toggle-manage-btn" title="Gestionar Lista de Ejercicios"><i class="fas fa-list-ul"></i></button>
-                    </div>
-                    <div id="exercise-management-section" class="hidden collapsible-section">
-                        <h3>Gestionar Ejercicios</h3>
-                        <div class="exercise-manage-item">
-                            <label for="new-exercise-name">Añadir:</label>
-                            <input type="text" id="new-exercise-name" placeholder="Nuevo ejercicio">
-                            <button type="button" id="add-exercise-btn"><i class="fas fa-plus"></i> Añadir</button>
-                        </div>
-                        <div class="exercise-manage-item">
-                            <label for="delete-exercise-select">Eliminar:</label>
-                            <select id="delete-exercise-select"><option value="" disabled selected>Selecciona...</option></select>
-                            <button type="button" id="delete-exercise-btn" disabled><i class="fas fa-trash-alt"></i> Eliminar</button>
-                        </div>
-                         <p id="manage-exercise-status" class="status-inline"></p>
-                    </div>
-                    <label for="num-sets">Número de Series:</label>
-                    <input type="number" id="num-sets" min="1" value="1" required>
-                    <div id="sets-container"></div>
-                    <div class="button-group">
-                        <button type="button" id="add-set-button" class="add-set-btn"><i class="fas fa-plus"></i> Añadir Serie</button>
-                        <button type="submit" id="save-workout-button" class="save-workout-btn"><i class="fas fa-save"></i> Guardar Entrenamiento <span class="spinner hidden"></span></button>
-                    </div>
-                </form>
-            </section>
-
-            <!-- 2. Ver Progresión -->
-            <section id="progress-section">
-                 <div id="graph-controls" class="filter-controls">
-                    <label class="filter-title-label">Ver progresión para:</label>
-                    <div class="filter-input-row">
-                        <select id="graph-exercise-select">
-                            <option value="" disabled selected>Cargando ejercicios...</option>
-                        </select>
-                         <button type="button" id="show-selected-graph-btn" disabled>
-                             <i class="fas fa-chart-line"></i> Mostrar Gráfica
-                         </button>
-                         <button type="button" id="hide-graph-btn" class="hidden">
-                             <i class="fas fa-eye-slash"></i> Ocultar Gráfica
-                         </button>
-                    </div>
-                 </div>
-                 <div class="chart-container hidden">
-                     <canvas id="progress-chart"></canvas>
-                 </div>
-                  <p id="chart-status" class="status-inline"></p>
-            </section>
-
-            <!-- 3. Filtrar Historial -->
-            <section id="history-filter-section">
-                 <div id="history-filter" class="filter-controls">
-                    <label class="filter-title-label">Ver fecha específica:</label>
-                    <div class="filter-input-row">
-                        <input type="date" id="filter-date">
-                        <button type="button" id="show-recent-btn"><i class="fas fa-history"></i> Mostrar Recientes</button>
-                    </div>
-                 </div>
-            </section>
-
-            <!-- 4. Historial de Entrenamientos -->
-            <section id="history-section">
-                <h2>Historial de entrenamientos <span id="history-count">(Total: 0 días)</span></h2>
-                <div id="history-log">
-                    <p>Cargando historial...</p>
+             <!-- Contenedor que SÍ usa el estilo .container original -->
+             <div class="container">
+                <div class="title-container">
+                    <h1><i class="fas fa-clipboard-list"></i> Registro de Entrenamiento</h1>
+                    <button id="logout-btn" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
-            </section>
 
+                <!-- (Resto del contenido de #app-section sin cambios) -->
+                 <!-- 1. Formulario de Registro -->
+                <section id="workout-form-section">
+                    <form id="workout-form" novalidate> <!-- Añadido novalidate para controlar validación con JS -->
+                        <div class="inline-label-input">
+                            <label for="workout-date">Fecha:</label>
+                            <input type="date" id="workout-date" required>
+                        </div>
+                        <label for="exercise">Ejercicio:</label>
+                        <div class="exercise-selector-container">
+                            <select id="exercise" required>
+                                <option value="" disabled selected>Selecciona...</option>
+                            </select>
+                            <button type="button" id="toggle-manage-btn" title="Gestionar Lista de Ejercicios"><i class="fas fa-list-ul"></i></button>
+                        </div>
+                        <div id="exercise-management-section" class="hidden collapsible-section">
+                            <h3>Gestionar Ejercicios</h3>
+                            <div class="exercise-manage-item">
+                                <label for="new-exercise-name">Añadir:</label>
+                                <input type="text" id="new-exercise-name" placeholder="Nuevo ejercicio">
+                                <button type="button" id="add-exercise-btn"><i class="fas fa-plus"></i> Añadir</button>
+                            </div>
+                            <div class="exercise-manage-item">
+                                <label for="delete-exercise-select">Eliminar:</label>
+                                <select id="delete-exercise-select"><option value="" disabled selected>Selecciona...</option></select>
+                                <button type="button" id="delete-exercise-btn" disabled><i class="fas fa-trash-alt"></i> Eliminar</button>
+                            </div>
+                        </div>
+                        <label for="num-sets">Número de Series:</label>
+                        <input type="number" id="num-sets" min="1" value="1" required>
+                        <div id="sets-container"></div>
+                        <div class="button-group">
+                            <button type="button" id="add-set-button" class="add-set-btn"><i class="fas fa-plus"></i> Añadir Serie</button>
+                            <button type="submit" id="save-workout-button" class="save-workout-btn"><i class="fas fa-save"></i> Guardar Entrenamiento <span class="spinner hidden"></span></button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- 2. Ver Progresión -->
+                <section id="progress-section">
+                     <div id="graph-controls" class="filter-controls">
+                        <label class="filter-title-label">Ver progresión para:</label>
+                        <div class="filter-input-row">
+                            <select id="graph-exercise-select">
+                                <option value="" disabled selected>Cargando ejercicios...</option>
+                            </select>
+                             <button type="button" id="show-selected-graph-btn" disabled>
+                                 <i class="fas fa-chart-line"></i> Mostrar Gráfica
+                             </button>
+                             <button type="button" id="hide-graph-btn" class="hidden">
+                                 <i class="fas fa-eye-slash"></i> Ocultar Gráfica
+                             </button>
+                        </div>
+                     </div>
+                     <div class="chart-container hidden">
+                         <canvas id="progress-chart"></canvas>
+                     </div>
+                     <!-- Mensaje de estado de la gráfica ahora es un toast -->
+                </section>
+
+                <!-- 3. Filtrar Historial -->
+                <section id="history-filter-section">
+                     <div id="history-filter" class="filter-controls">
+                        <label class="filter-title-label">Ver fecha específica:</label>
+                        <div class="filter-input-row">
+                            <input type="date" id="filter-date">
+                            <button type="button" id="show-recent-btn"><i class="fas fa-history"></i> Mostrar Recientes</button>
+                        </div>
+                     </div>
+                </section>
+
+                <!-- 4. Historial de Entrenamientos -->
+                <section id="history-section">
+                    <h2>Historial de entrenamientos <span id="history-count">(Total: 0 días)</span></h2>
+                    <div id="history-log">
+                        <p>Cargando historial...</p>
+                    </div>
+                </section>
+
+            </div> <!-- Fin de .container interno para app -->
         </div> <!-- Fin de #app-section -->
 
         <!-- Modal para Editar Entrada -->
@@ -124,14 +141,15 @@
              <div class="modal-content"> <span class="close-modal-btn">×</span> <h2>Editar Serie</h2> <form id="edit-form"> <input type="hidden" id="edit-entry-id"> <p><strong>Ejercicio:</strong> <span id="edit-exercise-name"></span></p> <p><strong>Fecha:</strong> <span id="edit-date"></span></p> <p><strong>Serie Nº:</strong> <span id="edit-set-number"></span></p><label for="edit-reps">Repeticiones:</label> <input type="number" id="edit-reps" min="0"> <label for="edit-weight">Peso (kg):</label> <input type="number" id="edit-weight" step="0.01" min="0">
                  <button type="submit" id="save-edit-btn"><i class="fas fa-save"></i> Guardar Cambios <span class="spinner hidden"></span></button>
                  <button type="button" class="cancel-edit-btn"><i class="fas fa-times"></i> Cancelar</button>
-                 <p id="edit-status" class="status-inline"></p> </form> </div>
+                 <!-- Mensaje de estado del modal ahora es un toast -->
+             </form> </div>
         </div>
 
-    </div> <!-- Fin de .container -->
-	
-	    <!-- Área para Notificaciones Toast -->
+    <!-- </div> Fin de .container principal (ajustado) -->
+
+    <!-- Área para Notificaciones Toast -->
     <div id="notification-area" class="notification-container"></div>
-	
+
     <script src="script.js"></script>
 </body>
 </html>

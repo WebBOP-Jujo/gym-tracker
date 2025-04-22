@@ -1,124 +1,192 @@
 /* Reset básico y estilos generales */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; background-color: #f4f7f6; color: #333; padding: 10px; }
-.container { max-width: 800px; margin: 10px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    /* Fondo con gradiente suave */
+    background: linear-gradient(135deg, #eef2f7 0%, #ffffff 100%);
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    padding: 10px; /* Padding general por si acaso */
+}
 
-/* Títulos */
-/* h1 ahora está dentro de .title-container, se estiliza allí */
-h2, h3 { color: #2c3e50; margin-bottom: 15px; }
-h2 { border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; margin-top: 25px; font-size: 1.3em; }
-#history-section h2 { border-bottom: none; margin-top: 0; text-align: center; }
+/* Contenedor principal ahora SÓLO envuelve la app cuando está logueado */
+/* Se aplica dentro de #app-section */
+.container {
+    max-width: 800px;
+    margin: 10px auto; /* Centrado horizontal dentro de #app-section */
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
 
-/* === NUEVOS ESTILOS PARA TÍTULO Y LOGOUT === */
-.title-container {
-    position: relative; /* Para posicionar el botón y la línea */
-    text-align: center; /* Centrar el H1 */
-    margin-bottom: 25px; /* Espacio debajo de todo el conjunto */
-    padding-bottom: 10px; /* Espacio para la línea y el botón */
+/* --- SECCIÓN DE AUTENTICACIÓN MEJORADA --- */
+#auth-section {
+    /* Ocupa todo el ancho y alto del body para centrar la tarjeta */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px; /* Padding alrededor de la tarjeta */
 }
-.title-container h1 {
-    color: #3498db; /* Color azul */
-    font-size: 1.6em; /* Tamaño original o ajustado */
-    display: inline-block; /* Para que no ocupe todo el ancho */
-    margin: 0;
-    padding: 0;
-    border-bottom: none; /* Asegurar que no tenga borde propio */
-    vertical-align: middle; /* Ayuda a alinear con icono si existe */
+
+.auth-card {
+    background-color: #ffffff;
+    padding: 30px 35px;
+    border-radius: 10px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1); /* Sombra más notable */
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
 }
-.title-container h1 > i.fas { /* Estilo para icono opcional en H1 */
-    margin-right: 8px;
-    font-size: 0.9em; /* Icono un poco más pequeño que el texto */
+
+/* Título original de #auth-section oculto, usamos el de la tarjeta */
+#auth-section > h2 {
+    display: none;
 }
-/* Línea decorativa usando pseudo-elemento */
-.title-container::after {
-    content: '';
+
+.auth-card h2 { /* Título dentro de la tarjeta */
+    color: #3498db;
+    margin-bottom: 8px;
+    font-size: 1.9em;
+    font-weight: 600;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-top: 0;
+}
+
+.auth-card .auth-subtitle {
+    color: #555;
+    margin-bottom: 30px;
+    font-size: 1em;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px; /* Más espacio entre elementos */
+    margin: 0 auto 20px auto;
+    text-align: left;
+}
+
+/* Inputs con Icono */
+.input-group-icon {
+    position: relative;
+}
+.input-group-icon i.fas {
     position: absolute;
-    left: 15%; /* Ajustar indentación inicial/final */
-    right: 15%;
-    bottom: 5px; /* Posición vertical de la línea (AJUSTAR ESTE VALOR) */
-    height: 2px; /* Grosor de la línea */
-    background-color: #3498db; /* Color azul */
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    font-size: 1em;
+    pointer-events: none; /* Evitar que el icono capture el foco */
 }
-/* Estilos MODIFICADOS/NUEVOS para #logout-btn */
-#logout-btn {
-    position: absolute;
-    right: 0; /* Alinear a la derecha del contenedor */
-    bottom: 0px; /* Alinear verticalmente con la línea (AJUSTAR ESTE VALOR) */
-    background: none;
-    border: none;
-    color: #6c757d; /* Color por defecto */
-    font-size: 1.2em; /* Tamaño del icono */
+.input-group-icon input {
+    padding-left: 45px !important; /* Espacio amplio para el icono */
+}
+
+/* Estilos Inputs Auth */
+#auth-section input[type="email"],
+#auth-section input[type="password"] {
+    width: 100%;
+    padding: 12px 15px; /* Padding base */
+    margin-bottom: 0;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 1em;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    height: 48px; /* Altura fija para consistencia */
+}
+#auth-section input[type="email"]:focus,
+#auth-section input[type="password"]:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+    outline: none;
+}
+
+/* Estilos Botones Auth */
+.auth-card button {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 1.05em;
+    font-weight: 500;
+    border-radius: 6px;
     cursor: pointer;
-    padding: 5px; /* Padding alrededor del icono */
-    line-height: 1; /* Para consistencia */
-    /* Quitar estilos previos si los había */
-    margin: 0;
-    height: auto;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 48px; /* Misma altura que inputs */
+    line-height: 1.5; /* Mejor alineación vertical del texto */
 }
-#logout-btn:hover { color: #e74c3c; /* Rojo en hover */ }
-#logout-btn > i { margin-right: 0; /* Icono no necesita margen si está solo */ }
-/* === FIN DE NUEVOS ESTILOS === */
+.auth-card button i.fas { margin-right: 0; font-size: 1em; }
+.auth-card button .spinner { width: 0.9em; height: 0.9em; margin-left: 8px; }
+
+.auth-card button.btn-primary { background-color: #3498db; color: white; border-color: #3498db; }
+.auth-card button.btn-primary:hover:not(:disabled) { background-color: #2980b9; border-color: #2980b9; }
+.auth-card button.btn-secondary { background-color: #ffffff; color: #3498db; border-color: #3498db; }
+.auth-card button.btn-secondary:hover:not(:disabled) { background-color: #eaf5fc; color: #2980b9; border-color: #2980b9; }
+.auth-card button:disabled { background-color: #bdc3c7 !important; border-color: #bdc3c7 !important; color: #fff !important; cursor: not-allowed; opacity: 0.8; }
+
+/* Mensaje de Error Auth */
+#auth-error {
+    color: #e74c3c;
+    font-size: 0.9em;
+    min-height: 1.3em;
+    margin-top: 0px; /* Ajustar si es necesario con gap */
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Párrafos de ayuda eliminados del HTML, no se necesitan estilos */
+/* #auth-section > p { margin-top: 15px; font-size: 0.9em; color: #555; } */
 
 
-/* Espaciado secciones */
+/* --- SECCIÓN PRINCIPAL DE LA APP --- */
+#app-section { display: flex; justify-content: center; width: 100%; /* Ocupar ancho para centrar container */ }
+/* El .container interno se estiliza como antes */
+
+/* ... (Resto de estilos para .title-container, form, historial, etc. SIN CAMBIOS) ... */
+.title-container { position: relative; text-align: center; margin-bottom: 25px; padding-bottom: 10px; }
+.title-container h1 { color: #3498db; font-size: 1.6em; display: inline-block; margin: 0; padding: 0; border-bottom: none; vertical-align: middle; }
+.title-container h1 > i.fas { margin-right: 8px; font-size: 0.9em; }
+.title-container::after { content: ''; position: absolute; left: 15%; right: 15%; bottom: 5px; height: 2px; background-color: #3498db; }
+#logout-btn { position: absolute; right: 0; bottom: 0px; background: none; border: none; color: #6c757d; font-size: 1.2em; cursor: pointer; padding: 5px; line-height: 1; margin: 0; height: auto; }
+#logout-btn:hover { color: #e74c3c; } #logout-btn > i { margin-right: 0; }
 section { margin-bottom: 20px; }
-
-/* --- Utilidades --- */
 .hidden { display: none !important; }
 .error-message, .success-message { font-size: 0.9em; margin-top: 5px; display: block; }
-.error-message { color: #e74c3c; }
-.success-message { color: #2ecc71; }
+.error-message { color: #e74c3c; } .success-message { color: #2ecc71; }
 .status-inline { display: inline-block; margin-left: 10px; font-size: 0.9em; }
-.status-inline.error-message { color: #e74c3c; }
-.status-inline.success-message { color: #2ecc71; }
+.status-inline.error-message { color: #e74c3c; } .status-inline.success-message { color: #2ecc71; }
 .spinner { display: inline-block; width: 1em; height: 1em; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; margin-left: 5px; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* --- Autenticación --- */
-#auth-section { text-align: center; padding-top: 20px; }
-.auth-form { display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 20px auto; }
-#auth-section p { margin-top: 15px; font-size: 0.9em; color: #555; }
-
-/* --- Cabecera App --- */
-/* .header ya no se usa o está vacío, puedes eliminar la regla si quieres */
-/* .header { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 15px; height: 30px; } */
-
-/* --- Formulario y Controles --- */
 label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; margin-top: 10px; }
-input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
-button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; transition: background-color 0.3s ease; }
-button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opacity: 0.7; }
-button > i.fas, button > i.far, button > i.fab { margin-right: 6px; font-size: 0.9em; vertical-align: middle; }
+#app-section input[type="text"], #app-section input[type="email"], #app-section input[type="password"], #app-section input[type="number"], #app-section input[type="date"], #app-section select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
+#app-section button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; transition: background-color 0.3s ease; }
+#app-section button:disabled { background-color: #bdc3c7 !important; cursor: not-allowed; opacity: 0.7; }
+#app-section button > i.fas, #app-section button > i.far, #app-section button > i.fab { margin-right: 6px; font-size: 0.9em; vertical-align: middle; }
 .inline-label-input { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; }
 .inline-label-input label { display: inline; margin: 0; flex-shrink: 0; }
 .inline-label-input input[type="date"] { width: auto; max-width: 140px; padding: 8px 10px; margin-bottom: 0; flex-grow: 1; }
-
-/* Estilo específico botones */
-#login-btn, #signup-btn, .save-workout-btn { background-color: #3498db; color: white; }
-#login-btn:hover, #signup-btn:hover, .save-workout-btn:hover:not(:disabled) { background-color: #2980b9; }
-.add-set-btn { background-color: #2ecc71; color: white; }
-.add-set-btn:hover { background-color: #27ae60; }
-#add-exercise-btn { background-color: #5bc0de; color: white; padding: 8px 12px; margin-left: 5px; }
-#add-exercise-btn:hover { background-color: #31b0d5; }
-#delete-exercise-btn { background-color: #e74c3c; color: white; padding: 8px 12px; margin-left: 5px; }
-#delete-exercise-btn:hover:not(:disabled) { background-color: #c0392b; }
+.save-workout-btn { background-color: #3498db; color: white; } .save-workout-btn:hover:not(:disabled) { background-color: #2980b9; }
+.add-set-btn { background-color: #2ecc71; color: white; } .add-set-btn:hover { background-color: #27ae60; }
+#add-exercise-btn { background-color: #5bc0de; color: white; padding: 8px 12px; margin-left: 5px; } #add-exercise-btn:hover { background-color: #31b0d5; }
+#delete-exercise-btn { background-color: #e74c3c; color: white; padding: 8px 12px; margin-left: 5px; } #delete-exercise-btn:hover:not(:disabled) { background-color: #c0392b; }
 .button-group { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-
-/* --- Selector de Ejercicio y Botón de Gestión --- */
 .exercise-selector-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .exercise-selector-container select { flex-grow: 1; margin-bottom: 0; }
-#toggle-manage-btn { background: none; border: 1px solid #ccc; color: #555; padding: 8px 10px; border-radius: 4px; cursor: pointer; flex-shrink: 0; line-height: 1; }
-#toggle-manage-btn i { font-size: 1.1em; margin-right: 0; }
-#toggle-manage-btn:hover { background-color: #eee; }
-
-/* --- Sección Colapsable de Gestión de Ejercicios --- */
+#toggle-manage-btn { background: none; border: 1px solid #ccc; color: #555; padding: 8px 10px; border-radius: 4px; cursor: pointer; flex-shrink: 0; line-height: 1; } #toggle-manage-btn i { font-size: 1.1em; margin-right: 0; } #toggle-manage-btn:hover { background-color: #eee; }
 .collapsible-section { border: 1px solid #e0e0e0; border-radius: 5px; padding: 15px; margin-top: 15px; margin-bottom: 20px; background-color: #f9f9f9; }
 .collapsible-section h3 { margin-top: 0; margin-bottom: 15px; font-size: 1.1em; }
 .exercise-manage-item { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 .exercise-manage-item label { flex-basis: auto; margin: 0; font-weight: normal; color: #666; font-size: 0.95em; }
 .exercise-manage-item input[type="text"], .exercise-manage-item select { flex-grow: 1; min-width: 150px; margin-bottom: 0; }
-
-/* --- Contenedor de Series --- */
 #sets-container { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
 .set-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 15px; padding: 10px; border: 1px solid #eee; border-radius: 4px; background-color: #fafafa; }
 .set-row-line-1 { display: flex; align-items: center; flex-basis: 100%; gap: 5px 15px; flex-wrap: wrap; }
@@ -126,194 +194,83 @@ button > i.fas, button > i.far, button > i.fab { margin-right: 6px; font-size: 0
 .set-input-group { display: flex; align-items: center; gap: 5px; }
 .set-input-group label { display: inline; font-size: 0.9em; color: #666; margin: 0; font-weight: normal; }
 .set-row input[type="number"] { width: 65px; padding: 6px; margin-bottom: 0; font-size: 0.95em; border: 1px solid #ddd; }
-.set-row-line-2 { display: flex; align-items: center; justify-content: space-between; flex-basis: 100%; padding-left: 75px; /* <-- AJUSTAR ESTE VALOR PARA ALINEAR */ }
+.set-row-line-2 { display: flex; align-items: center; justify-content: space-between; flex-basis: 100%; padding-left: 75px; }
 .set-input-group span { font-size: 0.9em; color: #666; margin-left: 2px; }
 .remove-set-btn { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 50%; width: 24px; height: 24px; line-height: 22px; text-align: center; cursor: pointer; font-size: 0.8em; padding: 0; flex-shrink: 0; }
 .remove-set-btn:hover { background-color: #e74c3c; color: white; border-color: #c0392b; }
-/* Estilo para resaltar fila con error de validación */
-.set-row.input-error { border-left: 3px solid #e74c3c; background-color: #fbeeee; }
-
-/* --- Filtros (Gráfica e Historial) --- */
 .filter-controls { text-align: center; border: 1px solid #e0e0e0; border-radius: 5px; padding: 15px; margin-bottom: 0; background-color: #f9f9f9; }
 .filter-title-label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 1em; color: #555; }
 .filter-input-row { display: flex; gap: 8px; flex-wrap: nowrap; justify-content: center; }
-.filter-input-row select,
-.filter-input-row input[type="date"] { width: auto; flex-grow: 1; flex-shrink: 1; margin-bottom: 0; padding: 6px 8px; font-size: 0.9em; min-width: 100px; max-width: 160px; height: 32px; line-height: normal; }
+.filter-input-row select, .filter-input-row input[type="date"] { width: auto; flex-grow: 1; flex-shrink: 1; margin-bottom: 0; padding: 6px 8px; font-size: 0.9em; min-width: 100px; max-width: 160px; height: 32px; line-height: normal; }
 #history-filter .filter-input-row input[type="date"] { max-width: 130px; }
 .filter-input-row button { padding: 6px 10px; font-size: 0.9em; flex-shrink: 0; white-space: nowrap; height: 32px; }
-#show-recent-btn { min-width: auto; }
-#show-selected-graph-btn i, #hide-graph-btn i { margin-right: 4px; }
-#show-selected-graph-btn { background-color: #28a745; color: white; }
-#show-selected-graph-btn:disabled { background-color: #6c757d !important; }
-#show-selected-graph-btn:hover:not(:disabled) { background-color: #218838; }
-#hide-graph-btn { background-color: #dc3545; color: white; }
-#hide-graph-btn:hover { background-color: #c82333; }
-
-/* --- Sección de Progresión (Gráfica) --- */
+#show-recent-btn { min-width: auto; } #show-selected-graph-btn i, #hide-graph-btn i { margin-right: 4px; }
+#show-selected-graph-btn { background-color: #28a745; color: white; } #show-selected-graph-btn:disabled { background-color: #6c757d !important; } #show-selected-graph-btn:hover:not(:disabled) { background-color: #218838; }
+#hide-graph-btn { background-color: #dc3545; color: white; } #hide-graph-btn:hover { background-color: #c82333; }
 #progress-section { margin-bottom: 0px; }
 .chart-container { position: relative; width: 100%; margin-top: 15px; border: 1px solid #e0e0e0; padding: 10px; border-radius: 5px; background-color: #fdfdfd; min-height: 250px; }
 .chart-container.hidden { min-height: 0; padding: 0; border: none; margin-top: 0; }
-/* El párrafo #chart-status mostrará el mensaje de validación */
-#chart-status { text-align: center; margin-top: 5px; }
-
-/* --- Sección Filtro Historial --- */
 #history-filter-section { margin-top: 15px; }
-
-/* --- Sección Historial --- */
-#history-section { margin-top: 20px; }
+#history-section { margin-top: 20px; } #history-section h2 { text-align: center; }
 #history-log { margin-top: 10px; max-height: 400px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 15px; border-radius: 5px; background-color: #fdfdfd; }
-.history-date-group { margin-bottom: 20px; padding-bottom: 0; border-bottom: none; }
-.history-date-group:last-child { margin-bottom: 0; }
-.history-date-header { font-weight: bold; font-size: 1.15em; color: #3498db; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-.history-date-header i.fa-calendar-alt { font-size: 0.95em; }
+.history-date-group { margin-bottom: 20px; padding-bottom: 0; border-bottom: none; } .history-date-group:last-child { margin-bottom: 0; }
+.history-date-header { font-weight: bold; font-size: 1.15em; color: #3498db; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; } .history-date-header i.fa-calendar-alt { font-size: 0.95em; }
 hr.date-separator { height: 2px; background-color: #3498db; border: none; margin: 10px 0 15px 0; }
 .history-entry { margin-bottom: 0; padding-left: 0; position: relative; }
 hr.exercise-separator { height: 1px; background-color: #e0e0e0; border: none; margin: 15px 0 15px 0; }
 .history-date-group .history-entry:last-of-type hr.exercise-separator { display: none; }
 .history-exercise-header { display: flex; align-items: center; justify-content: flex-start; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.history-exercise-name-text { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 1.05em; color: #2c3e50; }
-.history-exercise-name-text i.fa-dumbbell { font-size: 0.9em; color: #555; }
-.delete-workout-btn { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; padding: 2px 5px; font-size: 0.75em; cursor: pointer; flex-shrink: 0; margin-left: 5px; font-weight: normal; vertical-align: middle; }
-.delete-workout-btn:hover { background-color: #e74c3c; color: white; border-color: #c0392b; }
-.delete-workout-btn i.fas { margin-right: 3px; }
+.history-exercise-name-text { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 1.05em; color: #2c3e50; } .history-exercise-name-text i.fa-dumbbell { font-size: 0.9em; color: #555; }
+.delete-workout-btn { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; padding: 2px 5px; font-size: 0.75em; cursor: pointer; flex-shrink: 0; margin-left: 5px; font-weight: normal; vertical-align: middle; } .delete-workout-btn:hover { background-color: #e74c3c; color: white; border-color: #c0392b; } .delete-workout-btn i.fas { margin-right: 3px; }
 .history-set-detail { font-size: 0.95em; color: #555; display: flex; justify-content: space-between; align-items: center; line-height: 1.5; margin-bottom: 5px; padding-left: 15px; position: relative; margin-left: 15px; }
 .history-set-detail::before { content: "•"; position: absolute; left: 0px; top: 0.1em; color: #888; font-size: 1.2em; }
-.history-set-text { flex-grow: 1; margin-right: 10px; }
-.history-set-detail strong { color: #333; }
-.edit-set-btn { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 4px; padding: 3px 7px; font-size: 0.8em; cursor: pointer; flex-shrink: 0; }
-.edit-set-btn:hover { background-color: #ffe8a1; }
-.edit-set-btn i.fas { margin-right: 4px; }
-
-/* --- Modal --- */
+.history-set-text { flex-grow: 1; margin-right: 10px; } .history-set-detail strong { color: #333; }
+.edit-set-btn { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 4px; padding: 3px 7px; font-size: 0.8em; cursor: pointer; flex-shrink: 0; } .edit-set-btn:hover { background-color: #ffe8a1; } .edit-set-btn i.fas { margin-right: 4px; }
 .modal { position: fixed; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
 .modal:not(.hidden) { opacity: 1; visibility: visible; }
 .modal-content { background-color: #fff; padding: 25px; border-radius: 8px; width: 95%; max-width: 450px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-.close-modal-btn { position: absolute; top: 10px; right: 15px; font-size: 1.8em; font-weight: bold; color: #aaa; cursor: pointer; }
-.close-modal-btn:hover { color: #777; }
-#edit-form p { margin-bottom: 10px; font-size: 0.95em; } #edit-form p strong { color: #555; } #edit-form label { margin-top: 15px; } #edit-form input { margin-bottom: 15px; }
-#edit-form button { margin-top: 15px; }
-.cancel-edit-btn { background-color: #777; color: white; margin-left: 10px; }
-.cancel-edit-btn:hover { background-color: #555; }
-.cancel-edit-btn > i.fas { margin-right: 6px; }
+.close-modal-btn { position: absolute; top: 10px; right: 15px; font-size: 1.8em; font-weight: bold; color: #aaa; cursor: pointer; } .close-modal-btn:hover { color: #777; }
+#edit-form p { margin-bottom: 10px; font-size: 0.95em; } #edit-form p strong { color: #555; } #edit-form label { margin-top: 15px; } #edit-form input { margin-bottom: 15px; } #edit-form button { margin-top: 15px; }
+.cancel-edit-btn { background-color: #777; color: white; margin-left: 10px; } .cancel-edit-btn:hover { background-color: #555; } .cancel-edit-btn > i.fas { margin-right: 6px; }
 
 /* --- Responsividad General --- */
 @media (max-width: 600px) {
-    body { padding: 5px; }
-    .container { padding: 15px; margin: 5px auto; width: calc(100% - 10px);}
-    .title-container h1 { font-size: 1.85em; } /* Ajustar título principal */
-    h2 { font-size: 1.4em; margin-top: 20px;}
+    /* body { padding: 5px; } <= Ajustar padding si es necesario con flex */
+    .auth-card { padding: 25px 20px; } /* Menos padding en tarjeta auth */
+    .container { padding: 15px; margin: 5px auto; width: calc(100% - 10px);} /* Para app container */
+    .title-container h1 { font-size: 1.85em; } h2 { font-size: 1.4em; margin-top: 20px;}
     .exercise-manage-item { flex-direction: column; align-items: stretch; }
     .exercise-manage-item label { flex-basis: auto; margin-bottom: 5px; text-align: left; }
     .exercise-manage-item button { width: 100%; margin-left: 0; margin-top: 5px; }
-    .chart-container { min-height: 220px; }
-    .modal-content { padding: 20px; }
-    /* Ajustes para línea y botón logout en pantallas medianas */
-    .title-container::after { left: 10%; right: 10%; }
-    #logout-btn { font-size: 1.1em; }
+    .chart-container { min-height: 220px; } .modal-content { padding: 20px; }
+    .title-container::after { left: 10%; right: 10%; } #logout-btn { font-size: 1.1em; }
 }
-
-/* Media Query para filtros y ajustes finos historial/logout */
 @media (max-width: 420px) {
-    /* Filtros/Gráfica: 2 columnas */
-    .filter-input-row { justify-content: space-between; gap: 8px; }
+    .filter-input-row { justify-content: space-between; gap: 8px; flex-wrap: wrap; /* Permitir wrap */ }
     .filter-input-row > * { flex-basis: 48%; flex-grow: 0; flex-shrink: 0; text-align: center; max-width: none; }
-    /* Ajuste para que el select ocupe el 100% y los botones vayan abajo */
-    #graph-controls .filter-input-row select,
-    #history-filter .filter-input-row input[type="date"] { flex-basis: 100%; margin-bottom: 8px; }
-    #graph-controls .filter-input-row button,
-    #history-filter .filter-input-row button { flex-basis: 48%; }
-
-    /* Series: layout más vertical */
-    .set-row-line-2 {}
-    .remove-set-btn { margin-top: 5px; }
-
-    /* Historial: Ajustes finos */
-    .history-exercise-header { gap: 5px; }
-    .delete-workout-btn { padding: 2px 5px; font-size: 0.75em; }
-    .history-set-detail { margin-left: 5px; padding-left: 12px; }
-    .history-set-detail::before { left: 2px; }
+    #graph-controls .filter-input-row select, #history-filter .filter-input-row input[type="date"] { flex-basis: 100%; margin-bottom: 8px; }
+    #graph-controls .filter-input-row button, #history-filter .filter-input-row button { flex-basis: 48%; }
+    .set-row-line-2 {} .remove-set-btn { margin-top: 5px; }
+    .history-exercise-header { gap: 5px; } .delete-workout-btn { padding: 2px 5px; font-size: 0.75em; }
+    .history-set-detail { margin-left: 5px; padding-left: 12px; } .history-set-detail::before { left: 2px; }
     .edit-set-btn { padding: 2px 5px; font-size: 0.75em; }
-
-    /* Título y Logout: Ajustes finos */
-    .title-container::after { left: 8%; right: 8%; }
-    #logout-btn { bottom: -2px; /* Ajuste fino vertical */ }
+    .title-container::after { left: 8%; right: 8%; } #logout-btn { bottom: -2px; }
 }
-
-/* --- (Estilos anteriores) --- */
 
 /* --- Notificaciones Toast --- */
-.notification-container {
-    position: fixed; /* Fijo en la ventana */
-    top: 20px;    /* Posición abajo */
-    right: 20px;     /* Posición derecha */
-    z-index: 1050;   /* Asegurar que esté encima de otros elementos */
-    display: flex;
-    flex-direction: column; /* Apilar toasts verticalmente */
-    align-items: flex-end;  /* Alinear toasts a la derecha */
-    gap: 10px;         /* Espacio entre toasts */
-    width: auto;
-    max-width: 90%;    /* Evitar que sea demasiado ancho en pantallas pequeñas */
-    pointer-events: none; /* Permitir clicks "a través" del contenedor */
-}
+.notification-container { position: fixed; top: 20px; right: 20px; z-index: 1050; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; width: auto; max-width: 90%; pointer-events: none; }
+.toast-notification { padding: 12px 18px; border-radius: 5px; color: #fff; font-size: 0.9em; font-weight: 500; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); min-width: 200px; max-width: 350px; opacity: 0; transform: translateX(100%); animation: slideInFadeIn 0.5s forwards ease-out; cursor: pointer; border-left: 5px solid transparent; word-wrap: break-word; pointer-events: auto; margin-bottom: 5px; }
+.toast-notification.success { background-color: #2ecc71; border-left-color: #25a25a; }
+.toast-notification.error { background-color: #e74c3c; border-left-color: #c0392b; }
+.toast-notification.info { background-color: #3498db; border-left-color: #2980b9; }
+@keyframes slideInFadeIn { to { opacity: 1; transform: translateX(0); } }
+.toast-notification.fade-out { animation: slideOutFadeOut 0.5s forwards ease-in; }
+@keyframes slideOutFadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
 
-.toast-notification {
-    padding: 12px 18px;
-    border-radius: 5px;
-    color: #fff;        /* Texto blanco */
-    font-size: 0.9em;
-    font-weight: 500;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    min-width: 200px;    /* Ancho mínimo */
-    max-width: 350px;    /* Ancho máximo */
-    opacity: 0;          /* Empieza invisible */
-    transform: translateX(100%); /* Empieza fuera de la pantalla a la derecha */
-    animation: slideInFadeIn 0.5s forwards ease-out; /* Animación de entrada */
-    cursor: pointer;     /* Indicar que se puede hacer clic */
-    border-left: 5px solid transparent; /* Borde izquierdo para énfasis */
-    word-wrap: break-word; /* Ajustar texto largo */
-    pointer-events: auto; /* Hacer el toast clickeable */
-    margin-bottom: 5px; /* Pequeño margen inferior */
+/* Estilos Inputs Validos/Inválidos para HTML5 (Opcional, mejora feedback) */
+input:required:invalid:not(:placeholder-shown) {
+    border-left: 3px solid #e74c3c; /* Borde rojo si es inválido y el usuario ha interactuado */
 }
-
-/* Colores por tipo */
-.toast-notification.success {
-    background-color: #2ecc71; /* Verde */
-    border-left-color: #25a25a;
-}
-.toast-notification.error {
-    background-color: #e74c3c; /* Rojo */
-    border-left-color: #c0392b;
-}
-.toast-notification.info {
-    background-color: #3498db; /* Azul */
-    border-left-color: #2980b9;
-}
-
-/* Animación de entrada */
-@keyframes slideInFadeIn {
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-/* Clase y animación de salida */
-.toast-notification.fade-out {
-    animation: slideOutFadeOut 0.5s forwards ease-in;
-}
-@keyframes slideOutFadeOut {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(100%);
-        /* Encoger para una desaparición más suave */
-       /* height: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-        margin: 0;
-        border: 0; */
-    }
+input:required:valid:not(:placeholder-shown) {
+    border-left: 3px solid #2ecc71; /* Borde verde si es válido y requerido */
 }

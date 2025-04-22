@@ -238,8 +238,114 @@ const initializeAppData = async () => {
 };
 
 // --- EVENT LISTENERS ---
-loginBtn?.addEventListener('click', async () => { if (!authEmailInput || !authPasswordInput || !supabaseClient) return; const email = authEmailInput.value; const password = authPasswordInput.value; if (authError) authError.textContent = ''; try { const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) throw error; console.log("Login OK:", email); } catch (error) { console.error("Login Error:", error); if (authError) authError.textContent = `Error: ${error.message}`; } });
-signupBtn?.addEventListener('click', async () => { if (!authEmailInput || !authPasswordInput || !supabaseClient) return; const email = authEmailInput.value; const password = authPasswordInput.value; if (authError) authError.textContent = ''; try { const { error } = await supabaseClient.auth.signUp({ email, password }); if (error) throw error; /* Use toast instead of alert */ showToast('¡Registro exitoso! Revisa tu email e inicia sesión.', 'success', 6000); console.log("Signup OK:", email); authPasswordInput.value = ''; } catch (error) { console.error("Signup Error:", error); if (authError) authError.textContent = `Error: ${error.message}`; } });
+// MODIFIED Login Listener (con mapeo de errores)
+loginBtn?.addEventListener('click', async () => {
+    if (!authEmailInput || !authPasswordInput || !supabaseClient) return;
+    const email = authEmailInput.value;
+    const password = authPasswordInput.value;
+    if (authError) authError.textContent = ''; // Clear previous errors
+
+    // Basic client-side validation (optional but good UX)
+    if (!email || !password) {
+        if (authError) authError.textContent = 'Por favor, introduce email y contraseña.';
+        return;
+    }
+
+    showLoading(loginBtn, true); // Show loading on button
+
+    try {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) {
+            // Throw error to be handled by catch block
+            throw error;
+        }
+        console.log("Login OK:", email);
+        // Success: handleAuthChange will manage UI update via 'SIGNED_IN' event
+    } catch (error) {
+        console.error("Login Error:", error);
+        let userMessage = 'Error de autenticación. Inténtalo de nuevo.'; // Default message
+
+        // --- MAPEO DE ERRORES ESPECÍFICOS ---
+        const errorMessage = error.message.toLowerCase(); // Convertir a minúsculas para comparación robusta
+
+        if (errorMessage.includes('invalid login credentials')) {
+            userMessage = 'Email o contraseña incorrectos.';
+        } else if (errorMessage.includes('email not confirmed')) {
+            userMessage = 'Confirma tu email antes de iniciar sesión. Revisa tu bandeja de entrada.';
+        } else if (errorMessage.includes('rate limit exceeded')) {
+             userMessage = 'Demasiados intentos. Espera unos minutos.';
+        } else if (errorMessage.includes('user not found')) { // Añadido por si acaso
+             userMessage = 'Usuario no encontrado.';
+        }
+        // Add more specific error checks if needed
+
+        if (authError) authError.textContent = userMessage;
+    } finally {
+         showLoading(loginBtn, false); // Hide loading on button
+    }
+});
+// MODIFIED Signup Listener (con mapeo de errores)
+signupBtn?.addEventListener('click', async () => {
+    if (!authEmailInput || !authPasswordInput || !supabaseClient) return;
+    const email = authEmailInput.value;
+    const password = authPasswordInput.value;
+    if (authError) authError.textContent = ''; // Clear previous errors
+
+    // Basic client-side validation
+    if (!email || !password) {
+        if (authError) authError.textContent = 'Por favor, introduce email y contraseña.';
+        return;
+    }
+    // Basic password length check (mirror Supabase minimum)
+    if (password.length < 6) {
+         if (authError) authError.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+         return;
+    }
+
+    showLoading(signupBtn, true); // Show loading
+
+    try {
+        // Asegúrate de que el password no sea una cadena vacía aquí también, aunque ya lo validamos
+        if (!password) {
+             throw new Error("Signup requires a valid password"); // Simula el error que viste
+        }
+        const { error } = await supabaseClient.auth.signUp({ email, password });
+        if (error) {
+            throw error; // Handle in catch
+        }
+        // Show success message using toast
+        showToast('¡Registro exitoso! Revisa tu email para confirmar (si es necesario) e inicia sesión.', 'success', 6000);
+        console.log("Signup OK:", email);
+        authPasswordInput.value = ''; // Clear password field
+    } catch (error) {
+        console.error("Signup Error:", error);
+        let userMessage = 'Error en el registro. Inténtalo de nuevo.'; // Default
+
+        // --- MAPEO DE ERRORES ESPECÍFICOS ---
+        const errorMessage = error.message.toLowerCase(); // Convertir a minúsculas
+
+        if (errorMessage.includes('user already registered') || errorMessage.includes('already exists')) {
+            userMessage = 'Este correo electrónico ya está registrado. ¿Quizás querías iniciar sesión?';
+        } else if (errorMessage.includes('password should be at least 6 characters')) {
+            userMessage = 'La contraseña debe tener al menos 6 caracteres.';
+        } else if (errorMessage.includes('unable to validate email address')) {
+            userMessage = 'El formato del correo electrónico no es válido.';
+        } else if (errorMessage.includes('signup requires a valid password') || errorMessage.includes('missing password')) { // Cubrir casos de password vacío
+            userMessage = 'Se requiere una contraseña válida.';
+        } else if (errorMessage.includes('missing email')) { // Cubrir caso email vacío (aunque validado antes)
+            userMessage = 'Se requiere un correo electrónico.';
+        } else if (errorMessage.includes('check your email for the confirmation link')) {
+            userMessage = 'Parece que ya te has registrado. Revisa tu email para confirmar o inicia sesión.';
+        } else if (errorMessage.includes('anonymous sign-ins are disabled')) {
+            userMessage = 'Error interno: inicio de sesión anónimo deshabilitado.'; // Mensaje más técnico
+        }
+        // Add more specific checks if needed
+
+        if (authError) authError.textContent = userMessage;
+    } finally {
+        showLoading(signupBtn, false); // Hide loading
+    }
+});
 logoutBtn?.addEventListener('click', async () => { if (!supabaseClient) return; try { const { error } = await supabaseClient.auth.signOut(); if (error) throw error; console.log("Logout OK"); } catch (error) { console.error("Logout Error:", error); showToast(`Error cerrar sesión: ${error.message}`, 'error'); /* Use toast */ } });
 numSetsInput?.addEventListener('input', (e) => { const numSets = Math.max(1, parseInt(e.target.value, 10) || 1); if (parseInt(e.target.value, 10) !== numSets) { e.target.value = numSets; } updateSetsUI(numSets); });
 addSetButton?.addEventListener('click', () => { const currentSets = parseInt(numSetsInput?.value || '0', 10); const newCount = Math.max(1, currentSets + 1); if(numSetsInput) numSetsInput.value = newCount; updateSetsUI(newCount); });
