@@ -54,71 +54,71 @@ body.dark-theme {
 
 /* ESTILOS BASE BODY */
 body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; padding: 0; transition: background-color 0.3s ease, color 0.3s ease; background-color: var(--bg-primary); color: var(--text-primary); }
-body:not(.auth-active) { padding: 5px; }
+body:not(.auth-active):not(.reset-active) { padding: 5px; } /* Ajustado para no aplicar padding si está en modo reset */
 
 /* ESTILOS CONTENEDOR PRINCIPAL */
 .container { max-width: 800px; margin: 10px auto; border-radius: 8px; width: auto; background-color: var(--bg-container); color: var(--text-primary); padding: 20px; box-shadow: 0 2px 10px var(--shadow-color); transition: background-color 0.3s ease, box-shadow 0.3s ease; }
-@media (max-width: 600px) { body:not(.auth-active) .container { width: calc(100% - 10px); margin: 5px auto; padding: 15px; } }
-@media (max-width: 420px) { body:not(.auth-active) .container { padding: 15px 10px; } }
+@media (max-width: 600px) { body:not(.auth-active):not(.reset-active) .container { width: calc(100% - 10px); margin: 5px auto; padding: 15px; } }
+@media (max-width: 420px) { body:not(.auth-active):not(.reset-active) .container { padding: 15px 10px; } }
 
-/* === ESTILOS AUTH === */
-body.auth-active { background-color: var(--bg-primary); padding: 0; }
-body.auth-active .container { max-width: 100%; width: 100%; margin: 0; background-color: transparent; padding: 0; box-shadow: none; border-radius: 0; }
-#auth-section { width: 100%; background: radial-gradient(ellipse at center, var(--bg-container) 0%, var(--bg-primary) 100%); padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; }
+/* === ESTILOS AUTH & RESET (GENERAL) === */
+body.auth-active, body.reset-active { background-color: var(--bg-primary); padding: 0; }
+body.auth-active .container, body.reset-active .container { max-width: 100%; width: 100%; margin: 0; background-color: transparent; padding: 0; box-shadow: none; border-radius: 0; }
+
+/* Estilo para secciones de auth y reset */
+#auth-section, #password-reset-section {
+    width: 100%; background: radial-gradient(ellipse at center, var(--bg-container) 0%, var(--bg-primary) 100%);
+    padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh;
+}
+
+/* Estilo reutilizado para la tarjeta */
 .auth-card { background-color: var(--bg-card); padding: 35px 40px; border-radius: 8px; box-shadow: 0 8px 25px var(--shadow-strong-color); max-width: 400px; width: 100%; text-align: center; color: var(--text-primary); }
-#auth-section h2 { color: var(--text-headings); margin-bottom: 8px; font-size: 2em; font-weight: 600; border-bottom: none; padding-bottom: 0; margin-top: 0; }
-.auth-subtitle { color: var(--text-secondary); margin-bottom: 30px; font-size: 1em; }
-#auth-section .auth-form { display: flex; flex-direction: column; gap: 0; max-width: none; margin: 0 auto; }
-.input-with-icon { position: relative; margin-bottom: 20px; }
-.input-with-icon i.fas { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 0.9em; }
-#auth-section input[type="email"], #auth-section input[type="password"] { width: 100%; padding: 13px 15px 13px 45px; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 5px; color: var(--text-primary); font-size: 1em; transition: border-color 0.3s ease, box-shadow 0.3s ease; margin-bottom: 0; }
-#auth-section input[type="email"]::placeholder, #auth-section input[type="password"]::placeholder { color: var(--text-placeholder); }
-#auth-section input[type="email"]:focus, #auth-section input[type="password"]:focus { border-color: var(--accent-blue); outline: none; box-shadow: 0 0 0 3px var(--accent-blue-shadow); }
-#auth-section button { width: 100%; padding: 13px 15px; margin-bottom: 15px; font-size: 1.05em; font-weight: 600; border-radius: 5px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid transparent; }
-#auth-section button:active { transform: scale(0.98); }
-#auth-section #login-btn { background-color: var(--accent-blue); color: white; border-color: var(--accent-blue); }
-#auth-section #login-btn:hover { background-color: var(--accent-blue-hover); border-color: var(--accent-blue-hover); }
-#auth-section #signup-btn { background-color: transparent; color: var(--accent-blue); border: 1px solid var(--accent-blue); }
-#auth-section #signup-btn:hover { background-color: rgba(52, 152, 219, 0.1); }
-#auth-section button > i.fas { margin-right: 0; font-size: 0.95em; }
+.auth-card h2 { color: var(--text-headings); margin-bottom: 8px; font-size: 2em; font-weight: 600; border-bottom: none; padding-bottom: 0; margin-top: 0; }
+.auth-card .auth-subtitle { color: var(--text-secondary); margin-bottom: 30px; font-size: 1em; }
+.auth-card .auth-form { display: flex; flex-direction: column; gap: 0; max-width: none; margin: 0 auto; }
+.auth-card .input-with-icon { position: relative; margin-bottom: 20px; }
+.auth-card .input-with-icon i.fas { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 0.9em; }
+.auth-card input[type="email"], .auth-card input[type="password"] { width: 100%; padding: 13px 15px 13px 45px; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 5px; color: var(--text-primary); font-size: 1em; transition: border-color 0.3s ease, box-shadow 0.3s ease; margin-bottom: 0; }
+.auth-card input[type="email"]::placeholder, .auth-card input[type="password"]::placeholder { color: var(--text-placeholder); }
+.auth-card input[type="email"]:focus, .auth-card input[type="password"]:focus { border-color: var(--accent-blue); outline: none; box-shadow: 0 0 0 3px var(--accent-blue-shadow); }
 
-#auth-section .forgot-password-link {
-    display: block; text-align: center; margin-top: 15px; margin-bottom: 10px; font-size: 0.9em;
-    color: var(--text-secondary); text-decoration: none; transition: color 0.2s ease;
-}
-#auth-section .forgot-password-link:hover { color: var(--accent-blue); text-decoration: underline; }
+/* Botones dentro de .auth-card */
+.auth-card button { width: 100%; padding: 13px 15px; margin-bottom: 15px; font-size: 1.05em; font-weight: 600; border-radius: 5px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid transparent; }
+.auth-card button:active { transform: scale(0.98); }
+.auth-card #login-btn, .auth-card #update-password-btn { background-color: var(--accent-blue); color: white; border-color: var(--accent-blue); } /* Botón principal azul */
+.auth-card #login-btn:hover, .auth-card #update-password-btn:hover { background-color: var(--accent-blue-hover); border-color: var(--accent-blue-hover); }
+.auth-card #signup-btn { background-color: transparent; color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+.auth-card #signup-btn:hover { background-color: rgba(52, 152, 219, 0.1); }
+.auth-card button > i.fas { margin-right: 0; font-size: 0.95em; }
 
-/* === ESTILOS PARA CONFIRMACIÓN DE RESET === */
-#auth-section .reset-message {
-    margin-top: 20px; padding: 15px; background-color: rgba(22, 160, 133, 0.1); /* Usar variable si se prefiere */
-    border: 1px solid var(--accent-green); border-radius: 5px; text-align: center; color: var(--text-primary);
-}
-#auth-section .reset-message p {
-    margin-bottom: 15px; font-size: 0.95em; line-height: 1.5; display: flex; align-items: center;
-    justify-content: center; gap: 8px;
-}
-#auth-section .reset-message i.fas.fa-check-circle { color: var(--accent-green); font-size: 1.2em; }
-#auth-section .secondary-auth-btn { /* Botón para "Volver a Login" */
-    background-color: transparent; color: var(--accent-blue); border: 1px solid var(--accent-blue);
-    padding: 8px 15px; font-size: 0.9em; width: auto; margin: 0 auto; display: inline-block;
-    cursor: pointer; border-radius: 5px; transition: background-color 0.2s ease;
-}
-#auth-section .secondary-auth-btn:hover { background-color: rgba(52, 152, 219, 0.1); }
-/* === FIN ESTILOS RESET === */
+/* Enlace olvidar contraseña */
+.auth-card .forgot-password-link { display: block; text-align: center; margin-top: 15px; margin-bottom: 10px; font-size: 0.9em; color: var(--text-secondary); text-decoration: none; transition: color 0.2s ease; }
+.auth-card .forgot-password-link:hover { color: var(--accent-blue); text-decoration: underline; }
 
-#auth-section #auth-error { color: var(--accent-red); font-size: 0.9em; margin-top: 5px; margin-bottom: 10px; min-height: 1.2em; font-weight: 500; text-align: left; }
-.auth-help-text { color: var(--text-secondary); font-size: 0.85em; margin-top: 20px; }
-@media (max-width: 600px) { .auth-card { padding: 25px 20px; } #auth-section h2 { font-size: 1.6em; } .auth-subtitle { font-size: 0.9em; margin-bottom: 25px; } #auth-section button { padding: 12px 15px; font-size: 1em; } }
-@media (max-width: 420px) { .auth-card { padding: 20px 15px; } #auth-section h2 { font-size: 1.5em; } .auth-subtitle { font-size: 0.85em; } #auth-section input[type="email"], #auth-section input[type="password"] { padding-left: 40px; font-size: 0.95em; } .input-with-icon i.fas { left: 12px; } #auth-section button { font-size: 0.95em; } }
+/* Mensaje confirmación reset */
+.auth-card .reset-message { margin-top: 20px; padding: 15px; background-color: rgba(22, 160, 133, 0.1); border: 1px solid var(--accent-green); border-radius: 5px; text-align: center; color: var(--text-primary); }
+.auth-card .reset-message p { margin-bottom: 15px; font-size: 0.95em; line-height: 1.5; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.auth-card .reset-message i.fas.fa-check-circle { color: var(--accent-green); font-size: 1.2em; }
+.auth-card .secondary-auth-btn { background-color: transparent; color: var(--accent-blue); border: 1px solid var(--accent-blue); padding: 8px 15px; font-size: 0.9em; width: auto; margin: 0 auto; display: inline-block; cursor: pointer; border-radius: 5px; transition: background-color 0.2s ease; margin-bottom: 0; /* Quitar margen inferior de botón general */ }
+.auth-card .secondary-auth-btn:hover { background-color: rgba(52, 152, 219, 0.1); }
 
-/* === ESTILOS DE LA APP LOGADA (USA VARIABLES) === */
+/* Mensaje de error (común para auth y reset) */
+.auth-card .error-message { color: var(--accent-red); font-size: 0.9em; margin-top: 5px; margin-bottom: 10px; min-height: 1.2em; font-weight: 500; text-align: left; }
+
+/* Texto de ayuda solo en login */
+#auth-section .auth-help-text { color: var(--text-secondary); font-size: 0.85em; margin-top: 20px; }
+
+/* Media queries para .auth-card */
+@media (max-width: 600px) { .auth-card { padding: 25px 20px; } .auth-card h2 { font-size: 1.6em; } .auth-card .auth-subtitle { font-size: 0.9em; margin-bottom: 25px; } .auth-card button { padding: 12px 15px; font-size: 1em; } }
+@media (max-width: 420px) { .auth-card { padding: 20px 15px; } .auth-card h2 { font-size: 1.5em; } .auth-card .auth-subtitle { font-size: 0.85em; } .auth-card input[type="email"], .auth-card input[type="password"] { padding-left: 40px; font-size: 0.95em; } .auth-card .input-with-icon i.fas { left: 12px; } .auth-card button { font-size: 0.95em; } }
+
+/* === ESTILOS DE LA APP LOGADA === */
+/* ... (Todos los estilos de #app-section, .app-header, formularios, historial, modal, etc. SIN CAMBIOS) ... */
 #app-section .app-header { margin-bottom: 25px; padding-bottom: 15px; position: relative; text-align: center; }
 #app-section .app-header::after { content: ''; position: absolute; left: 5%; right: 5%; bottom: 5px; height: 2px; background-color: var(--accent-blue); z-index: 1; }
 #app-section .title-container { text-align: center; padding-bottom: 0; margin-bottom: 0; }
 #app-section .title-container h1 { font-size: 1.85em; margin: 0; color: var(--accent-blue); align-items: center; gap: 8px; }
 #app-section .title-container h1 > i.fas { font-size: 0.9em; }
-
-/* Contenedor Iconos Cabecera */
 #app-section .header-icons { position: absolute; right: 0; top: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 0px; z-index: 10; }
 #app-section #theme-toggle-btn { background: none; border: none; color: var(--text-secondary); font-size: 1.3em; cursor: pointer; padding: 8px; line-height: 1; display: flex; align-items: center; order: 2; margin-top: 5px; }
 #app-section #theme-toggle-btn:hover { color: var(--accent-blue); }
@@ -132,22 +132,16 @@ body.auth-active .container { max-width: 100%; width: 100%; margin: 0; backgroun
 #app-section #logout-menu-btn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 15px; background: none; border: none; text-align: left; color: var(--accent-red); font-size: 0.95em; cursor: pointer; border-radius: 0 0 6px 6px; }
 #app-section #logout-menu-btn:hover { background-color: var(--accent-red-bg-light); }
 #app-section #logout-menu-btn i.fas { font-size: 0.9em; width: 15px; text-align: center; }
-
-/* Títulos App */
 #app-section h2, #app-section h3 { color: var(--text-headings); margin-bottom: 15px; }
 #app-section h2 { border-bottom: 2px solid var(--border-divider); padding-bottom: 8px; margin-top: 25px; font-size: 1.3em; }
 #history-section h2 { border-bottom: none; margin-top: 0; text-align: center; color: var(--text-headings); }
 #app-section section { margin-bottom: 20px; }
-
-/* Utilidades */
 .hidden { display: none !important; }
 .status-inline { display: inline-block; margin-left: 10px; font-size: 0.9em; }
 .status-inline.error-message { color: var(--accent-red); }
 .status-inline.success-message { color: var(--accent-green); }
 .spinner { border: 2px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; display: inline-block; width: 1em; height: 1em; border-radius: 50%; animation: spin 1s ease-in-out infinite; margin-left: 5px; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* Controles generales formulario App */
 #app-section label { color: var(--text-secondary); display: block; margin-bottom: 5px; font-weight: bold; margin-top: 10px; }
 #app-section input[type="text"], #app-section input[type="number"], #app-section input[type="date"], #app-section select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1em; background-color: var(--bg-input); color: var(--text-primary); }
 #app-section input::placeholder, #app-section select option[disabled] { color: var(--text-placeholder); opacity: 1; }
@@ -238,9 +232,9 @@ body:not(.dark-theme) input[type="date"]::-webkit-calendar-picker-indicator { fi
 #app-section .edit-set-btn { background-color: var(--accent-yellow-bg-light); color: var(--accent-yellow-text); border: 1px solid var(--accent-yellow-text); padding: 3px 7px; font-size: 0.8em; }
 #app-section .edit-set-btn:hover:not(:disabled) { background-color: var(--accent-yellow-bg-hover); }
 #app-section .edit-set-btn i.fas { margin-right: 4px; }
-.modal { background-color: rgba(0, 0, 0, 0.7); position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: 1000; } /* Asegurar modal sobre todo */
+.modal { background-color: rgba(0, 0, 0, 0.7); position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: 1000; }
 .modal-content { background-color: var(--bg-card); color: var(--text-primary); padding: 25px; border-radius: 8px; width: 95%; max-width: 450px; position: relative; box-shadow: 0 5px 15px var(--shadow-strong-color); border: 1px solid var(--border-color); }
-.close-modal-btn { position: absolute; top: 10px; right: 15px; font-size: 1.8em; font-weight: bold; color: var(--text-secondary); cursor: pointer; line-height: 1; } /* Mejorar estilo close */
+.close-modal-btn { position: absolute; top: 10px; right: 15px; font-size: 1.8em; font-weight: bold; color: var(--text-secondary); cursor: pointer; line-height: 1; }
 .close-modal-btn:hover { color: var(--text-primary); }
 #edit-form h2 { color: var(--text-headings); margin-bottom: 20px; }
 #edit-form p { margin-bottom: 10px; font-size: 0.95em; } #edit-form p strong { color: var(--text-secondary); }
