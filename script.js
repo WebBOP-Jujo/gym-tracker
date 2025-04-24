@@ -17,25 +17,26 @@ try {
 let masterExerciseList = []; let workoutHistory = {}; let loadedDatesSet = new Set();
 let currentUser = null; let chartInstance = null; let exercisesWithHistory = new Set();
 const THEME_STORAGE_KEY = 'gymTrackerThemePreference';
+let isPasswordRecoveryMode = false; /* Flag para controlar el flujo */
 
 /* --- DOM Elements --- */
 const authSection = document.getElementById('auth-section');
 const appSection = document.getElementById('app-section');
-const passwordResetSection = document.getElementById('password-reset-section'); /* Nueva sección */
+const passwordResetSection = document.getElementById('password-reset-section');
 const authEmailInput = document.getElementById('auth-email');
 const authPasswordInput = document.getElementById('auth-password');
 const loginBtn = document.getElementById('login-btn');
 const signupBtn = document.getElementById('signup-btn');
 const authError = document.getElementById('auth-error');
 const forgotPasswordLink = document.getElementById('forgot-password-link');
-const passwordInputContainer = document.getElementById('password-input-container'); /* Contenedor contraseña */
-const authButtonsContainer = document.getElementById('auth-buttons-container'); /* Contenedor botones/enlace */
-const resetConfirmationMessage = document.getElementById('reset-confirmation-message'); /* Div confirmación */
-const backToLoginBtn = document.getElementById('back-to-login-btn'); /* Botón volver */
-const resetNewPasswordInput = document.getElementById('reset-new-password'); /* Input nueva pass */
-const resetConfirmPasswordInput = document.getElementById('reset-confirm-password'); /* Input confirmar */
-const updatePasswordBtn = document.getElementById('update-password-btn'); /* Botón actualizar */
-const resetError = document.getElementById('reset-error'); /* Error en form reset */
+const passwordInputContainer = document.getElementById('password-input-container');
+const authButtonsContainer = document.getElementById('auth-buttons-container');
+const resetConfirmationMessage = document.getElementById('reset-confirmation-message');
+const backToLoginBtn = document.getElementById('back-to-login-btn');
+const resetNewPasswordInput = document.getElementById('reset-new-password');
+const resetConfirmPasswordInput = document.getElementById('reset-confirm-password');
+const updatePasswordBtn = document.getElementById('update-password-btn');
+const resetError = document.getElementById('reset-error');
 const workoutForm = document.getElementById('workout-form');
 const workoutDateInput = document.getElementById('workout-date');
 const exerciseSelect = document.getElementById('exercise');
@@ -124,13 +125,11 @@ const showResetConfirmation = (show) => {
         passwordInputContainer?.classList.add('hidden');
         authButtonsContainer?.classList.add('hidden');
         resetConfirmationMessage?.classList.remove('hidden');
-        if(authError) authError.textContent = ''; /* Limpiar errores al mostrar confirmación */
-        /* authEmailInput?.setAttribute('disabled', 'true'); */ /* Opcional */
+        if(authError) authError.textContent = ''; /* Limpiar errores */
     } else {
         passwordInputContainer?.classList.remove('hidden');
         authButtonsContainer?.classList.remove('hidden');
         resetConfirmationMessage?.classList.add('hidden');
-        /* authEmailInput?.removeAttribute('disabled'); */ /* Opcional */
     }
 };
 
@@ -167,6 +166,19 @@ const handleAuthChange = (event, session) => {
 
     switch (event) {
         case 'SIGNED_IN':
+             /* Comprobar si estamos en modo recuperación para no mostrar la app */
+             /* isPasswordRecoveryMode se establece en el case PASSWORD_RECOVERY */
+             if (isPasswordRecoveryMode) {
+                 console.log("SIGNED_IN event received during password recovery, ignoring for app view.");
+                 /* No hacemos nada aquí, dejamos que el usuario use el form de reseteo */
+                 /* Podríamos querer guardar el currentUser si no lo tenemos aún */
+                 if (session && !currentUser) {
+                     currentUser = session.user;
+                     console.log("Temporary user session set for password update:", currentUser?.id);
+                 }
+                 return; /* Importante: Salir para no mostrar la app */
+             }
+
             if (session) {
                 currentUser = session.user;
                 showView('app');
@@ -175,13 +187,13 @@ const handleAuthChange = (event, session) => {
                 if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
                 initializeAppData();
             } else {
-                /* Podría ocurrir si hay un error durante el proceso de login con hash */
                  console.warn("SIGNED_IN event without session.");
                  showView('auth');
             }
             break;
         case 'SIGNED_OUT':
             currentUser = null;
+            isPasswordRecoveryMode = false; /* Asegurar que salimos del modo recuperación */
             showView('auth');
             /* Limpieza de estado */
             masterExerciseList = []; workoutHistory = {}; loadedDatesSet = new Set(); exercisesWithHistory.clear();
@@ -190,29 +202,34 @@ const handleAuthChange = (event, session) => {
             if (historyCountSpan) historyCountSpan.textContent = '(Total: 0 días)';
             clearWorkoutForm(); populateExerciseDropdowns(); populateGraphExerciseDropdown(); hideChart();
             if (filterDateInput) filterDateInput.value = '';
-            /* Limpiar URL hash al cerrar sesión para no re-entrar en modo reset */
+            /* Limpiar URL hash al cerrar sesión */
             history.replaceState(null, '', window.location.pathname + window.location.search);
             break;
         case 'PASSWORD_RECOVERY':
-            /* Este evento es disparado por el SDK al detectar el hash */
             console.log("PASSWORD_RECOVERY event detected by SDK.");
-            showView('resetPassword'); /* Mostrar la vista para introducir nueva contraseña */
-            /* Limpiar URL hash aquí también para evitar problemas si el usuario refresca */
+            isPasswordRecoveryMode = true; /* Activar el flag */
+            showView('resetPassword'); /* Mostrar la vista correcta */
+             /* Limpiar URL hash */
              history.replaceState(null, '', window.location.pathname + window.location.search);
+             /* Guardar la sesión temporal si viene con el evento (puede que no) */
+             if (session && !currentUser) {
+                 currentUser = session.user;
+                 console.log("Temporary user session potentially set via PASSWORD_RECOVERY event:", currentUser?.id);
+             }
             break;
         case 'USER_UPDATED':
-             /* Este evento se dispara después de updateUser. */
+            /* Este evento se dispara después de updateUser. */
             if (session) {
-                currentUser = session.user;
+                currentUser = session.user; /* Actualizar currentUser por si acaso */
                 if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
                  console.log("USER_UPDATED event", currentUser);
             } else {
                  console.log("USER_UPDATED event without session.");
             }
+            /* El flujo de volver al login se maneja ahora en el listener del botón updateUser */
             break;
         case 'INITIAL_SESSION':
-             /* Este evento ya no es tan relevante con getSession manejando la carga inicial */
-            console.log("INITIAL_SESSION event (likely handled by getSession).");
+            console.log("INITIAL_SESSION event (handled by listener setup).");
             break;
         default:
             console.log("Unhandled Auth Event:", event);
@@ -227,24 +244,11 @@ const getInitialTheme = () => { let theme = 'dark'; /* Predeterminado oscuro */ 
 
 /* --- EVENT LISTENERS --- */
 loginBtn?.addEventListener('click', async () => {
-    if (authError) authError.textContent = '';
-    const email = authEmailInput?.value;
-    const password = authPasswordInput?.value;
-    if (!email) { if (authError) authError.textContent = "Por favor, introduce tu email."; authEmailInput?.focus(); return; }
-    if (!password) { if (authError) authError.textContent = "Por favor, introduce tu contraseña."; authPasswordInput?.focus(); return; }
-    if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; console.error("Supabase client not available for login."); return; }
-    try { const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) throw error; console.log("Login attempt successful for:", email); } catch (error) { console.error("Login Error:", error); if (authError) authError.textContent = traducirErrorAuth(error.message); }
+    if (authError) authError.textContent = ''; const email = authEmailInput?.value; const password = authPasswordInput?.value; if (!email) { if (authError) authError.textContent = "Por favor, introduce tu email."; authEmailInput?.focus(); return; } if (!password) { if (authError) authError.textContent = "Por favor, introduce tu contraseña."; authPasswordInput?.focus(); return; } if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; console.error("Supabase client not available for login."); return; } try { const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) throw error; console.log("Login attempt successful for:", email); } catch (error) { console.error("Login Error:", error); if (authError) authError.textContent = traducirErrorAuth(error.message); }
 });
 
 signupBtn?.addEventListener('click', async () => {
-    if (authError) authError.textContent = '';
-    const email = authEmailInput?.value;
-    const password = authPasswordInput?.value;
-    if (!email) { if (authError) authError.textContent = "Introduce tu email para registrarte."; authEmailInput?.focus(); return; }
-    if (!password) { if (authError) authError.textContent = "Introduce una contraseña para registrarte."; authPasswordInput?.focus(); return; }
-    if (password.length < 6) { if (authError) authError.textContent = "La contraseña debe tener al menos 6 caracteres."; authPasswordInput?.focus(); return; }
-    if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; return; }
-    try { const { error } = await supabaseClient.auth.signUp({ email, password }); if (error) throw error; showToast('¡Registro exitoso! Revisa tu email si es necesario.', 'success', 6000); authPasswordInput.value = ''; } catch (error) { console.error("Signup Error:", error); if (authError) authError.textContent = traducirErrorAuth(error.message); }
+    if (authError) authError.textContent = ''; const email = authEmailInput?.value; const password = authPasswordInput?.value; if (!email) { if (authError) authError.textContent = "Introduce tu email para registrarte."; authEmailInput?.focus(); return; } if (!password) { if (authError) authError.textContent = "Introduce una contraseña para registrarte."; authPasswordInput?.focus(); return; } if (password.length < 6) { if (authError) authError.textContent = "La contraseña debe tener al menos 6 caracteres."; authPasswordInput?.focus(); return; } if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; return; } try { const { error } = await supabaseClient.auth.signUp({ email, password }); if (error) throw error; showToast('¡Registro exitoso! Revisa tu email si es necesario.', 'success', 6000); authPasswordInput.value = ''; } catch (error) { console.error("Signup Error:", error); if (authError) authError.textContent = traducirErrorAuth(error.message); }
 });
 
 /* === LISTENER RESTABLECER CONTRASEÑA (MODIFICADO CON redirectTo) === */
@@ -298,11 +302,14 @@ updatePasswordBtn?.addEventListener('click', async () => {
 
     try {
         /* La sesión temporal necesaria se obtiene automáticamente por el SDK */
-        const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+        const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
+
         if (error) throw error;
 
         /* Éxito: Mostrar mensaje y volver al login */
+        console.log("Password update successful:", data);
         showToast('Contraseña actualizada correctamente. Inicia sesión.', 'success', 5000);
+        isPasswordRecoveryMode = false; /* Desactivar flag */
         /* Limpiar campos por seguridad */
         if(resetNewPasswordInput) resetNewPasswordInput.value = '';
         if(resetConfirmPasswordInput) resetConfirmPasswordInput.value = '';
@@ -312,6 +319,7 @@ updatePasswordBtn?.addEventListener('click', async () => {
     } catch (error) {
         console.error("Update Password Error:", error);
         if (resetError) resetError.textContent = traducirErrorAuth(error.message);
+        isPasswordRecoveryMode = false; /* Desactivar flag también en caso de error */
     }
 });
 /* === FIN LISTENER ACTUALIZAR === */
@@ -339,10 +347,10 @@ editForm?.addEventListener('submit', (e) => { e.preventDefault(); if (!editEntry
 cancelEditBtns?.forEach(btn => btn.addEventListener('click', closeEditModal));
 
 /* --- INICIALIZACIÓN --- */
-/* Modificado para usar getSession y dejar que onAuthStateChange maneje PASSWORD_RECOVERY */
+/* Simplificado: Deja que onAuthStateChange maneje el estado inicial */
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM loaded. Initializing...");
-    applyTheme(getInitialTheme());
+    applyTheme(getInitialTheme()); /* Aplicar tema primero */
 
     if (!supabaseClient) {
         console.error("Supabase client NOT defined!");
@@ -352,47 +360,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (!progressChartCanvas) { console.warn("Canvas #progress-chart not found."); }
 
-    /* 1. Configurar el listener ANTES de comprobar la sesión */
-    console.log("Setting up onAuthStateChange listener...");
+    /* Simplemente configurar el listener. */
+    /* Él determinará la vista inicial (auth, app, o resetPassword) */
+    /* basado en el PRIMER evento que reciba. */
+    console.log("Setting up onAuthStateChange listener to handle initial state...");
     supabaseClient.auth.onAuthStateChange(handleAuthChange);
 
-    /* 2. Comprobar la sesión inicial para determinar el estado inicial (logado o no logado) */
-    console.log("Checking initial session...");
-    supabaseClient.auth.getSession().then(({ data: { session } }) => {
-        console.log("Initial getSession result:", !!session);
-        if (session) {
-            /* No llamamos a handleAuthChange aquí para evitar doble procesamiento */
-            /* Establecemos estado directamente */
-            currentUser = session.user;
-            showView('app');
-            if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
-            initializeAppData();
-        } else {
-            /* Si no hay sesión, esperar un poco para que onAuthStateChange */
-            /* pueda detectar PASSWORD_RECOVERY si viene del enlace del email */
-             setTimeout(() => {
-                /* Comprobar si onAuthStateChange ya mostró la vista de reset */
-                const isResetViewActive = passwordResetSection && !passwordResetSection.classList.contains('hidden');
-                /* Comprobar si onAuthStateChange ya mostró la vista de app (raro pero posible) */
-                const isAppViewActive = appSection && !appSection.classList.contains('hidden');
-
-                if (isResetViewActive) {
-                     console.log("Password recovery view already active via onAuthStateChange.");
-                } else if (isAppViewActive) {
-                    console.log("App view already active via onAuthStateChange.");
-                }
-                else {
-                     /* Si ninguna vista está activa, mostrar login */
-                     console.log("No session and no recovery detected, showing auth view.");
-                     showView('auth');
-                }
-             }, 50); /* 50ms suele ser suficiente */
-        }
-        console.log("Initial UI check complete.");
-    }).catch(error => {
-        console.error("Error during initial getSession:", error);
-        showView('auth'); /* Fallback a Auth en caso de error */
-    });
-
-    console.log("App Initialization sequence started.");
+    console.log("App Initialization sequence started. Waiting for auth state...");
 });
