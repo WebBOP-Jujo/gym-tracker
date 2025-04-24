@@ -21,7 +21,7 @@ const THEME_STORAGE_KEY = 'gymTrackerThemePreference';
 /* --- DOM Elements --- */
 const authSection = document.getElementById('auth-section');
 const appSection = document.getElementById('app-section');
-const passwordResetSection = document.getElementById('password-reset-section'); /* Nueva sección */
+const passwordResetSection = document.getElementById('password-reset-section');
 const authEmailInput = document.getElementById('auth-email');
 const authPasswordInput = document.getElementById('auth-password');
 const loginBtn = document.getElementById('login-btn');
@@ -32,10 +32,10 @@ const passwordInputContainer = document.getElementById('password-input-container
 const authButtonsContainer = document.getElementById('auth-buttons-container');
 const resetConfirmationMessage = document.getElementById('reset-confirmation-message');
 const backToLoginBtn = document.getElementById('back-to-login-btn');
-const resetNewPasswordInput = document.getElementById('reset-new-password'); /* Input nueva pass */
-const resetConfirmPasswordInput = document.getElementById('reset-confirm-password'); /* Input confirmar */
-const updatePasswordBtn = document.getElementById('update-password-btn'); /* Botón actualizar */
-const resetError = document.getElementById('reset-error'); /* Error en form reset */
+const resetNewPasswordInput = document.getElementById('reset-new-password');
+const resetConfirmPasswordInput = document.getElementById('reset-confirm-password');
+const updatePasswordBtn = document.getElementById('update-password-btn');
+const resetError = document.getElementById('reset-error');
 const workoutForm = document.getElementById('workout-form');
 const workoutDateInput = document.getElementById('workout-date');
 const exerciseSelect = document.getElementById('exercise');
@@ -78,21 +78,19 @@ const themeToggleBtn = document.getElementById('theme-toggle-btn');
 /* --- HELPER FUNCTIONS --- */
 const showLoading = (button, isLoading) => { /* ... (sin cambios) ... */ const spinner = button?.querySelector('.spinner'); if (!button) return; button.disabled = isLoading; if (spinner) spinner.classList.toggle('hidden', !isLoading); };
 const showToast = (message, type = 'info', duration = 3500) => { /* ... (sin cambios) ... */ if (!notificationArea) { console.error("Elemento #notification-area no encontrado."); console.warn(`Fallback Toast (${type}): ${message}`); return; } const toast = document.createElement('div'); toast.classList.add('toast-notification', type); toast.textContent = message; notificationArea.insertBefore(toast, notificationArea.firstChild); const timeoutId = setTimeout(() => { toast.classList.add('fade-out'); toast.addEventListener('animationend', () => { if (toast.parentNode === notificationArea) notificationArea.removeChild(toast); }, { once: true }); }, duration); toast.addEventListener('click', () => { clearTimeout(timeoutId); toast.classList.add('fade-out'); }, { once: true }); };
-const traducirErrorAuth = (message) => { /* ... (sin cambios, añadir más traducciones si es necesario) ... */ if (!message) return "Ha ocurrido un error inesperado."; console.log("Auth Err:", message); if (message.includes("Invalid login credentials")) return "Email o contraseña incorrectos."; if (message.includes("User already registered")) return "Este email ya está registrado. ¿Iniciar sesión?"; if (message.includes("Password should be at least 6 characters")) return "La contraseña debe tener mínimo 6 caracteres."; if (message.includes("Signup requires a valid password")) return "Registro fallido: Se requiere contraseña."; if (message.includes("Unable to validate email address: invalid format")) return "Formato de email inválido."; if (message.includes("check your email")) return "¡Registro casi listo! Revisa tu email."; if (message.includes("missing email")) return "Introduce tu email."; if (message.includes("sign-ins are disabled")) return "Login anónimo no permitido."; if (message.includes("For security purposes, you can only request this once every")) return "Demasiadas solicitudes. Inténtalo más tarde."; if(message.includes("Password confirmation mismatch")) return "Las contraseñas no coinciden."; if(message.includes("same password")) return "La nueva contraseña no puede ser igual a la anterior."; console.warn("Auth Err no traducido:", message); return "Ha ocurrido un error. Inténtalo de nuevo."; };
+const traducirErrorAuth = (message) => { /* ... (sin cambios) ... */ if (!message) return "Ha ocurrido un error inesperado."; console.log("Auth Err:", message); if (message.includes("Invalid login credentials")) return "Email o contraseña incorrectos."; if (message.includes("User already registered")) return "Este email ya está registrado. ¿Iniciar sesión?"; if (message.includes("Password should be at least 6 characters")) return "La contraseña debe tener mínimo 6 caracteres."; if (message.includes("Signup requires a valid password")) return "Registro fallido: Se requiere contraseña."; if (message.includes("Unable to validate email address: invalid format")) return "Formato de email inválido."; if (message.includes("check your email")) return "¡Registro casi listo! Revisa tu email."; if (message.includes("missing email")) return "Introduce tu email."; if (message.includes("sign-ins are disabled")) return "Login anónimo no permitido."; if (message.includes("For security purposes, you can only request this once every")) return "Demasiadas solicitudes. Inténtalo más tarde."; if(message.includes("Password confirmation mismatch")) return "Las contraseñas no coinciden."; if(message.includes("same password")) return "La nueva contraseña no puede ser igual a la anterior."; console.warn("Auth Err no traducido:", message); return "Ha ocurrido un error. Inténtalo de nuevo."; };
 
-/* === Nueva función para gestionar qué vista mostrar === */
+/* --- Función para gestionar qué vista mostrar --- */
 const showView = (viewName) => {
-    /* Ocultar todas las secciones principales */
     authSection?.classList.add('hidden');
     appSection?.classList.add('hidden');
     passwordResetSection?.classList.add('hidden');
-    document.body.classList.remove('auth-active', 'reset-active'); /* Limpiar clases de body */
+    document.body.classList.remove('auth-active', 'reset-active');
 
-    /* Mostrar la sección solicitada y añadir clase a body */
     if (viewName === 'auth') {
         authSection?.classList.remove('hidden');
         document.body.classList.add('auth-active');
-        showResetConfirmation(false); /* Asegurar que el form de login esté normal */
+        showResetConfirmation(false);
         console.log("UI: Auth View Active");
     } else if (viewName === 'app') {
         appSection?.classList.remove('hidden');
@@ -103,7 +101,7 @@ const showView = (viewName) => {
         console.log("UI: Password Reset View Active");
     } else {
         console.error("Vista desconocida:", viewName);
-        authSection?.classList.remove('hidden'); /* Fallback a auth */
+        authSection?.classList.remove('hidden');
         document.body.classList.add('auth-active');
     }
 };
@@ -126,19 +124,18 @@ const showResetConfirmation = (show) => {
         passwordInputContainer?.classList.add('hidden');
         authButtonsContainer?.classList.add('hidden');
         resetConfirmationMessage?.classList.remove('hidden');
-        if(authError) authError.textContent = ''; /* Limpiar errores al mostrar confirmación */
-        /* authEmailInput?.setAttribute('disabled', 'true'); */
+        if(authError) authError.textContent = '';
     } else {
         passwordInputContainer?.classList.remove('hidden');
         authButtonsContainer?.classList.remove('hidden');
         resetConfirmationMessage?.classList.add('hidden');
-        /* authEmailInput?.removeAttribute('disabled'); */
     }
 };
 
-/* --- Función para parsear parámetros del Hash URL --- */
+/* --- Función para parsear parámetros del Hash URL (YA NO ES NECESARIA) --- */
+/*
 const parseHashParams = () => {
-    const hash = window.location.hash.substring(1); /* Quita el # inicial */
+    const hash = window.location.hash.substring(1);
     const params = {};
     hash.split('&').forEach(part => {
         const [key, value] = part.split('=');
@@ -148,7 +145,7 @@ const parseHashParams = () => {
     });
     return params;
 };
-
+*/
 
 /* --- SUPABASE INTERACTIONS --- */
 const fetchMasterExerciseList = async () => { /* ... (sin cambios) ... */ if (!currentUser || !supabaseClient) return []; try { const { data, error } = await supabaseClient.from('Ejercicios').select('id, nombre').order('nombre'); if (error) throw error; masterExerciseList = data || []; populateExerciseDropdowns(); return masterExerciseList; } catch (error) { console.error('Fetch List Err:', error); showToast(error.code === '42P01' ? 'Error: Falta tabla Ejercicios.' : `Error cargar: ${error.message}`, 'error'); masterExerciseList = []; populateExerciseDropdowns(); return []; } };
@@ -177,61 +174,59 @@ const updateChartData = async (forceRender = false) => { /* ... (sin cambios) ..
 const renderProgressChart = (labels, data, exName) => { /* ... (sin cambios) ... */ if (!progressChartCanvas) return; if (chartInstance) chartInstance.destroy(); const isDark = document.body.classList.contains('dark-theme'); const cs = getComputedStyle(document.documentElement); const gridClr = cs.getPropertyValue(isDark ? '--chart-grid-color-dark' : '--chart-grid-color'); const textClr = cs.getPropertyValue(isDark ? '--chart-text-color-dark' : '--chart-text-color'); const tooltipBg = cs.getPropertyValue(isDark ? '--chart-tooltip-bg-dark' : '--chart-tooltip-bg'); const tooltipTxt = cs.getPropertyValue(isDark ? '--chart-tooltip-text-dark' : '--chart-tooltip-text'); const pointClr = cs.getPropertyValue('--accent-blue'); const lineClr = cs.getPropertyValue('--accent-blue'); chartInstance = new Chart(progressChartCanvas, { type: 'line', data: { labels: labels, datasets: [{ label: `e1RM Diario (${exName})`, data: data, borderColor: lineClr, backgroundColor: 'rgba(52, 152, 219, 0.1)', borderWidth: 2, tension: 0.1, pointBackgroundColor: pointClr, pointRadius: 3, pointHoverRadius: 5, pointHoverBorderColor: 'white', pointHoverBackgroundColor: pointClr }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { title: { display: true, text: 'e1RM (kg)', color: textClr }, ticks: { color: textClr }, grid: { color: gridClr, drawBorder: false }, grace: '10%' }, x: { title: { display: window.innerWidth > 600, text: 'Fecha', color: textClr }, ticks: { color: textClr, maxRotation: 70, minRotation: 0, autoSkip: true, maxTicksLimit: 10 }, grid: { color: gridClr, drawBorder: false } } }, plugins: { legend: { labels: { color: textClr, boxWidth: 15, font: { size: 10 } } }, tooltip: { backgroundColor: tooltipBg, titleColor: tooltipTxt, bodyColor: tooltipTxt, borderColor: gridClr, borderWidth: 1, callbacks: { label: (ctx) => `${(ctx.dataset.label||'').split('(')[0].trim()}: ${ctx.parsed.y ?? 0} kg` } } } } }); };
 
 /* --- AUTHENTICATION --- */
+/* Modificado para manejar PASSWORD_RECOVERY */
 const handleAuthChange = (event, session) => {
     console.log("Auth Event:", event, "| Session:", !!session);
-
-    /* Si el evento es SIGNED_IN y estamos en la vista de reset, */
-    /* significa que updateUser tuvo éxito. Volvemos a login. */
-    if (event === 'SIGNED_IN' && passwordResetSection && !passwordResetSection.classList.contains('hidden')) {
-        console.log("Password updated successfully, returning to login.");
-        showToast('Contraseña actualizada correctamente.', 'success');
-        /* Limpiar URL hash para evitar re-entrar en modo reset al refrescar */
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-        showView('auth');
-        return; /* No procesar el resto del SIGNED_IN normal en este caso */
-    }
 
     switch (event) {
         case 'SIGNED_IN':
             if (session) {
                 currentUser = session.user;
-                showView('app'); /* Usar nueva función de vista */
+                showView('app');
                 if (authError) authError.textContent = '';
-                if (resetError) resetError.textContent = ''; /* Limpiar error de reset también */
+                if (resetError) resetError.textContent = '';
                 if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
                 initializeAppData();
+            } else {
+                /* Podría ocurrir si hay un error durante el proceso de login con hash */
+                 console.warn("SIGNED_IN event without session.");
+                 showView('auth');
             }
             break;
         case 'SIGNED_OUT':
             currentUser = null;
-            showView('auth'); /* Usar nueva función de vista */
-            /* Limpieza de estado de la app */
+            showView('auth');
+            /* Limpieza de estado */
             masterExerciseList = []; workoutHistory = {}; loadedDatesSet = new Set(); exercisesWithHistory.clear();
             if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
             if (historyLog) historyLog.innerHTML = '';
             if (historyCountSpan) historyCountSpan.textContent = '(Total: 0 días)';
             clearWorkoutForm(); populateExerciseDropdowns(); populateGraphExerciseDropdown(); hideChart();
             if (filterDateInput) filterDateInput.value = '';
+            /* Limpiar URL hash al cerrar sesión para no re-entrar en modo reset */
+            history.replaceState(null, '', window.location.pathname + window.location.search);
             break;
         case 'PASSWORD_RECOVERY':
-            /* Este evento se dispara CUANDO el usuario hace clic en el enlace del email. */
-            /* La lógica para mostrar el form de reset se maneja al cargar la página (DOMContentLoaded) */
-            /* al detectar el hash #...&type=recovery. Aquí solo mostramos un toast informativo */
-            /* si queremos, aunque puede ser redundante si ya mostramos el form. */
-            console.log("PASSWORD_RECOVERY event detected (handled by hash check on load).");
-            /* showToast('Introduce tu nueva contraseña.', 'info'); */ /* Opcional */
-            break;
-        case 'INITIAL_SESSION':
-            console.log("INITIAL_SESSION event (handled by getSession)");
+            /* Este evento es disparado por el SDK al detectar el hash */
+            console.log("PASSWORD_RECOVERY event detected by SDK.");
+            showView('resetPassword'); /* Mostrar la vista para introducir nueva contraseña */
+            /* Limpiar URL hash aquí también para evitar problemas si el usuario refresca */
+             history.replaceState(null, '', window.location.pathname + window.location.search);
             break;
         case 'USER_UPDATED':
-             /* Este evento se dispara DESPUÉS de updateUser. */
-             /* Ya no lo necesitamos para redirigir aquí, lo hacemos en el listener del botón */
+             /* Este evento se dispara después de updateUser. */
+             /* Ya no lo usamos para redirigir, solo actualizamos info si es necesario */
             if (session) {
                 currentUser = session.user;
                 if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
+                 console.log("USER_UPDATED event", currentUser);
+            } else {
+                 console.log("USER_UPDATED event without session.");
             }
-            console.log("USER_UPDATED event");
+            break;
+        case 'INITIAL_SESSION':
+             /* Este evento ya no es tan relevante con getSession manejando la carga inicial */
+            console.log("INITIAL_SESSION event (likely handled by getSession).");
             break;
         default:
             console.log("Unhandled Auth Event:", event);
@@ -242,71 +237,51 @@ const initializeAppData = async () => { /* ... (sin cambios) ... */ if (!current
 
 /* --- THEME MANAGEMENT --- */
 const applyTheme = (theme) => { /* ... (sin cambios) ... */ const isDark = theme === 'dark'; document.body.classList.toggle('dark-theme', isDark); themeToggleBtn?.querySelector('i')?.setAttribute('class', isDark ? 'fas fa-sun' : 'fas fa-moon'); try { localStorage.setItem(THEME_STORAGE_KEY, theme); console.log(`Theme applied: ${theme}`); if (chartInstance && chartContainer && !chartContainer.classList.contains('hidden')) { console.log("Re-rendering chart for new theme..."); updateChartData(true); } } catch (e) { console.error("Failed to save theme preference:", e); } };
-const getInitialTheme = () => { /* ... (sin cambios - tema oscuro por defecto) ... */ let theme = 'dark'; try { const stored = localStorage.getItem(THEME_STORAGE_KEY); if (stored === 'light') { theme = 'light'; } } catch (e) { console.error("Failed to read theme pref, defaulting to dark:", e); } console.log(`Initial theme determined: ${theme}`); return theme; };
+const getInitialTheme = () => { /* ... (sin cambios) ... */ let theme = 'dark'; try { const stored = localStorage.getItem(THEME_STORAGE_KEY); if (stored === 'light') { theme = 'light'; } } catch (e) { console.error("Failed to read theme pref, defaulting to dark:", e); } console.log(`Initial theme determined: ${theme}`); return theme; };
 
 /* --- EVENT LISTENERS --- */
 loginBtn?.addEventListener('click', async () => {
-    if (authError) authError.textContent = '';
-    const email = authEmailInput?.value;
-    const password = authPasswordInput?.value;
-    if (!email) { if (authError) authError.textContent = "Por favor, introduce tu email."; authEmailInput?.focus(); return; }
-    if (!password) { if (authError) authError.textContent = "Por favor, introduce tu contraseña."; authPasswordInput?.focus(); return; }
-    if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; console.error("Supabase client not available for login."); return; }
-    try { const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) throw error; console.log("Login attempt successful for:", email); } catch (error) { console.error("Login Error:", error); if (authError) authError.textContent = traducirErrorAuth(error.message); }
+    /* ... (sin cambios) ... */
+    if (authError) authError.textContent = ''; const email = authEmailInput?.value; const password = authPasswordInput?.value; if (!email) { if (authError) authError.textContent = "Por favor, introduce tu email."; authEmailInput?.focus(); return; } if (!password) { if (authError) authError.textContent = "Por favor, introduce tu contraseña."; authPasswordInput?.focus(); return; } if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; console.error("Supabase client not available for login."); return; } try { const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) throw error; console.log("Login attempt successful for:", email); } catch (error) { console.error("Login Error:", error); if (authError) authError.textContent = traducirErrorAuth(error.message); }
 });
 
 signupBtn?.addEventListener('click', async () => {
-    if (authError) authError.textContent = '';
-    const email = authEmailInput?.value;
-    const password = authPasswordInput?.value;
-    if (!email) { if (authError) authError.textContent = "Introduce tu email para registrarte."; authEmailInput?.focus(); return; }
-    if (!password) { if (authError) authError.textContent = "Introduce una contraseña para registrarte."; authPasswordInput?.focus(); return; }
-    if (password.length < 6) { if (authError) authError.textContent = "La contraseña debe tener al menos 6 caracteres."; authPasswordInput?.focus(); return; }
-    if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; return; }
-    try { const { error } = await supabaseClient.auth.signUp({ email, password }); if (error) throw error; showToast('¡Registro exitoso! Revisa tu email si es necesario.', 'success', 6000); authPasswordInput.value = ''; } catch (error) { console.error("Signup Error:", error); if (authError) authError.textContent = traducirErrorAuth(error.message); }
+    /* ... (sin cambios) ... */
+    if (authError) authError.textContent = ''; const email = authEmailInput?.value; const password = authPasswordInput?.value; if (!email) { if (authError) authError.textContent = "Introduce tu email para registrarte."; authEmailInput?.focus(); return; } if (!password) { if (authError) authError.textContent = "Introduce una contraseña para registrarte."; authPasswordInput?.focus(); return; } if (password.length < 6) { if (authError) authError.textContent = "La contraseña debe tener al menos 6 caracteres."; authPasswordInput?.focus(); return; } if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; return; } try { const { error } = await supabaseClient.auth.signUp({ email, password }); if (error) throw error; showToast('¡Registro exitoso! Revisa tu email si es necesario.', 'success', 6000); authPasswordInput.value = ''; } catch (error) { console.error("Signup Error:", error); if (authError) authError.textContent = traducirErrorAuth(error.message); }
 });
 
 forgotPasswordLink?.addEventListener('click', async (e) => {
     e.preventDefault();
-    if (authError) authError.textContent = '';
-    const email = authEmailInput?.value;
-    if (!email || !/\S+@\S+\.\S+/.test(email)) { if (authError) authError.textContent = "Por favor, introduce un email válido."; authEmailInput?.focus(); return; }
-    if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; console.error("Supabase client not available for password reset."); return; }
-    showToast('Procesando solicitud...', 'info', 2000);
-    try {
-        /* Quitamos redirectTo aquí, usará la config de Supabase */
-        const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
-        if (error) { if (error.message.includes("rate limit") || error.message.includes("For security purposes")) { throw error; } else { console.warn("Password Reset Issue (Supabase treated as success):", error.message); showResetConfirmation(true); } }
-        else { showResetConfirmation(true); }
-    } catch (error) { console.error("Password Reset Error (Catch):", error); if (authError) authError.textContent = traducirErrorAuth(error.message) || "Error al solicitar restablecimiento."; showResetConfirmation(false); }
+    /* ... (sin cambios en la lógica interna, sigue mostrando confirmación) ... */
+    if (authError) authError.textContent = ''; const email = authEmailInput?.value; if (!email || !/\S+@\S+\.\S+/.test(email)) { if (authError) authError.textContent = "Por favor, introduce un email válido."; authEmailInput?.focus(); return; } if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; console.error("Supabase client not available for password reset."); return; } showToast('Procesando solicitud...', 'info', 2000); try { /* Quitamos redirectTo aquí, usará la config de Supabase */ const { error } = await supabaseClient.auth.resetPasswordForEmail(email); if (error) { if (error.message.includes("rate limit") || error.message.includes("For security purposes")) { throw error; } else { console.warn("Password Reset Issue (Supabase treated as success):", error.message); showResetConfirmation(true); } } else { showResetConfirmation(true); } } catch (error) { console.error("Password Reset Error (Catch):", error); if (authError) authError.textContent = traducirErrorAuth(error.message) || "Error al solicitar restablecimiento."; showResetConfirmation(false); }
 });
 
 backToLoginBtn?.addEventListener('click', () => { showResetConfirmation(false); });
 
 /* === LISTENER PARA ACTUALIZAR CONTRASEÑA === */
+/* Modificado para mostrar toast y redirigir al login */
 updatePasswordBtn?.addEventListener('click', async () => {
     const newPassword = resetNewPasswordInput?.value;
     const confirmPassword = resetConfirmPasswordInput?.value;
 
-    if (resetError) resetError.textContent = ''; /* Limpiar error previo */
+    if (resetError) resetError.textContent = '';
 
-    /* Validaciones */
     if (!newPassword || !confirmPassword) { if (resetError) resetError.textContent = "Ambos campos son obligatorios."; return; }
     if (newPassword.length < 6) { if (resetError) resetError.textContent = "La contraseña debe tener al menos 6 caracteres."; return; }
     if (newPassword !== confirmPassword) { if (resetError) resetError.textContent = "Las contraseñas no coinciden."; return; }
     if (!supabaseClient) { if (resetError) resetError.textContent = "Error de configuración."; return; }
 
     try {
-        /* La sesión temporal necesaria para updateUser se obtiene */
-        /* automáticamente por Supabase a partir del fragmento hash */
-        /* que está presente en la URL cuando llegamos a esta vista */
         const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
         if (error) throw error;
 
-        /* Éxito: handleAuthChange detectará el evento SIGNED_IN (por updateUser) */
-        /* y mostrará el mensaje y volverá al login */
-        /* No necesitamos hacer nada más aquí explícitamente tras el éxito */
-         console.log("Update user call successful, waiting for SIGNED_IN event.");
+        /* Éxito: Mostrar mensaje y volver al login */
+        showToast('Contraseña actualizada correctamente. Inicia sesión.', 'success', 5000);
+        /* Limpiar campos por seguridad */
+        if(resetNewPasswordInput) resetNewPasswordInput.value = '';
+        if(resetConfirmPasswordInput) resetConfirmPasswordInput.value = '';
+        /* Volver a la vista de login */
+        showView('auth');
 
     } catch (error) {
         console.error("Update Password Error:", error);
@@ -338,6 +313,7 @@ editForm?.addEventListener('submit', (e) => { /* ... (sin cambios) ... */ e.prev
 cancelEditBtns?.forEach(btn => btn.addEventListener('click', closeEditModal));
 
 /* --- INICIALIZACIÓN --- */
+/* Modificado para usar getSession y dejar que onAuthStateChange maneje PASSWORD_RECOVERY */
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM loaded. Initializing...");
     applyTheme(getInitialTheme());
@@ -350,43 +326,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (!progressChartCanvas) { console.warn("Canvas #progress-chart not found."); }
 
+    /* 1. Configurar el listener ANTES de comprobar la sesión */
     console.log("Setting up onAuthStateChange listener...");
     supabaseClient.auth.onAuthStateChange(handleAuthChange);
 
-    /* === DETECCIÓN DE HASH PARA RESETEO DE CONTRASEÑA === */
-    const hashParams = parseHashParams();
-    let isPasswordRecovery = false;
-
-    if (hashParams.type === 'recovery' && hashParams.access_token) {
-        console.log("Password recovery link detected.");
-        isPasswordRecovery = true;
-        showView('resetPassword'); /* Mostrar la vista de reseteo de contraseña */
-        /* No llamamos a getSession aquí, ya que estamos en un estado de recuperación */
-    }
-    /* === FIN DETECCIÓN HASH === */
-
-
-    /* Si no estamos en recuperación de contraseña, proceder con la carga normal */
-    if (!isPasswordRecovery) {
-        console.log("No password recovery detected. Checking initial session...");
-        supabaseClient.auth.getSession().then(({ data: { session } }) => {
-            console.log("Initial getSession result:", !!session);
-            if (session) {
-                currentUser = session.user;
-                showView('app'); /* Mostrar app si hay sesión */
-                if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
-                initializeAppData();
-            } else {
-                showView('auth'); /* Mostrar login si no hay sesión */
-            }
-            console.log("Initial UI state set based on session.");
-        }).catch(error => {
-            console.error("Error during initial getSession:", error);
-            showView('auth'); /* Fallback a Auth en caso de error */
-        });
-    } else {
-         console.log("Password recovery mode active. Skipping initial session check.");
-    }
+    /* 2. Comprobar la sesión inicial para determinar el estado inicial (logado o no logado) */
+    /* onAuthStateChange se encargará de mostrar la vista de reset si el evento es PASSWORD_RECOVERY */
+    console.log("Checking initial session...");
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        console.log("Initial getSession result:", !!session);
+        if (session) {
+            /* No llamamos a handleAuthChange aquí para evitar doble procesamiento */
+            /* Establecemos estado directamente */
+            currentUser = session.user;
+            showView('app');
+            if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
+            initializeAppData();
+        } else {
+            /* Si no hay sesión, y onAuthStateChange no ha disparado PASSWORD_RECOVERY, mostrar login */
+             /* Pequeña espera para dar tiempo a onAuthStateChange a dispararse si viene de recovery */
+             setTimeout(() => {
+                if (!passwordResetSection?.classList.contains('hidden')) {
+                     /* Ya estamos en la vista de reset, no hacer nada más */
+                     console.log("Password recovery view already active.");
+                } else if (!appSection?.classList.contains('hidden')) {
+                    /* Ya estamos en la vista de app (posible condición de carrera, aunque raro) */
+                    console.log("App view already active.");
+                }
+                else {
+                     /* Mostrar login si ninguna otra vista está activa */
+                     showView('auth');
+                }
+             }, 50); /* 50ms puede ser suficiente, ajustar si es necesario */
+        }
+        console.log("Initial UI check complete.");
+    }).catch(error => {
+        console.error("Error during initial getSession:", error);
+        showView('auth'); /* Fallback a Auth en caso de error */
+    });
 
     console.log("App Initialization sequence started.");
 });
