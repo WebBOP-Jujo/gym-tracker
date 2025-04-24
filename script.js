@@ -160,25 +160,37 @@ const updateChartData = async (forceRender = false) => { if (!graphExerciseSelec
 const renderProgressChart = (labels, data, exName) => { if (!progressChartCanvas) return; if (chartInstance) chartInstance.destroy(); const isDark = document.body.classList.contains('dark-theme'); const cs = getComputedStyle(document.documentElement); const gridClr = cs.getPropertyValue(isDark ? '--chart-grid-color-dark' : '--chart-grid-color'); const textClr = cs.getPropertyValue(isDark ? '--chart-text-color-dark' : '--chart-text-color'); const tooltipBg = cs.getPropertyValue(isDark ? '--chart-tooltip-bg-dark' : '--chart-tooltip-bg'); const tooltipTxt = cs.getPropertyValue(isDark ? '--chart-tooltip-text-dark' : '--chart-tooltip-text'); const pointClr = cs.getPropertyValue('--accent-blue'); const lineClr = cs.getPropertyValue('--accent-blue'); chartInstance = new Chart(progressChartCanvas, { type: 'line', data: { labels: labels, datasets: [{ label: `e1RM Diario (${exName})`, data: data, borderColor: lineClr, backgroundColor: 'rgba(52, 152, 219, 0.1)', borderWidth: 2, tension: 0.1, pointBackgroundColor: pointClr, pointRadius: 3, pointHoverRadius: 5, pointHoverBorderColor: 'white', pointHoverBackgroundColor: pointClr }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { title: { display: true, text: 'e1RM (kg)', color: textClr }, ticks: { color: textClr }, grid: { color: gridClr, drawBorder: false }, grace: '10%' }, x: { title: { display: window.innerWidth > 600, text: 'Fecha', color: textClr }, ticks: { color: textClr, maxRotation: 70, minRotation: 0, autoSkip: true, maxTicksLimit: 10 }, grid: { color: gridClr, drawBorder: false } } }, plugins: { legend: { labels: { color: textClr, boxWidth: 15, font: { size: 10 } } }, tooltip: { backgroundColor: tooltipBg, titleColor: tooltipTxt, bodyColor: tooltipTxt, borderColor: gridClr, borderWidth: 1, callbacks: { label: (ctx) => `${(ctx.dataset.label||'').split('(')[0].trim()}: ${ctx.parsed.y ?? 0} kg` } } } } }); };
 
 /* --- AUTHENTICATION --- */
-/* Modificado para manejar PASSWORD_RECOVERY */
+/* Modificado para usar flag isPasswordRecoveryMode */
 const handleAuthChange = (event, session) => {
     console.log("Auth Event:", event, "| Session:", !!session);
 
     switch (event) {
+        case 'PASSWORD_RECOVERY':
+            console.log("PASSWORD_RECOVERY event detected by SDK.");
+            isPasswordRecoveryMode = true; /* Activar el flag */
+            showView('resetPassword'); /* Mostrar la vista correcta */
+             /* Limpiar URL hash */
+             history.replaceState(null, '', window.location.pathname + window.location.search);
+             /* Guardar la sesión temporal si viene con el evento */
+             if (session && !currentUser) {
+                 currentUser = session.user;
+                 console.log("Temporary user session potentially set via PASSWORD_RECOVERY event:", currentUser?.id);
+             }
+            break; /* Importante salir aquí */
+
         case 'SIGNED_IN':
              /* Comprobar si estamos en modo recuperación para no mostrar la app */
-             /* isPasswordRecoveryMode se establece en el case PASSWORD_RECOVERY */
              if (isPasswordRecoveryMode) {
                  console.log("SIGNED_IN event received during password recovery, ignoring for app view.");
-                 /* No hacemos nada aquí, dejamos que el usuario use el form de reseteo */
-                 /* Podríamos querer guardar el currentUser si no lo tenemos aún */
-                 if (session && !currentUser) {
+                  /* Guardar currentUser si no lo tenemos, pero NO mostrar la app */
+                  if (session && !currentUser) {
                      currentUser = session.user;
-                     console.log("Temporary user session set for password update:", currentUser?.id);
+                     console.log("Temporary user session captured during recovery's SIGNED_IN:", currentUser?.id);
                  }
-                 return; /* Importante: Salir para no mostrar la app */
+                 return; /* Salir para no mostrar la app */
              }
 
+            /* Si NO estamos en modo recuperación, proceder normalmente */
             if (session) {
                 currentUser = session.user;
                 showView('app');
@@ -187,10 +199,11 @@ const handleAuthChange = (event, session) => {
                 if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
                 initializeAppData();
             } else {
-                 console.warn("SIGNED_IN event without session.");
+                 console.warn("SIGNED_IN event without session (and not in recovery mode).");
                  showView('auth');
             }
             break;
+
         case 'SIGNED_OUT':
             currentUser = null;
             isPasswordRecoveryMode = false; /* Asegurar que salimos del modo recuperación */
@@ -205,22 +218,10 @@ const handleAuthChange = (event, session) => {
             /* Limpiar URL hash al cerrar sesión */
             history.replaceState(null, '', window.location.pathname + window.location.search);
             break;
-        case 'PASSWORD_RECOVERY':
-            console.log("PASSWORD_RECOVERY event detected by SDK.");
-            isPasswordRecoveryMode = true; /* Activar el flag */
-            showView('resetPassword'); /* Mostrar la vista correcta */
-             /* Limpiar URL hash */
-             history.replaceState(null, '', window.location.pathname + window.location.search);
-             /* Guardar la sesión temporal si viene con el evento (puede que no) */
-             if (session && !currentUser) {
-                 currentUser = session.user;
-                 console.log("Temporary user session potentially set via PASSWORD_RECOVERY event:", currentUser?.id);
-             }
-            break;
+
         case 'USER_UPDATED':
-            /* Este evento se dispara después de updateUser. */
             if (session) {
-                currentUser = session.user; /* Actualizar currentUser por si acaso */
+                currentUser = session.user; /* Actualizar currentUser */
                 if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
                  console.log("USER_UPDATED event", currentUser);
             } else {
@@ -228,8 +229,9 @@ const handleAuthChange = (event, session) => {
             }
             /* El flujo de volver al login se maneja ahora en el listener del botón updateUser */
             break;
+
         case 'INITIAL_SESSION':
-            console.log("INITIAL_SESSION event (handled by listener setup).");
+            console.log("INITIAL_SESSION event (handled by listener setup + getSession).");
             break;
         default:
             console.log("Unhandled Auth Event:", event);
@@ -251,7 +253,7 @@ signupBtn?.addEventListener('click', async () => {
     if (authError) authError.textContent = ''; const email = authEmailInput?.value; const password = authPasswordInput?.value; if (!email) { if (authError) authError.textContent = "Introduce tu email para registrarte."; authEmailInput?.focus(); return; } if (!password) { if (authError) authError.textContent = "Introduce una contraseña para registrarte."; authPasswordInput?.focus(); return; } if (password.length < 6) { if (authError) authError.textContent = "La contraseña debe tener al menos 6 caracteres."; authPasswordInput?.focus(); return; } if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; return; } try { const { error } = await supabaseClient.auth.signUp({ email, password }); if (error) throw error; showToast('¡Registro exitoso! Revisa tu email si es necesario.', 'success', 6000); authPasswordInput.value = ''; } catch (error) { console.error("Signup Error:", error); if (authError) authError.textContent = traducirErrorAuth(error.message); }
 });
 
-/* === LISTENER RESTABLECER CONTRASEÑA (MODIFICADO CON redirectTo) === */
+/* Listener para solicitar restablecimiento (con redirectTo explícito) */
 forgotPasswordLink?.addEventListener('click', async (e) => {
     e.preventDefault();
     if (authError) authError.textContent = '';
@@ -261,14 +263,9 @@ forgotPasswordLink?.addEventListener('click', async (e) => {
 
     showToast('Procesando solicitud...', 'info', 2000);
     try {
-        /* --- AÑADIR redirectTo EXPLÍCITAMENTE --- */
         const redirectUrl = 'https://webbop-jujo.github.io/gym-tracker/';
         console.log('Requesting password reset with redirect to:', redirectUrl);
-
-        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-            redirectTo: redirectUrl,
-        });
-        /* --- FIN redirectTo --- */
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl });
 
         if (error) {
             if (error.message.includes("rate limit") || error.message.includes("For security purposes")) { throw error; }
@@ -282,17 +279,15 @@ forgotPasswordLink?.addEventListener('click', async (e) => {
         showResetConfirmation(false);
     }
 });
-/* === FIN LISTENER MODIFICADO === */
 
 backToLoginBtn?.addEventListener('click', () => { showResetConfirmation(false); });
 
-/* === LISTENER PARA ACTUALIZAR CONTRASEÑA === */
-/* Modificado para mostrar toast y redirigir al login */
+/* Listener para ACTUALIZAR la contraseña */
 updatePasswordBtn?.addEventListener('click', async () => {
     const newPassword = resetNewPasswordInput?.value;
     const confirmPassword = resetConfirmPasswordInput?.value;
 
-    if (resetError) resetError.textContent = ''; /* Limpiar error previo */
+    if (resetError) resetError.textContent = ''; /* Limpiar error */
 
     /* Validaciones */
     if (!newPassword || !confirmPassword) { if (resetError) resetError.textContent = "Ambos campos son obligatorios."; return; }
@@ -301,16 +296,16 @@ updatePasswordBtn?.addEventListener('click', async () => {
     if (!supabaseClient) { if (resetError) resetError.textContent = "Error de configuración."; return; }
 
     try {
-        /* La sesión temporal necesaria se obtiene automáticamente por el SDK */
+        /* updateUser usa la sesión temporal establecida por PASSWORD_RECOVERY */
         const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
 
         if (error) throw error;
 
-        /* Éxito: Mostrar mensaje y volver al login */
+        /* Éxito */
         console.log("Password update successful:", data);
         showToast('Contraseña actualizada correctamente. Inicia sesión.', 'success', 5000);
-        isPasswordRecoveryMode = false; /* Desactivar flag */
-        /* Limpiar campos por seguridad */
+        isPasswordRecoveryMode = false; /* IMPORTANTE: Desactivar flag */
+        /* Limpiar campos */
         if(resetNewPasswordInput) resetNewPasswordInput.value = '';
         if(resetConfirmPasswordInput) resetConfirmPasswordInput.value = '';
         /* Volver a la vista de login */
@@ -319,10 +314,9 @@ updatePasswordBtn?.addEventListener('click', async () => {
     } catch (error) {
         console.error("Update Password Error:", error);
         if (resetError) resetError.textContent = traducirErrorAuth(error.message);
-        isPasswordRecoveryMode = false; /* Desactivar flag también en caso de error */
+        isPasswordRecoveryMode = false; /* Desactivar flag también en error */
     }
 });
-/* === FIN LISTENER ACTUALIZAR === */
 
 logoutMenuBtn?.addEventListener('click', async () => { if (!currentUser) { showView('auth'); return; } if (!supabaseClient) { showToast('Error interno.', 'error'); return; } try { const { error } = await supabaseClient.auth.signOut(); if (error) throw error; } catch (error) { console.error("Logout Err:", error); if (error.message?.includes("Auth session missing")) { showToast('Sesión expirada.', 'info'); showView('auth'); } else showToast(`Error logout: ${error.message}`, 'error'); } });
 userMenuBtn?.addEventListener('click', (e) => { e.stopPropagation(); if (userMenuDropdown) { const hidden = userMenuDropdown.classList.toggle('hidden'); userMenuBtn.setAttribute('aria-expanded', String(!hidden)); } });
@@ -347,7 +341,7 @@ editForm?.addEventListener('submit', (e) => { e.preventDefault(); if (!editEntry
 cancelEditBtns?.forEach(btn => btn.addEventListener('click', closeEditModal));
 
 /* --- INICIALIZACIÓN --- */
-/* Simplificado: Deja que onAuthStateChange maneje el estado inicial */
+/* Reintroduce getSession para el estado inicial, pero prioriza PASSWORD_RECOVERY */
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM loaded. Initializing...");
     applyTheme(getInitialTheme()); /* Aplicar tema primero */
@@ -360,11 +354,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (!progressChartCanvas) { console.warn("Canvas #progress-chart not found."); }
 
-    /* Simplemente configurar el listener. */
-    /* Él determinará la vista inicial (auth, app, o resetPassword) */
-    /* basado en el PRIMER evento que reciba. */
-    console.log("Setting up onAuthStateChange listener to handle initial state...");
+    /* 1. Configurar el listener PRIMERO para capturar PASSWORD_RECOVERY */
+    console.log("Setting up onAuthStateChange listener...");
     supabaseClient.auth.onAuthStateChange(handleAuthChange);
 
-    console.log("App Initialization sequence started. Waiting for auth state...");
+    /* 2. Comprobar la sesión inicial DESPUÉS de configurar el listener */
+    console.log("Checking initial session via getSession()...");
+    supabaseClient.auth.getSession().then(({ data: { session }, error }) => {
+        if (error) {
+            console.error("Error getting initial session:", error);
+            if (!isPasswordRecoveryMode) { /* Solo mostrar auth si NO estamos en modo recovery */
+                 showView('auth');
+            }
+            return;
+        }
+
+        /* Importante: Solo actuar si onAuthStateChange NO ha establecido ya el modo recovery */
+        if (!isPasswordRecoveryMode) {
+            if (session) {
+                console.log("Initial session found via getSession. Showing app.");
+                currentUser = session.user;
+                showView('app');
+                if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
+                initializeAppData();
+            } else {
+                console.log("No initial session found via getSession. Showing auth.");
+                showView('auth');
+            }
+        } else {
+            console.log("getSession completed, but password recovery mode is already active. No view change needed here.");
+             /* Asegurar que currentUser esté asignado si hay sesión (necesario para updateUser) */
+             if (session && !currentUser) {
+                 currentUser = session.user;
+                 console.log("User captured from getSession during recovery mode:", currentUser?.id);
+             }
+        }
+        console.log("Initial UI state check complete.");
+
+    }).catch(error => {
+        console.error("Catch block: Error during initial getSession:", error);
+         if (!isPasswordRecoveryMode) { /* Solo mostrar auth si NO estamos en modo recovery */
+             showView('auth');
+        }
+    });
+
+    console.log("App Initialization sequence started.");
 });
