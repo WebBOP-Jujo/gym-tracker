@@ -90,7 +90,26 @@ const handleAuthChange = (event, session) => { console.log("Auth:", event, "| Se
 const initializeAppData = async () => { if (!currentUser) return; console.log("Init App Data..."); if (workoutDateInput) { try { workoutDateInput.valueAsDate = new Date(); } catch (e) { workoutDateInput.value = new Date().toISOString().split('T')[0]; } } if (filterDateInput) filterDateInput.value = ''; const days = await fetchTotalWorkoutDays(); if (historyCountSpan) historyCountSpan.textContent = `(Total: ${days} días)`; const exercises = await fetchMasterExerciseList(); if (!exercises.length && currentUser && supabaseClient) { if (await insertDefaultExercises()) await fetchMasterExerciseList(); } await fetchAndDisplayWorkoutHistory('recent'); updateSetsUI(1); hideChart(); console.log("App Data Initialized."); };
 /* --- THEME MANAGEMENT --- */
 const applyTheme = (theme) => { const isDark = theme === 'dark'; document.body.classList.toggle('dark-theme', isDark); themeToggleBtn?.querySelector('i')?.setAttribute('class', isDark ? 'fas fa-sun' : 'fas fa-moon'); try { localStorage.setItem(THEME_STORAGE_KEY, theme); console.log(`Theme applied: ${theme}`); if (chartInstance && chartContainer && !chartContainer.classList.contains('hidden')) { console.log("Re-rendering chart for new theme..."); updateChartData(true); } } catch (e) { console.error("Failed to save theme preference:", e); } };
-const getInitialTheme = () => { let theme = 'light'; try { const stored = localStorage.getItem(THEME_STORAGE_KEY); if (stored === 'dark' || stored === 'light') { theme = stored; } else if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) { theme = 'dark'; } } catch (e) { console.error("Failed to read theme pref:", e); } console.log(`Initial theme: ${theme}`); return theme; };
+const getInitialTheme = () => {
+    // 1. Establecer 'dark' como el valor predeterminado absoluto
+    let theme = 'dark';
+    try {
+        const stored = localStorage.getItem(THEME_STORAGE_KEY);
+
+        // 2. ÚNICAMENTE cambiar a 'light' si está explícitamente guardado
+        if (stored === 'light') {
+            theme = 'light';
+        }
+        // No es necesario comprobar 'dark' almacenado (ya es el predeterminado).
+        // No es necesario comprobar 'prefers-color-scheme'.
+
+    } catch (e) {
+        console.error("Failed to read theme pref, defaulting to dark:", e);
+        // En caso de error al leer, también se mantiene 'dark'
+    }
+    console.log(`Initial theme determined: ${theme}`);
+    return theme;
+	};
 /* --- EVENT LISTENERS --- */
 /* CORREGIDO Listener Login */
 loginBtn?.addEventListener('click', async () => {
