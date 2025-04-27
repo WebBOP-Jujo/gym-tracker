@@ -18,6 +18,7 @@ let masterExerciseList = []; let workoutHistory = {}; let loadedDatesSet = new S
 let currentUser = null; let chartInstance = null; let exercisesWithHistory = new Set();
 const THEME_STORAGE_KEY = 'gymTrackerThemePreference';
 let isPasswordRecoveryMode = false; /* Flag para controlar el flujo */
+let initialAuthCheckComplete = false; /* Flag para estado inicial */
 
 /* --- DOM Elements --- */
 const authSection = document.getElementById('auth-section');
@@ -163,6 +164,7 @@ const renderProgressChart = (labels, data, exName) => { if (!progressChartCanvas
 /* Modificado para usar flag isPasswordRecoveryMode */
 const handleAuthChange = (event, session) => {
     console.log("Auth Event:", event, "| Session:", !!session);
+    initialAuthCheckComplete = true; /* Marcar que el primer evento ha llegado */
 
     switch (event) {
         case 'PASSWORD_RECOVERY':
@@ -179,10 +181,8 @@ const handleAuthChange = (event, session) => {
             break; /* Importante salir aquí */
 
         case 'SIGNED_IN':
-             /* Comprobar si estamos en modo recuperación para no mostrar la app */
              if (isPasswordRecoveryMode) {
                  console.log("SIGNED_IN event received during password recovery, ignoring for app view.");
-                  /* Guardar currentUser si no lo tenemos, pero NO mostrar la app */
                   if (session && !currentUser) {
                      currentUser = session.user;
                      console.log("Temporary user session captured during recovery's SIGNED_IN:", currentUser?.id);
@@ -190,23 +190,25 @@ const handleAuthChange = (event, session) => {
                  return; /* Salir para no mostrar la app */
              }
 
-            /* Si NO estamos en modo recuperación, proceder normalmente */
+            /* Proceder normalmente si NO estamos en modo recuperación */
             if (session) {
                 currentUser = session.user;
                 showView('app');
                 if (authError) authError.textContent = '';
                 if (resetError) resetError.textContent = '';
                 if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
-                initializeAppData();
+                initializeAppData(); /* Cargar datos SOLO si se muestra la app */
             } else {
                  console.warn("SIGNED_IN event without session (and not in recovery mode).");
+                 /* Si esto ocurre, significa que la sesión expiró o hubo un problema */
+                 isPasswordRecoveryMode = false; /* Asegurar reset del flag */
                  showView('auth');
             }
             break;
 
         case 'SIGNED_OUT':
             currentUser = null;
-            isPasswordRecoveryMode = false; /* Asegurar que salimos del modo recuperación */
+            isPasswordRecoveryMode = false; /* Asegurar reset del flag */
             showView('auth');
             /* Limpieza de estado */
             masterExerciseList = []; workoutHistory = {}; loadedDatesSet = new Set(); exercisesWithHistory.clear();
@@ -215,30 +217,30 @@ const handleAuthChange = (event, session) => {
             if (historyCountSpan) historyCountSpan.textContent = '(Total: 0 días)';
             clearWorkoutForm(); populateExerciseDropdowns(); populateGraphExerciseDropdown(); hideChart();
             if (filterDateInput) filterDateInput.value = '';
-            /* Limpiar URL hash al cerrar sesión */
+            /* Limpiar URL hash */
             history.replaceState(null, '', window.location.pathname + window.location.search);
             break;
 
         case 'USER_UPDATED':
             if (session) {
-                currentUser = session.user; /* Actualizar currentUser */
+                currentUser = session.user;
                 if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
                  console.log("USER_UPDATED event", currentUser);
             } else {
                  console.log("USER_UPDATED event without session.");
             }
-            /* El flujo de volver al login se maneja ahora en el listener del botón updateUser */
             break;
 
         case 'INITIAL_SESSION':
-            console.log("INITIAL_SESSION event (handled by listener setup + getSession).");
+            /* Ya no dependemos de este evento para la lógica principal */
+            console.log("INITIAL_SESSION event received.");
             break;
         default:
             console.log("Unhandled Auth Event:", event);
     }
 };
 
-const initializeAppData = async () => { if (!currentUser) return; console.log("Init App Data..."); if (workoutDateInput) { try { workoutDateInput.valueAsDate = new Date(); } catch (e) { workoutDateInput.value = new Date().toISOString().split('T')[0]; } } if (filterDateInput) filterDateInput.value = ''; const days = await fetchTotalWorkoutDays(); if (historyCountSpan) historyCountSpan.textContent = `(Total: ${days} días)`; const exercises = await fetchMasterExerciseList(); if (!exercises.length && currentUser && supabaseClient) { if (await insertDefaultExercises()) await fetchMasterExerciseList(); } await fetchAndDisplayWorkoutHistory('recent'); updateSetsUI(1); hideChart(); console.log("App Data Initialized."); };
+const initializeAppData = async () => { if (!currentUser) { console.warn("initializeAppData called without currentUser!"); return; } console.log("Init App Data..."); if (workoutDateInput) { try { workoutDateInput.valueAsDate = new Date(); } catch (e) { workoutDateInput.value = new Date().toISOString().split('T')[0]; } } if (filterDateInput) filterDateInput.value = ''; const days = await fetchTotalWorkoutDays(); if (historyCountSpan) historyCountSpan.textContent = `(Total: ${days} días)`; const exercises = await fetchMasterExerciseList(); if (!exercises.length && currentUser && supabaseClient) { if (await insertDefaultExercises()) await fetchMasterExerciseList(); } await fetchAndDisplayWorkoutHistory('recent'); updateSetsUI(1); hideChart(); console.log("App Data Initialized."); };
 
 /* --- THEME MANAGEMENT --- */
 const applyTheme = (theme) => { const isDark = theme === 'dark'; document.body.classList.toggle('dark-theme', isDark); themeToggleBtn?.querySelector('i')?.setAttribute('class', isDark ? 'fas fa-sun' : 'fas fa-moon'); try { localStorage.setItem(THEME_STORAGE_KEY, theme); console.log(`Theme applied: ${theme}`); if (chartInstance && chartContainer && !chartContainer.classList.contains('hidden')) { console.log("Re-rendering chart for new theme..."); updateChartData(true); } } catch (e) { console.error("Failed to save theme preference:", e); } };
@@ -246,7 +248,7 @@ const getInitialTheme = () => { let theme = 'dark'; /* Predeterminado oscuro */ 
 
 /* --- EVENT LISTENERS --- */
 loginBtn?.addEventListener('click', async () => {
-    if (authError) authError.textContent = ''; const email = authEmailInput?.value; const password = authPasswordInput?.value; if (!email) { if (authError) authError.textContent = "Por favor, introduce tu email."; authEmailInput?.focus(); return; } if (!password) { if (authError) authError.textContent = "Por favor, introduce tu contraseña."; authPasswordInput?.focus(); return; } if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; console.error("Supabase client not available for login."); return; } try { const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) throw error; console.log("Login attempt successful for:", email); } catch (error) { console.error("Login Error:", error); if (authError) authError.textContent = traducirErrorAuth(error.message); }
+    if (authError) authError.textContent = ''; const email = authEmailInput?.value; const password = authPasswordInput?.value; if (!email) { if (authError) authError.textContent = "Por favor, introduce tu email."; authEmailInput?.focus(); return; } if (!password) { if (authError) authError.textContent = "Por favor, introduce tu contraseña."; authPasswordInput?.focus(); return; } if (!supabaseClient) { if (authError) authError.textContent = "Error de configuración."; console.error("Supabase client not available for login."); return; } try { const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) throw error; console.log("Login attempt successful for:", email); /* onAuthStateChange se encargará */ } catch (error) { console.error("Login Error:", error); if (authError) authError.textContent = traducirErrorAuth(error.message); }
 });
 
 signupBtn?.addEventListener('click', async () => {
@@ -296,7 +298,6 @@ updatePasswordBtn?.addEventListener('click', async () => {
     if (!supabaseClient) { if (resetError) resetError.textContent = "Error de configuración."; return; }
 
     try {
-        /* updateUser usa la sesión temporal establecida por PASSWORD_RECOVERY */
         const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
 
         if (error) throw error;
@@ -341,7 +342,7 @@ editForm?.addEventListener('submit', (e) => { e.preventDefault(); if (!editEntry
 cancelEditBtns?.forEach(btn => btn.addEventListener('click', closeEditModal));
 
 /* --- INICIALIZACIÓN --- */
-/* Reintroduce getSession para el estado inicial, pero prioriza PASSWORD_RECOVERY */
+/* Simplificado: Depende de onAuthStateChange para el estado inicial */
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM loaded. Initializing...");
     applyTheme(getInitialTheme()); /* Aplicar tema primero */
@@ -354,49 +355,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (!progressChartCanvas) { console.warn("Canvas #progress-chart not found."); }
 
-    /* 1. Configurar el listener PRIMERO para capturar PASSWORD_RECOVERY */
-    console.log("Setting up onAuthStateChange listener...");
+    /* Configurar el listener. Él determinará la vista inicial. */
+    console.log("Setting up onAuthStateChange listener to handle initial state...");
     supabaseClient.auth.onAuthStateChange(handleAuthChange);
 
-    /* 2. Comprobar la sesión inicial DESPUÉS de configurar el listener */
-    console.log("Checking initial session via getSession()...");
-    supabaseClient.auth.getSession().then(({ data: { session }, error }) => {
-        if (error) {
-            console.error("Error getting initial session:", error);
-            if (!isPasswordRecoveryMode) { /* Solo mostrar auth si NO estamos en modo recovery */
-                 showView('auth');
-            }
-            return;
+    /* Añadir un pequeño timeout para mostrar Auth si onAuthStateChange no ha disparado nada útil */
+    setTimeout(() => {
+        if (!initialAuthCheckComplete) {
+             console.log("onAuthStateChange listener didn't fire quickly. Showing Auth view as default.");
+             showView('auth'); /* Muestra Auth si el listener tarda mucho o no dispara */
         }
+    }, 1000); /* 1 segundo de espera, ajustar si es necesario */
 
-        /* Importante: Solo actuar si onAuthStateChange NO ha establecido ya el modo recovery */
-        if (!isPasswordRecoveryMode) {
-            if (session) {
-                console.log("Initial session found via getSession. Showing app.");
-                currentUser = session.user;
-                showView('app');
-                if (userEmailDisplay) userEmailDisplay.textContent = currentUser.email || 'Usuario';
-                initializeAppData();
-            } else {
-                console.log("No initial session found via getSession. Showing auth.");
-                showView('auth');
-            }
-        } else {
-            console.log("getSession completed, but password recovery mode is already active. No view change needed here.");
-             /* Asegurar que currentUser esté asignado si hay sesión (necesario para updateUser) */
-             if (session && !currentUser) {
-                 currentUser = session.user;
-                 console.log("User captured from getSession during recovery mode:", currentUser?.id);
-             }
-        }
-        console.log("Initial UI state check complete.");
-
-    }).catch(error => {
-        console.error("Catch block: Error during initial getSession:", error);
-         if (!isPasswordRecoveryMode) { /* Solo mostrar auth si NO estamos en modo recovery */
-             showView('auth');
-        }
-    });
-
-    console.log("App Initialization sequence started.");
+    console.log("App Initialization sequence started. Waiting for auth state...");
 });
